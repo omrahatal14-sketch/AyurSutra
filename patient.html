@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AyurSutra Patient Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+
+<body>
+<div class="app-layout">
+  <!-- MAIN CONTENT -->
+  <div class="main-content" style="padding-top:0;">
+    <!-- TOPBAR -->
+    <header class="topbar" style="padding-left: 24px; gap: 20px; background: transparent; border-bottom: none; height: auto; padding-top: 20px; padding-bottom: 20px;">
+      <div class="topbar-left" style="display: flex; align-items: center; gap: 24px;">
+        <div class="brand" style="display: flex; align-items: center; gap: 12px; min-width: max-content;">
+          <img src="Image/Logo.png" class="logo-img" style="width: 40px; height: 40px; border-radius: 8px;">
+          <div class="brand-text">
+            <h2 style="font-size: 20px; font-weight: 700; margin: 0; color: var(--text-main);">AyurSutra</h2>
+            <span style="font-size: 12px; color: var(--text-muted);">Panchakarma Management System</span>
+          </div>
+        </div>
+        <button class="menu-toggle" id="menuToggle">Menu</button>
+      </div>
+      <div class="topbar-right">
+        <button id="themeToggle" class="btn ghost small">Dark</button>
+        <div class="user-profile">
+          <div class="user-info">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role">Patient</div>
+          </div>
+          <button class="btn small danger" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="secondary-nav-container" style="display: flex; justify-content: center; padding: 0 32px 20px 32px;">
+      <nav class="nav-menu" style="display: inline-flex; gap: 8px; background: var(--card-bg); padding: 8px; border-radius: 100px; box-shadow: var(--shadow-sm); overflow-x: auto; max-width: 100%; border: 1px solid var(--border-color);">
+        <button class="tab active" onclick="showTab('dashboard',this)"><span class="label">Dashboard</span></button>
+        <button class="tab" onclick="showTab('sessions',this)"><span class="label">Sessions</span></button>
+        <button class="tab" onclick="showTab('request',this)"><span class="label">Request</span></button>
+        <button class="tab" onclick="showTab('consult',this)"><span class="label">Consult AI</span></button>
+        <button class="tab" onclick="showTab('feedback',this)"><span class="label">Feedback</span></button>
+        <button class="tab" onclick="showTab('therapies',this)"><span class="label">Our Therapy's</span></button>
+      </nav>
+    </div>
+
+    <main class="views-container">
+      <div class="two-col-grid">
+        <div class="left-col">
+          <!-- DASHBOARD -->
+          <section id="dashboard" class="view section active">
+            <div class="page-header"><div class="page-title"><h2>Welcome to AyurSutra</h2><p>Track your Panchakarma journey</p></div></div>
+            <div class="stats-grid">
+              <div class="stat-card card"><div class="stat-info"><h4 id="m1">0</h4><p>Total Sessions</p></div></div>
+              <div class="stat-card card"><div class="stat-info"><h4 id="m2">0</h4><p>Approved</p></div></div>
+              <div class="stat-card card"><div class="stat-info"><h4 id="m3">0</h4><p>Pending</p></div></div>
+            </div>
+            <div class="card">
+              <h4 class="card-title">Next Session</h4>
+              <div id="nextSession" class="list">No session scheduled</div>
+            </div>
+          </section>
+
+          <!-- SESSIONS -->
+          <section id="sessions" class="view section" style="display:none">
+            <div class="page-header"><div class="page-title"><h2>Approved Sessions</h2></div></div>
+            <div class="card"><div id="sessionList" class="list"></div></div>
+          </section>
+
+          <!-- REQUESTS -->
+          <section id="request" class="view section" style="display:none">
+            <div class="page-header"><div class="page-title"><h2>Request Therapy Session</h2></div></div>
+            <div class="card" style="max-width:500px;">
+              <div class="form-field"><label>Therapy</label>
+                <select id="therapy">
+                  <option>Abhyanga (Massage)</option>
+                  <option>Shirodhara (Oil Pouring)</option>
+                  <option>Vamana (Emesis Therapy)</option>
+                  <option>Virechana (Purgation Therapy)</option>
+                  <option>Basti (Enema Therapy)</option>
+                  <option>Nasya (Nasal Administration)</option>
+                  <option>Raktamokshana (Bloodletting)</option>
+                  <option>Kati Basti (Back Care)</option>
+                  <option>Janu Basti (Knee Care)</option>
+                  <option>Griva Basti (Neck Care)</option>
+                  <option>Udvartana (Powder Massage)</option>
+                  <option>Pizhichil (Oil Bath)</option>
+                  <option>Navarakizhi (Rice Bolus)</option>
+                  <option>Swedana (Herbal Steam)</option>
+                  <option>Netra Tarpana (Eye Care)</option>
+                  <option>Karnapoorana (Ear Care)</option>
+                </select>
+              </div>
+              <div class="form-field"><label>Doctor</label><select id="doctorSelect"><option value="">Select Doctor</option></select></div>
+              <div class="form-row">
+                <div class="form-field"><label>Date</label><input type="date" id="date"></div>
+                <div class="form-field"><label>Time</label><input type="time" id="time"></div>
+              </div>
+              <button class="btn" onclick="sendRequest()">Request</button>
+            </div>
+            <h4 style="margin-top:20px;">My Requests</h4>
+            <div id="requestList" class="list"></div>
+          </section>
+
+          <!-- CONSULT AI -->
+          <section id="consult" class="view section" style="display:none">
+            <div class="page-header"><div class="page-title"><h2>AI Ayurvedic Consultation</h2><p>Enter your symptoms to receive therapy suggestions.</p></div></div>
+            <div class="card">
+              <textarea id="symptomsInput" placeholder="Describe how you feel..." rows="4"></textarea>
+              <button class="btn" style="margin-top:15px;" onclick="getTreatmentSuggestion()">Get Suggestions</button>
+              <div id="suggestionResult" style="margin-top: 25px;"></div>
+            </div>
+          </section>
+
+          <!-- FEEDBACK -->
+          <section id="feedback" class="view section" style="display:none">
+            <div class="page-header"><div class="page-title"><h2>Feedback</h2></div></div>
+            <div class="card" style="max-width:500px;">
+              <div class="form-field"><label>Doctor</label><select id="feedbackDoctorSelect"><option value="">Select Doctor</option></select></div>
+              <div class="form-row">
+                <div class="form-field"><label>Pain (1-10)</label><input type="number" id="pain" min="1" max="10"></div>
+                <div class="form-field"><label>Energy (1-10)</label><input type="number" id="energy" min="1" max="10"></div>
+              </div>
+              <div class="form-field"><label>Satisfaction (1-5)</label><input type="number" id="satisfaction" min="1" max="5"></div>
+              <div class="form-field"><label>Notes</label><textarea id="notes" rows="3"></textarea></div>
+              <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
+                <input type="checkbox" id="reportIssue" style="width:16px; margin:0;" />
+                <label for="reportIssue" style="margin:0;">Report Issue (e.g., misconduct)</label>
+              </div>
+              <button class="btn" style="margin-top:15px;" onclick="submitFeedbackFirebase()">Submit Feedback</button>
+            </div>
+            <h4 style="margin-top:20px;">My Feedback History</h4>
+            <div id="feedbackList" class="list"></div>
+          </section>
+
+          <!-- OUR THERAPIES -->
+          <section id="therapies" class="view section" style="display:none">
+            <div class="page-header"><div class="page-title"><h2>Our Therapy's</h2><p>Explore the Ayurvedic treatments we offer and their fees</p></div></div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Panchakarma (Complete)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹12,000</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Vamana (Emesis)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹7,000</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Virechana (Purgation)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹6,500</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Basti (Enema)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹6,000</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Nasya (Nasal)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹4,500</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Raktamokshana</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹5,000</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Abhyanga (Massage)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹2,500</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Shirodhara</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹4,000</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Kati Basti</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹3,500</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Janu Basti</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹3,500</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Griva Basti</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹3,500</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Udvartana</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹3,000</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Pizhichil</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹5,500</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Navarakizhi</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹5,000</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Swedana (Steam)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹2,000</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Netra Tarpana</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹2,500</p></div></div>
+              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Karnapoorana</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹2,000</p></div></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- RIGHT SIDEBAR (Global inside views-container) -->
+        <div class="right-col">
+          <div class="card">
+            <h4 class="card-title">Notifications</h4>
+            <div id="patientNotificationsList" class="list">Loading...</div>
+          </div>
+          <div class="card" style="margin-top:15px">
+            <h4 class="card-title">AI Chatbot</h4>
+            <div id="chatMessages" class="chat-container"></div>
+            <div style="display:flex;gap:8px;">
+              <input id="chatInput" placeholder="Ask something..." style="margin-top:0;">
+              <button class="btn" onclick="sendMessage()">Send</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+
+// TAB SWITCH
+function showTab(id,el){
+  document.querySelectorAll('.section')
+    .forEach(sec=>sec.style.display="none")
+
+  document.getElementById(id).style.display="block"
+
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'))
+  el.classList.add('active')
+}
+
+document.getElementById('menuToggle')?.addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+});
+
+document.getElementById('themeToggle')?.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  document.getElementById('themeToggle').textContent = isDark ? 'Light' : 'Dark';
+});
+
+// DATA
+let requests = JSON.parse(localStorage.getItem("req")) || []
+let sessions = JSON.parse(localStorage.getItem("sess")) || []
+let feedbacks = []
+
+// ADD REQUEST
+function addRequest(){
+  let r = {
+    therapy:therapy.value,
+    date:date.value,
+    time:time.value,
+    status:"Pending"
+  }
+  requests.push(r)
+  localStorage.setItem("req",JSON.stringify(requests))
+  render()
+}
+
+// RENDER
+function render(){
+  let rHTML=""
+  requests.forEach(r=>{
+    rHTML+=`<div class="list-item">${r.therapy} | ${r.date} | ${r.time}<br>Status: <span class="pending">${r.status}</span></div>`
+  })
+  requestList.innerHTML=rHTML
+
+  let sHTML="",approved=0
+  sessions.forEach(s=>{
+    if(s.status==="Approved"){
+      approved++
+      sHTML+=`<div class="list-item">${s.therapy} | ${s.date}</div>`
+    }
+  })
+  sessionList.innerHTML=sHTML
+
+  m1.innerText=sessions.length
+  m2.innerText=approved
+  m3.innerText=requests.length
+
+  let next=sessions.find(s=>s.status==="Approved")
+  nextSession.innerText = next ? `${next.date} | ${next.therapy}` : "No session"
+}
+
+// FEEDBACK MOVED TO FIREBASE
+
+
+render()
+
+</script>
+<script>
+window.chatHistory = [];
+function addMessage(sender, text) {
+  const chat = document.getElementById("chatMessages");
+  const cls = sender === "You" ? "chat-me" : "chat-bot";
+  const name = sender === "You" ? "" : `<b>${sender}</b>`;
+  const isTyping = text === "typing...";
+  const idAttr = isTyping ? 'id="typingIndicator"' : '';
+  chat.innerHTML += `<div class="${cls}" ${idAttr}>${name}${text}</div>`;
+  chat.scrollTop = chat.scrollHeight;
+}
+</script>
+<script type="module">
+import { collection, addDoc, getDocs, query, where, updateDoc, doc } from "./js/firebase-sql-mock.js?v=2";
+
+import { GEMINI_API_KEY } from "./js/env.js";
+
+const db = null;
+
+function getCurrentPatient() {
+  if (window.currentUser) return window.currentUser;
+
+  try {
+    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+    if (storedUser?.role === "patient") {
+      window.currentUser = storedUser;
+      return storedUser;
+    }
+  } catch (err) {
+    console.error("Could not read logged-in patient", err);
+  }
+
+  return null;
+}
+
+window.sendMessage = async function() {
+  const input = document.getElementById("chatInput");
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  addMessage("You", msg);
+  input.value = "";
+  addMessage("Bot", "typing...");
+  
+  try {
+const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;    
+    const contents = [];
+    if (window.chatHistory) {
+      window.chatHistory.forEach(h => {
+        contents.push({ role: h.role === "assistant" ? "model" : "user", parts: [{ text: h.text }] });
+      });
+    }
+    contents.push({ role: "user", parts: [{ text: msg }] });
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ 
+        system_instruction: { parts: { text: "You are an Ayurvedic health assistant answering queries for a Panchakarma patient. Keep your answers concise and helpful." } },
+        contents: contents 
+      })
+    });
+
+    const data = await response.json();
+    
+    const typing = document.getElementById("typingIndicator");
+    if (typing) typing.remove();
+    
+    if (data.error) {
+      addMessage("Bot", "Error: " + data.error.message);
+    } else {
+      const reply = data.candidates[0].content.parts[0].text;
+      addMessage("Bot", reply);
+      
+      if (!window.chatHistory) window.chatHistory = [];
+      window.chatHistory.push({ role: "user", text: msg });
+      window.chatHistory.push({ role: "assistant", text: reply });
+    }
+  } catch (err) {
+    console.error(err);
+    const typing = document.getElementById("typingIndicator");
+    if (typing) typing.remove();
+    addMessage("Bot", "Failed to connect to AI backend. Ensure you inserted a valid OpenAI API key in env.js.");
+  }
+}
+
+// ✅ EXISTING FUNCTION
+window.sendRequest = async function () {
+
+  const therapy = document.getElementById("therapy").value;
+  const date = document.getElementById("date").value;
+  const time = document.getElementById("time").value;
+  const doctorEmail = document.getElementById("doctorSelect").value;
+
+  const user = getCurrentPatient();
+
+  if (!doctorEmail) {
+    alert("Please select a doctor");
+    return;
+  }
+
+  await addDoc(collection(db, "requests"), {
+    patientEmail: user.email,
+    doctorEmail: doctorEmail, // ✅ THIS FIXES YOUR PROBLEM
+    therapy,
+    date,
+    time,
+    status: "pending"
+  });
+
+  alert("Request sent!");
+  loadRequests();
+};
+
+let currentUserEmail = "";
+
+async function getUserName(email) {
+  const snapshot = await getDocs(collection(db, "users"));
+
+  let name = email;
+
+  snapshot.forEach(doc => {
+    const d = doc.data();
+    if (d.email === email) {
+      name = d.name;
+    }
+  });
+
+  return name;
+}
+
+function formatDisplayDate(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (!Number.isNaN(date.getTime())) {
+    return date.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  }
+
+  return String(value).split("T")[0];
+}
+
+function getSessionStartDateTime(session) {
+  const date = formatDisplayDate(session.date);
+  if (!date || !session.time) return null;
+
+  const dateTime = new Date(`${date}T${session.time}`);
+  return Number.isNaN(dateTime.getTime()) ? null : dateTime;
+}
+
+async function loadSessions() {
+  const user = getCurrentPatient();
+  if (!user) return;
+
+  currentUserEmail = user.email;
+
+  const snapshot = await getDocs(collection(db, "sessions"));
+
+  let html = "";
+  const patientSessions = [];
+
+  for (const docSnap of snapshot.docs) {
+    const data = docSnap.data();
+
+    if (data.patientEmail === currentUserEmail) {
+      patientSessions.push(data);
+
+      const doctorName = await getUserName(data.doctorEmail);
+      const therapy = data.type || data.therapy || "Therapy Session";
+      const status = (data.status || "scheduled").toLowerCase();
+      const statusLabel = status === "scheduled" ? "Approved" : status.charAt(0).toUpperCase() + status.slice(1);
+
+      let paymentHtml = "";
+      if (status === "scheduled") {
+        if (!data.advancePaid && !data.advance_paid) paymentHtml = `<button class="btn small" onclick="payAdvance('${docSnap.id}')">Pay Advance (40%)</button>`;
+        else paymentHtml = `<span class="badge active">Advance Paid</span>`;
+      } else if (status === "completed") {
+        if (!data.remainingPaid && !data.remaining_paid && !data.offline_remaining_paid) paymentHtml = `<button class="btn small" onclick="payRemaining('${docSnap.id}')">Pay Remaining</button>`;
+        else paymentHtml = `<span class="badge active">Fully Paid</span>`;
+      }
+
+      html += `
+        <div class="list-item" style="flex-direction:column; align-items:flex-start; gap:8px;">
+          <div style="width:100%; display:flex; justify-content:space-between;">
+            <div>
+              <strong>${therapy}</strong><br>
+              ${formatDisplayDate(data.date)} | ${data.time}<br>
+              Doctor: ${doctorName}<br>
+              Status: <span class="pending">${statusLabel}</span>
+            </div>
+            <div>${paymentHtml}</div>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  document.getElementById("sessionList").innerHTML = html || "No approved sessions yet.";
+
+  const next = patientSessions.find(s => (s.status || "scheduled").toLowerCase() !== "completed");
+  nextSession.innerText = next
+    ? `${formatDisplayDate(next.date)} | ${next.type || next.therapy || "Therapy Session"}`
+    : "No session";
+
+  m1.innerText = patientSessions.length;
+  m2.innerText = patientSessions.filter(s => (s.status || "scheduled").toLowerCase() !== "cancelled").length;
+}
+
+// ✅ ADD THIS FUNCTION HERE 👇
+async function loadRequests() {
+  const user = getCurrentPatient();
+  if (!user) return;
+
+  const snapshot = await getDocs(collection(db, "requests"));
+
+  let html = "";
+
+  snapshot.forEach(doc => {
+    const d = doc.data();
+
+    if (d.patientEmail === user.email) {
+      const status = (d.status || "pending").toLowerCase();
+      const statusLabel = status === "accepted" ? "Approved" : status.charAt(0).toUpperCase() + status.slice(1);
+
+      html += `
+        <div class="list-item">
+          ${d.therapy} | ${formatDisplayDate(d.date)}
+          <br>Status: ${statusLabel}
+        </div>
+      `;
+    }
+  });
+
+  document.getElementById("requestList").innerHTML = html || "No requests yet.";
+  m3.innerText = snapshot.docs.filter(docSnap => {
+    const d = docSnap.data();
+    return d.patientEmail === user.email && (d.status || "pending").toLowerCase() === "pending";
+  }).length;
+}
+
+// ✅ FIREBASE FEEDBACK
+window.submitFeedbackFirebase = async function() {
+  const pain = document.getElementById("pain").value;
+  const energy = document.getElementById("energy").value;
+  const satisfaction = document.getElementById("satisfaction").value;
+  const notes = document.getElementById("notes").value;
+  const isReported = document.getElementById("reportIssue").checked;
+  const doctorEmail = document.getElementById("feedbackDoctorSelect").value;
+  const user = getCurrentPatient();
+
+  if (!user) {
+    alert("Please log in as a patient to submit feedback.");
+    return;
+  }
+
+  if (!doctorEmail) {
+    alert("Please select a doctor to send feedback to.");
+    return;
+  }
+  if (!pain || !energy || !satisfaction) {
+    alert("Please rate Pain, Energy and Satisfaction.");
+    return;
+  }
+
+  const satScore = Number(satisfaction);
+
+  await addDoc(collection(db, "feedbacks"), {
+    patientEmail: user.email,
+    doctorEmail: doctorEmail,
+    pain: Number(pain),
+    energy: Number(energy),
+    satisfaction: satScore,
+    notes: notes,
+    reported: isReported,
+    timestamp: new Date().toISOString()
+  });
+
+  // Calculate doctor trust score
+  try {
+    const q = query(collection(db, "users"), where("email", "==", doctorEmail));
+    const querySnapshot = await getDocs(q);
+    
+    if (querySnapshot.docs.length > 0) {
+      const docSnap = querySnapshot.docs[0];
+      const docData = docSnap.data();
+      const docRef = doc(db, "users", docSnap.id);
+
+      let totalRatings = Number(docData.totalRatings || 0);
+      let currentRating = Number(docData.rating || 0);
+      let complaints = Number(docData.complaints || 0);
+      let flagged = docData.flagged || false;
+
+      // Compute new moving average rating
+      const newTotal = totalRatings + 1;
+      const newRating = ((currentRating * totalRatings) + satScore) / newTotal;
+
+      if (isReported) {
+        complaints += 1;
+      }
+
+      if (complaints >= 5) {
+        flagged = true;
+      }
+
+      await updateDoc(docRef, {
+        rating: newRating,
+        totalRatings: newTotal,
+        complaints: complaints,
+        flagged: flagged
+      });
+    }
+  } catch (err) {
+    console.error("Error updating doctor trust score:", err);
+  }
+
+  alert("Feedback sent successfully!");
+  
+  // Clear inputs
+  document.getElementById("pain").value = "";
+  document.getElementById("energy").value = "";
+  document.getElementById("satisfaction").value = "";
+  document.getElementById("notes").value = "";
+  document.getElementById("reportIssue").checked = false;
+  
+  loadFeedbacks(); // Refresh list
+};
+
+async function loadFeedbacks() {
+  const user = getCurrentPatient();
+  if(!user) return;
+  const snapshot = await getDocs(collection(db, "feedbacks"));
+  let html = "";
+  for (const docSnap of snapshot.docs) {
+    const d = docSnap.data();
+    if (d.patientEmail === user.email) {
+      const doctorName = await getUserName(d.doctorEmail);
+      html += `<div class="list-item">
+        <b>To Dr. ${doctorName}</b><br>
+        Pain: ${d.pain}/10 | Energy: ${d.energy}/10 | Satisfaction: ${d.satisfaction}/5<br>
+        <i>${d.notes}</i>
+      </div>`;
+    }
+  }
+  document.getElementById("feedbackList").innerHTML = html || "No feedback history.";
+}
+
+async function loadDoctors() {
+  console.log("loadDoctors running");
+  const doctorSelect = document.getElementById("doctorSelect");
+  const fbSelect = document.getElementById("feedbackDoctorSelect");
+
+  const setDoctorOptions = (html) => {
+    if (doctorSelect) doctorSelect.innerHTML = html;
+    if (fbSelect) fbSelect.innerHTML = html;
+  };
+
+  setDoctorOptions('<option value="">Loading doctors...</option>');
+
+  try {
+    const snapshot = await getDocs(collection(db, "users"));
+
+    let html = '<option value="">Select Doctor</option>';
+    let count = 0;
+
+    snapshot.forEach(doc => {
+
+      const d = doc.data();
+      console.log(d);
+
+      const isApproved = d.approved === true || d.approved === 1 || d.approved === "1" || d.approved === "true";
+      const isBlocked = d.blocked === true || d.blocked === 1 || d.blocked === "1" || d.blocked === "true";
+
+      if (d.role === "doctor" && isApproved && !isBlocked) {
+        count++;
+        html += `<option value="${d.email}">${d.name}</option>`;
+      }
+    });
+
+    if (count === 0) {
+      html += '<option value="" disabled>No approved doctors available</option>';
+    }
+
+    setDoctorOptions(html);
+  } catch (err) {
+    console.error("Error loading doctors:", err);
+    setDoctorOptions('<option value="">Unable to load doctors</option>');
+  }
+}
+
+// ✅ LOAD NOTIFICATIONS
+async function loadPatientNotifications() {
+  const user = getCurrentPatient();
+  if(!user) return;
+  const snapshot = await getDocs(collection(db, "notifications"));
+  let html = "";
+  
+  const nList = [];
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data();
+    if (d.toEmail === 'All Patients' || d.toEmail === user.email) {
+      nList.push(d);
+    }
+  });
+
+  const sessionsSnap = await getDocs(collection(db, "sessions"));
+  const now = new Date();
+  sessionsSnap.forEach(docSnap => {
+    const session = docSnap.data();
+    if (session.patientEmail !== user.email) return;
+    if ((session.status || "scheduled").toLowerCase() === "completed") return;
+
+    const sessionStart = getSessionStartDateTime(session);
+    if (!sessionStart) return;
+
+    const hoursUntilSession = (sessionStart - now) / (1000 * 60 * 60);
+    if (hoursUntilSession >= 0 && hoursUntilSession <= 24) {
+      nList.push({
+        timestamp: now.toISOString(),
+        message: `Reminder: Your ${session.type || session.therapy || "therapy"} session is scheduled within 24 hours on ${formatDisplayDate(session.date)} at ${session.time}.`
+      });
+    }
+  });
+
+  // sort newest first
+  nList.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+  nList.forEach(d => {
+    html += `<div class="list-item" style="margin-top:10px;">
+      <div style="font-size:12px;color:gray;">${d.timestamp ? d.timestamp.split('T')[0] : ''}</div>
+      ${d.message}
+    </div>`;
+  });
+
+  document.getElementById("patientNotificationsList").innerHTML = html || "No notifications";
+}
+
+// ✅ CALL IT AFTER LOGIN
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = getCurrentPatient();
+
+  loadDoctors();
+
+  if (user) {
+    currentUserEmail = user.email;
+
+    loadSessions();
+    loadRequests();
+    loadFeedbacks();
+    loadPatientNotifications();
+
+    const snapshot = await getDocs(collection(db, "users"));
+
+    snapshot.forEach(docSnap => {
+      const d = docSnap.data();
+
+      if (d.email === user.email) {
+        document.getElementById("userName").innerText = d.name;
+      }
+    });
+  }
+});
+
+// ✅ AI TREATMENT SUGGESTION LOGIC
+const THERAPY_LIST = [
+  "Abhyanga (Massage)", "Shirodhara (Oil Pouring)", "Vamana (Emesis Therapy)", 
+  "Virechana (Purgation Therapy)", "Basti (Enema Therapy)", "Nasya (Nasal Administration)", 
+  "Raktamokshana (Bloodletting)", "Kati Basti (Back Care)", "Janu Basti (Knee Care)", 
+  "Griva Basti (Neck Care)", "Udvartana (Powder Massage)", "Pizhichil (Oil Bath)", 
+  "Navarakizhi (Rice Bolus)", "Swedana (Herbal Steam)", "Netra Tarpana (Eye Care)", 
+  "Karnapoorana (Ear Care)"
+];
+
+window.getTreatmentSuggestion = async function() {
+  const symptoms = document.getElementById("symptomsInput").value.trim();
+  if (!symptoms) {
+    alert("Please enter your symptoms.");
+    return;
+  }
+
+  const resultDiv = document.getElementById("suggestionResult");
+  resultDiv.innerHTML = '<div class="chat-bot">Analyzing symptoms...</div>';
+
+  try {
+const GEMINI_API_KEY = "AIzaSyCkO83gKGynnrmI_NgzCydXn-71wrBjQl0";
+
+const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const prompt = `You are an Ayurvedic expert. A patient reports these symptoms: "${symptoms}".
+    Based on these symptoms, suggest exactly 2 most relevant therapies from this specific list: ${THERAPY_LIST.join(", ")}.
+    For each suggestion, provide a 1-sentence reason.
+    Response format MUST BE STRICTLY as follows (one suggestion per line):
+    THERAPY: [Therapy Name from List] | REASON: [Your Reason]
+    THERAPY: [Therapy Name from List] | REASON: [Your Reason]`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }]
+      })
+    });
+
+    const data = await response.json();
+    
+    if (data.error) {
+      throw new Error(data.error.message || "Unknown API Error: " + JSON.stringify(data));
+    }
+    
+    const text = data.candidates[0].content.parts[0].text;
+    
+    const lines = text.split('\\n').filter(l => l.includes('THERAPY:'));
+    let html = "<h4>Suggestions from AI Expert:</h4>";
+
+    lines.forEach(line => {
+      const parts = line.split('|');
+      const therapy = parts[0].replace('THERAPY:', '').trim();
+      const reason = parts[1] ? parts[1].replace('REASON:', '').trim() : "";
+
+      html += `
+        <div class="list-item" style="background:#fff; border-radius:12px; margin-bottom:15px; padding:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05)">
+          <strong>${therapy}</strong><br>
+          <span style="font-size:14px;color:var(--muted)">${reason}</span>
+          <div style="margin-top:10px;">
+            <button class="btn small" onclick="quickRequest('${therapy}')">Request This Therapy</button>
+          </div>
+        </div>
+      `;
+    });
+
+    if(lines.length === 0) {
+      html += "<p>Could not generate a specific recommendation based on those symptoms. Please try rephrasing.</p>";
+    }
+
+    resultDiv.innerHTML = html;
+  } catch (err) {
+    console.error(err);
+    resultDiv.innerHTML = `<div class="chat-bot" style="color:red"><b>API Error:</b> ${err.message}</div>`;
+  }
+}
+
+window.quickRequest = function(therapyName) {
+  // 1. Switch to request tab
+  const requestTabBtn = document.querySelector('button[onclick*="request"]');
+  showTab('request', requestTabBtn);
+  
+  // 2. Select the therapy in dropdown
+  const select = document.getElementById("therapy");
+  // Find matching option
+  for (let i = 0; i < select.options.length; i++) {
+    if (select.options[i].text.includes(therapyName) || therapyName.includes(select.options[i].text)) {
+      select.selectedIndex = i;
+      break;
+    }
+  }
+  
+  // Scroll to focus
+  select.scrollIntoView({ behavior: 'smooth' });
+}
+
+
+window.payAdvance = async function(sessionId) {
+  try {
+    const res = await fetch(`/api/payments/session/${sessionId}/advance-order`, { method: 'POST' });
+    const data = await res.json();
+    if (data.error) return alert(data.error);
+
+    const options = {
+      key: data.keyId,
+      amount: data.amount * 100,
+      currency: data.currency,
+      name: "AyurSutra",
+      description: "Advance Session Fee",
+      order_id: data.orderId,
+      handler: async function(response) {
+        const verifyRes = await fetch(`/api/payments/session/${sessionId}/advance-verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(response)
+        });
+        const vData = await verifyRes.json();
+        if (vData.error) alert(vData.error);
+        else { alert("Advance Paid!"); loadSessions(); }
+      }
+    };
+    new window.Razorpay(options).open();
+  } catch (err) { alert("Error initiating payment"); }
+};
+
+window.payRemaining = async function(sessionId) {
+  try {
+    const res = await fetch(`/api/payments/session/${sessionId}/remaining-order`, { method: 'POST' });
+    const data = await res.json();
+    if (data.error) return alert(data.error);
+
+    const options = {
+      key: data.keyId,
+      amount: data.amount * 100,
+      currency: data.currency,
+      name: "AyurSutra",
+      description: "Remaining Session Fee",
+      order_id: data.orderId,
+      handler: async function(response) {
+        const verifyRes = await fetch(`/api/payments/session/${sessionId}/remaining-verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(response)
+        });
+        const vData = await verifyRes.json();
+        if (vData.error) alert(vData.error);
+        else { alert("Remaining Paid!"); loadSessions(); }
+      }
+    };
+    new window.Razorpay(options).open();
+  } catch (err) { alert("Error initiating payment"); }
+};
+
+</script>
+</body>
+<script type="module" src="js/logout.js"></script>
+<script type="module">
+  import { protect } from "./js/guard.js";
+  protect("patient");
+</script>
+
+</html>

@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Dashboard</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app-layout">
+  <!-- MAIN CONTENT -->
+  <div class="main-content" style="padding-top:0;">
+    <div id="fraudWarningBanner" style="display:none; background:#fee2e2; color:#dc2626; padding:15px; text-align:center; font-weight:600; border-bottom:1px solid #fca5a5; z-index:50;">
+      WARNING: Your account has been flagged for suspicious behavior. Please contact the administrator.
+    </div>
+
+    <!-- TOPBAR -->
+    <header class="topbar" style="padding-left: 24px; gap: 20px; background: transparent; border-bottom: none; height: auto; padding-top: 20px; padding-bottom: 20px;">
+      <div class="topbar-left" style="display: flex; align-items: center; gap: 24px;">
+        <div class="brand" style="display: flex; align-items: center; gap: 12px; min-width: max-content;">
+          <img src="Image/Logo.png" class="logo-img" style="width: 40px; height: 40px; border-radius: 8px;">
+          <div class="brand-text">
+            <h2 style="font-size: 20px; font-weight: 700; margin: 0; color: var(--text-main);">AyurSutra</h2>
+            <span style="font-size: 12px; color: var(--text-muted);">Panchakarma Management System</span>
+          </div>
+        </div>
+        <button class="menu-toggle" id="menuToggle">Menu</button>
+      </div>
+      <div class="topbar-right">
+
+        <button id="themeToggle" class="btn ghost small">Dark</button>
+        <button class="btn ghost small">English</button>
+        <div class="user-profile">
+          <div class="user-info">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role" id="userRole">Doctor</div>
+          </div>
+          <button class="btn small danger" onclick="logout()">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="secondary-nav-container" style="display: flex; justify-content: center; padding: 0 32px 20px 32px;">
+      <nav class="nav-menu" style="display: inline-flex; gap: 8px; background: var(--card-bg); padding: 8px; border-radius: 100px; box-shadow: var(--shadow-sm); overflow-x: auto; max-width: 100%; border: 1px solid var(--border-color);">
+        <button class="tab active" data-section="dashboard"><span class="label">Dashboard</span></button>
+        <button class="tab" data-section="patients"><span class="label">My Patients</span></button>
+        <button class="tab" data-section="requests"><span class="label">Requests</span></button>
+        <button class="tab" data-section="sessions"><span class="label">Sessions</span></button>
+        <button class="tab" data-section="reports"><span class="label">Reports</span></button>
+        <button class="tab" data-section="feedback"><span class="label">Feedback</span></button>
+      </nav>
+    </div>
+
+    <main class="views-container">
+      <!-- DASHBOARD -->
+      <section class="section view active" id="dashboard">
+        <div class="page-header">
+          <div class="page-title">
+            <h2>Welcome Doctor</h2>
+          </div>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card card">
+                <div class="stat-icon"></div>
+                <div class="stat-info"><h4>3</h4><p>Assigned Patients</p></div>
+            </div>
+            <div class="stat-card card">
+                <div class="stat-icon"></div>
+                <div class="stat-info"><h4>2</h4><p>Today's Sessions</p></div>
+            </div>
+            <div class="stat-card card">
+                <div class="stat-icon"></div>
+                <div class="stat-info"><h4>5</h4><p>Active Treatments</p></div>
+            </div>
+        </div>
+      </section>
+
+      <!-- PATIENTS -->
+      <section class="section view" style="display:none" id="patients">
+          <div class="page-header"><div class="page-title"><h2>My Patients</h2></div></div>
+          <div class="card">
+              <div class="table-container">
+                <table class="table">
+                    <thead>
+                      <tr><th>Name</th><th>Therapy</th><th>Next Session</th><th>Status</th></tr>
+                    </thead>
+                    <tbody id="doctorPatientsBody"></tbody>
+                </table>
+              </div>
+          </div>
+      </section>
+
+      <!-- SESSIONS -->
+      <section class="section view" style="display:none" id="sessions">
+          <div class="page-header"><div class="page-title"><h2>Session Control</h2></div></div>
+          <div class="card">
+              <div id="todaySessions" class="list"></div>
+          </div>
+      </section>
+
+      <!-- REQUESTS -->
+      <section class="section view" style="display:none" id="requests">
+          <div class="page-header"><div class="page-title"><h2>Requests</h2></div></div>
+          <div class="card">
+              <div id="doctorRequests" class="list"></div>
+          </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section class="section view" style="display:none" id="reports">
+        <div class="page-header"><div class="page-title"><h2>Reports & Notes</h2></div></div>
+        <div class="two-col-grid">
+          <div class="card">
+              <h3 class="card-title">Therapy Notes</h3>
+              <textarea id="notes" rows="4" placeholder="Enter notes..."></textarea>
+              <div style="margin-top:12px;">
+                <button class="btn small" onclick="saveNotes()">Save</button>
+                <p id="msg" style="color:green;margin-top:10px;"></p>
+              </div>
+          </div>
+          <div class="card">
+              <h3 class="card-title">Generate Report</h3>
+              <div style="display:flex;flex-direction:column;gap:12px;">
+                  <div class="form-field"><label>Select Patient</label><select id="reportPatient"></select></div>
+                  <div class="form-field"><label>Report Type</label>
+                    <select id="reportType">
+                        <option>Discharge Summary</option>
+                        <option>Progress Note</option>
+                    </select>
+                  </div>
+                  <div class="form-field"><label>Observations</label>
+                    <textarea id="reportObservations" rows="3" placeholder="Key observations..."></textarea>
+                  </div>
+                  <div style="display:flex;gap:8px">
+                      <button class="btn" id="generateReportBtn">Generate</button>
+                      <button class="btn ghost" id="downloadReportBtn">Download</button>
+                  </div>
+              </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- FEEDBACK -->
+      <section class="section view" style="display:none" id="feedback">
+          <div class="page-header"><div class="page-title"><h2>Patient Feedback</h2></div></div>
+          <div class="card">
+              <div id="doctorFeedbackList" class="list">Loading feedback...</div>
+          </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const tabs = document.querySelectorAll(".tab");
+const sections = document.querySelectorAll(".section");
+
+tabs.forEach(tab => {
+    tab.onclick = function(){
+        tabs.forEach(t => t.classList.remove("active"));
+        this.classList.add("active");
+
+        sections.forEach(sec => {
+            sec.classList.remove("active");
+            sec.style.display = "none";
+        });
+        const target = document.getElementById(this.dataset.section);
+        target.classList.add("active");
+        target.style.display = "block";
+    }
+});
+
+document.getElementById('menuToggle')?.addEventListener('click', () => {
+  document.getElementById('sidebar').classList.toggle('collapsed');
+  document.getElementById('sidebar').classList.toggle('mobile-open');
+});
+
+document.getElementById('themeToggle')?.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  document.getElementById('themeToggle').textContent = isDark ? 'Light' : 'Dark';
+});
+
+function updateProgress(){
+    let el = document.getElementById("progress");
+    let value = parseInt(el.innerText);
+    if(value < 100){
+        el.innerText = (value + 10) + "%";
+    }
+}
+
+function startSession(){
+    document.getElementById("status").innerText = "In Progress";
+}
+
+function completeSession(){
+    document.getElementById("status").innerText = "Completed";
+}
+
+window.saveNotes = async function(){
+  const notesText = document.getElementById("notes").value;
+  if(!notesText) return;
+  const msgEl = document.getElementById("msg");
+  
+  try {
+    msgEl.style.color = "blue";
+    msgEl.innerText = "Saving notes...";
+    
+    await window.addProgressNote(notesText);
+    
+    msgEl.style.color = "green";
+    msgEl.innerText = "Notes saved successfully.";
+    document.getElementById("notes").value = "";
+  } catch(e) {
+    msgEl.style.color = "red";
+    msgEl.innerText = "Failed to save notes: " + e.message;
+  }
+}
+</script>
+<script type="module">
+import { collection, getDocs, updateDoc, doc, addDoc } from "./js/firebase-sql-mock.js?v=2";
+
+const db = null;
+
+function getCurrentDoctor() {
+  if (window.currentUser) return window.currentUser;
+
+  try {
+    const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+    if (storedUser?.role === "doctor") {
+      window.currentUser = storedUser;
+      return storedUser;
+    }
+  } catch (err) {
+    console.error("Could not read logged-in doctor", err);
+  }
+
+  return null;
+}
+
+function formatBackendDate(value) {
+  if (!value) return value;
+
+  const date = new Date(value);
+  if (!Number.isNaN(date.getTime())) {
+    return date.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+  }
+
+  return String(value).split("T")[0];
+}
+
+async function notifyPatientSessionScheduled(sessionData) {
+  await addDoc(collection(db, "notifications"), {
+    toEmail: sessionData.patientEmail,
+    message: `Your ${sessionData.type || "therapy"} session has been scheduled with Dr. ${window.currentUser?.name || "your doctor"} on ${formatBackendDate(sessionData.date)} at ${sessionData.time}.`,
+    timestamp: new Date().toISOString()
+  });
+}
+
+window.currentDocData = null;
+window.currentDocRef = null;
+
+async function getUserName(email) {
+  const snapshot = await getDocs(collection(db, "users"));
+  let name = email;
+  snapshot.forEach(doc => {
+    const d = doc.data();
+    if (d.email === email) {
+      name = d.name;
+    }
+  });
+  return name;
+}
+
+// ✅ Load requests
+async function loadDoctorRequests() {
+  const user = getCurrentDoctor();
+  const requestList = document.getElementById("doctorRequests");
+  if (!requestList) return;
+
+  if (!user) {
+    requestList.innerHTML = "Please log in as a doctor to view requests.";
+    return;
+  }
+
+  requestList.innerHTML = "Loading requests...";
+
+  try {
+    const snapshot = await getDocs(collection(db, "requests"));
+    let html = "";
+
+    for (const docSnap of snapshot.docs) {
+      const d = docSnap.data();
+
+      if ((d.status || "").toLowerCase() === "pending" && d.doctorEmail === user.email) {
+        const patientName = await getUserName(d.patientEmail);
+
+        html += `
+          <div style="padding:10px;border:1px solid #ddd;margin-bottom:10px;border-radius:8px;">
+            ${patientName} | ${d.therapy}
+            <br>Doctor Assigned: ${d.doctorEmail || "Not assigned"}
+            <br>${d.date} ${d.time}
+            <br><br>
+            <button class="small" onclick="acceptRequest('${docSnap.id}')">Accept</button>
+            <button class="small" onclick="rejectRequest('${docSnap.id}')">Reject</button>
+          </div>
+        `;
+      }
+    }
+
+    requestList.innerHTML = html || "No pending requests.";
+  } catch (err) {
+    console.error("Error loading doctor requests:", err);
+    requestList.innerHTML = "Unable to load requests.";
+  }
+}
+
+// ✅ ACCEPT REQUEST
+window.acceptRequest = async function(id) {
+  const user = getCurrentDoctor();
+  if (!user) {
+    alert("Please log in as a doctor first.");
+    return;
+  }
+
+  if (window.currentDocData) {
+    const rating = Number(window.currentDocData.rating || 0);
+    
+    if (rating < 3) {
+      const sSnap = await getDocs(collection(db, "sessions"));
+      let activeCount = 0;
+      sSnap.forEach(s => {
+        const sd = s.data();
+        if (sd.doctorEmail === user.email && sd.status !== "completed") {
+          activeCount++;
+        }
+      });
+      
+      if (activeCount >= 3) {
+        alert("Fraud Prevention: New doctors with a rating under 3.0 cannot handle more than 3 active sessions simultaneously.");
+        return;
+      }
+    }
+  }
+
+  const snapshot = await getDocs(collection(db, "requests"));
+  let requestData = null;
+
+  snapshot.forEach(docSnap => {
+    if (String(docSnap.id) === String(id)) {
+      requestData = docSnap.data();
+    }
+  });
+
+  if (!requestData) {
+    alert("Request not found. Please refresh and try again.");
+    return;
+  }
+
+  const sessionData = {
+    patientEmail: requestData.patientEmail,
+    doctorEmail: user.email,
+    type: requestData.therapy,
+    date: formatBackendDate(requestData.date),
+    time: requestData.time,
+    status: "scheduled"
+  };
+
+  await addDoc(collection(db, "sessions"), sessionData);
+  await notifyPatientSessionScheduled(sessionData);
+
+  const ref = doc(db, "requests", id);
+
+  await updateDoc(ref, {
+    status: "accepted",
+    doctorEmail: user.email
+  });
+
+  if (window.currentDocRef) {
+    let tr = window.currentDocData.totalRequests || 0;
+    tr++;
+    window.currentDocData.totalRequests = tr;
+    await updateDoc(window.currentDocRef, { totalRequests: tr });
+  }
+
+  alert("Accepted");
+  loadDoctorRequests();
+  loadTodaySessions();
+  loadDoctorPatients();
+  loadReportPatients();
+};
+
+// ✅ REJECT REQUEST
+window.rejectRequest = async function(id) {
+  const user = getCurrentDoctor();
+  if (!user) {
+    alert("Please log in as a doctor first.");
+    return;
+  }
+
+  await updateDoc(doc(db, "requests", id), {
+    status: "rejected"
+  });
+
+  if (window.currentDocRef) {
+    let tr = window.currentDocData.totalRequests || 0;
+    let rr = window.currentDocData.rejectedRequests || 0;
+    tr++;
+    rr++;
+    window.currentDocData.totalRequests = tr;
+    window.currentDocData.rejectedRequests = rr;
+    
+    const rejectionRate = (rr / tr) * 100;
+    let flagged = window.currentDocData.flagged || false;
+    
+    if (tr >= 5 && rejectionRate > 30) {
+      flagged = true;
+    }
+    
+    await updateDoc(window.currentDocRef, {
+      totalRequests: tr,
+      rejectedRequests: rr,
+      rejectionRate: rejectionRate,
+      flagged: flagged
+    });
+    
+    if (flagged) {
+      document.getElementById("fraudWarningBanner").style.display = "block";
+    }
+  }
+
+  alert("Rejected");
+  loadDoctorRequests();
+};
+
+// ✅ Get today's date (YYYY-MM-DD)
+function getTodayDate() {
+  return new Date().toISOString().split("T")[0];
+}
+
+// ✅ Load today's sessions
+async function loadTodaySessions() {
+  const user = getCurrentDoctor();
+  if (!user) return;
+
+  const snapshot = await getDocs(collection(db, "sessions"));
+  let html = "";
+
+  for(const docSnap of snapshot.docs) {
+    const d = docSnap.data();
+
+    if (
+      d.doctorEmail === user.email &&
+      (!(d.status || "").toLowerCase().includes("complete") || (d.status.toLowerCase() === "completed" && !d.remainingPaid && !d.remaining_paid && !d.offline_remaining_paid))
+    ) {
+      const patientName = await getUserName(d.patientEmail);
+      html += `
+        <div data-session-id="${docSnap.id}" style="padding:10px;border:1px solid #ddd;margin-bottom:10px;border-radius:8px;">
+          <p><b>Patient:</b> ${patientName}</p>
+          <p><b>Time:</b> ${d.time}</p>
+          <p><b>Status:</b> ${d.status || "Upcoming"}</p>
+          ${d.status === 'completed' ? `<button class="small" onclick="markPaidOffline('${docSnap.id}')">Mark Paid Offline</button>` : `<button class="small" onclick="startSession('${docSnap.id}')">Start</button> <button class="small" onclick="completeSession('${docSnap.id}')">Complete</button>`}
+        </div>
+      `;
+    }
+  }
+
+  document.getElementById("todaySessions").innerHTML = html || "No sessions today";
+}
+
+// ✅ Start session
+window.startSession = async function(id) {
+  await updateDoc(doc(db, "sessions", id), {
+    status: "ongoing"
+  });
+
+  await loadTodaySessions();
+};
+
+// ✅ Complete session
+window.completeSession = async function(id) {
+  const sessionEl = document.querySelector(`[data-session-id="${id}"]`);
+  if (sessionEl) sessionEl.remove();
+
+  try {
+    await updateDoc(doc(db, "sessions", id), {
+      status: "completed"
+    });
+
+    if (window.currentDocRef) {
+      let ts = Number(window.currentDocData.totalSessions || 0);
+      ts++;
+      window.currentDocData.totalSessions = ts;
+      await updateDoc(window.currentDocRef, { totalSessions: ts });
+    }
+  } catch (err) {
+    console.error("Error completing session:", err);
+    alert("Could not complete session. Please try again.");
+  } finally {
+    await loadTodaySessions();
+  }
+};
+
+// ✅ LOAD FEEDBACK
+async function loadDoctorFeedbacks() {
+  const user = getCurrentDoctor();
+  if (!user) return;
+
+  const snapshot = await getDocs(collection(db, "feedbacks"));
+  let html = "";
+
+  for(const docSnap of snapshot.docs) {
+    const d = docSnap.data();
+
+    // Check if this feedback is directed to this doctor
+    if (d.doctorEmail === user.email) {
+      const patientName = await getUserName(d.patientEmail);
+      html += `
+        <div style="padding:10px;border:1px solid rgba(0,0,0,0.05);margin-bottom:10px;border-radius:8px;background:rgba(255,255,255,0.7)">
+          <p><b>From:</b> ${patientName}</p>
+          <p><b>Pain:</b> ${d.pain}/10 | <b>Energy:</b> ${d.energy}/10 | <b>Satisfaction:</b> ${d.satisfaction}/5</p>
+          <p style="margin-top:5px;"><i>"${d.notes}"</i></p>
+        </div>
+      `;
+    }
+  }
+
+  document.getElementById("doctorFeedbackList").innerHTML = html || "No feedback yet.";
+}
+
+// ✅ LOAD REPORT PATIENTS
+async function loadDoctorPatients() {
+  const user = getCurrentDoctor();
+  const tbody = document.getElementById("doctorPatientsBody");
+  if (!user || !tbody) return;
+
+  tbody.innerHTML = '<tr><td colspan="4">Loading patients...</td></tr>';
+
+  const usersSnap = await getDocs(collection(db, "users"));
+  const patientsSnap = await getDocs(collection(db, "patients"));
+  const sessionsSnap = await getDocs(collection(db, "sessions"));
+  const nameMap = {};
+
+  usersSnap.forEach(docSnap => {
+    const data = docSnap.data();
+    if (data.email) nameMap[data.email] = data.name;
+  });
+
+  patientsSnap.forEach(docSnap => {
+    const data = docSnap.data();
+    if (data.email) nameMap[data.email] = data.name;
+  });
+
+  const patientMap = new Map();
+  sessionsSnap.forEach(docSnap => {
+    const session = docSnap.data();
+    if (session.doctorEmail !== user.email || !session.patientEmail) return;
+
+    const existing = patientMap.get(session.patientEmail);
+    const currentDate = new Date(formatBackendDate(session.date));
+    const existingDate = existing ? new Date(formatBackendDate(existing.date)) : null;
+
+    if (!existing || currentDate >= existingDate) {
+      patientMap.set(session.patientEmail, session);
+    }
+  });
+
+  let html = "";
+  patientMap.forEach((session, patientEmail) => {
+    html += `<tr>
+      <td><strong>${nameMap[patientEmail] || patientEmail}</strong><br><span class="muted">${patientEmail}</span></td>
+      <td>${session.type || session.therapy || "Therapy Session"}</td>
+      <td>${formatBackendDate(session.date)} ${session.time || ""}</td>
+      <td><span class="badge">${session.status || "scheduled"}</span></td>
+    </tr>`;
+  });
+
+  tbody.innerHTML = html || '<tr><td colspan="4">No assigned patients yet.</td></tr>';
+}
+
+async function loadReportPatients() {
+  const user = getCurrentDoctor();
+  if (!user) return;
+
+  const usersSnap = await getDocs(collection(db, "users"));
+  const sessionsSnap = await getDocs(collection(db, "sessions"));
+  const select = document.getElementById("reportPatient");
+  const patientEmails = new Set();
+  const nameMap = {};
+
+  usersSnap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (d.email) nameMap[d.email] = d.name;
+  });
+
+  sessionsSnap.forEach(docSnap => {
+    const d = docSnap.data();
+    if (d.doctorEmail === user.email && d.patientEmail) {
+      patientEmails.add(d.patientEmail);
+    }
+  });
+
+  select.innerHTML = '<option value="">Select Patient</option>';
+  patientEmails.forEach(email => {
+    const opt = document.createElement("option");
+    opt.value = email;
+    opt.textContent = nameMap[email] || email;
+    select.appendChild(opt);
+  });
+}
+
+window.addProgressNote = async function(notesText) {
+  const user = getCurrentDoctor();
+  if (!user) throw new Error("Not logged in");
+
+  await addDoc(collection(db, "progress"), {
+    doctorId: user.id,
+    doctorEmail: user.email,
+    notes: notesText,
+    date: new Date().toISOString()
+  });
+};
+
+import { GEMINI_API_KEY } from "./js/env.js";
+
+document.getElementById("generateReportBtn").addEventListener("click", async () => {
+  const patientSelect = document.getElementById("reportPatient");
+  if (!patientSelect.options[patientSelect.selectedIndex]) {
+    alert("Please select a patient.");
+    return;
+  }
+  const patientEmail = patientSelect.value;
+  if (!patientEmail) {
+    alert("Please select a patient.");
+    return;
+  }
+  const patientName = patientSelect.options[patientSelect.selectedIndex].text;
+  const type = document.getElementById("reportType").value;
+  const obs = document.getElementById("reportObservations").value;
+
+  const btn = document.getElementById("generateReportBtn");
+  const originalText = btn.innerText;
+  btn.innerText = "Generating AI Report...";
+  btn.disabled = true;
+
+  try {
+    // Gather patient data
+    const sessionsSnap = await getDocs(collection(db, "sessions"));
+    let sessionsList = [];
+    sessionsSnap.forEach(s => {
+      const d = s.data();
+      if(d.patientEmail === patientEmail) {
+        sessionsList.push(`${d.date} - ${d.type} (${d.status})`);
+      }
+    });
+
+    const feedbacksSnap = await getDocs(collection(db, "feedbacks"));
+    let fbList = [];
+    feedbacksSnap.forEach(f => {
+      const d = f.data();
+      if(d.patientEmail === patientEmail) {
+        fbList.push(`Pain: ${d.pain}/10, Energy: ${d.energy}/10, Satisfaction: ${d.satisfaction}/5. Notes: ${d.notes}`);
+      }
+    });
+
+    const prompt = `You are a professional Ayurvedic Doctor writing a ${type}.
+Patient Name: ${patientName}
+Sessions History:
+${sessionsList.join('\n') || 'None'}
+
+Feedback History:
+${fbList.join('\n') || 'None'}
+
+Doctor's Observations:
+${obs}
+
+Generate a formal and detailed ${type} document for this patient based on the data above. Make it sound professional and empathetic, appropriate for an Ayurvedic setting.`;
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }]
+      })
+    });
+
+    const data = await response.json();
+    if(data.error) throw new Error(data.error.message);
+
+    const reportContent = data.candidates[0].content.parts[0].text;
+
+    const docText = `AyurSutra - ${type}\nGenerated on: ${new Date().toLocaleDateString()}\n-------------------------------------------------\n\n${reportContent}`;
+
+    const blob = new Blob([docText], {type: "text/plain"});
+    const blobUrl = URL.createObjectURL(blob);
+    
+    const downloadBtn = document.getElementById("downloadReportBtn");
+    downloadBtn.onclick = () => {
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `${patientName.replace(/\\s+/g, '_')}_${type.replace(/\\s+/g, '_')}.txt`;
+      a.click();
+    };
+    
+    alert("AI Report generated. Click Download to save file.");
+  } catch (err) {
+    console.error(err);
+    alert("Error generating report: " + err.message);
+  } finally {
+    btn.innerText = originalText;
+    btn.disabled = false;
+  }
+});
+
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = getCurrentDoctor();
+  if (!user) return;
+
+  loadDoctorRequests();
+  loadTodaySessions();
+  loadDoctorPatients();
+  loadDoctorFeedbacks(); // ✅ LOAD FEEDBACK
+  loadReportPatients(); // ✅ LOAD REPORT PATIENTS
+
+  const snapshot = await getDocs(collection(db, "users"));
+
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+
+    if (data.email === user.email) {
+      window.currentDocData = data;
+      window.currentDocRef = doc(db, "users", docSnap.id);
+      
+      document.getElementById("userName").innerText = data.name;
+      document.getElementById("userRole").innerText = data.role;
+      
+      if (data.flagged === true) {
+        document.getElementById("fraudWarningBanner").style.display = "block";
+      }
+    }
+  });
+});
+
+
+window.markPaidOffline = async function(id) {
+  try {
+    const res = await fetch(`/api/payments/session/${id}/offline-paid`, { method: 'POST' });
+    const data = await res.json();
+    if (data.error) return alert(data.error);
+    alert("Marked as paid offline");
+    loadTodaySessions();
+  } catch (err) { alert("Error marking paid"); }
+};
+
+</script>
+</body>
+<script type="module" src="js/logout.js"></script>
+<script type="module">
+  import { protect } from "./js/guard.js";
+  protect("doctor");
+</script>
+  
+</html>

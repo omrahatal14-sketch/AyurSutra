@@ -1,0 +1,1336 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AyurSutra — Admin Dashboard (Interactive Prototype)</title>
+  <meta name="description" content="Interactive HTML/CSS/JS prototype for AyurSutra admin: patient management, therapy scheduling, progress tracking, notifications and feedback. All data stored locally in the browser (no backend)." />
+
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- MAIN CONTENT -->
+    <div class="main-content" style="padding-top:0;">
+      <!-- TOPBAR -->
+      <header class="topbar" style="padding-left: 24px; gap: 20px; background: transparent; border-bottom: none; height: auto; padding-top: 20px; padding-bottom: 20px;">
+        <div class="topbar-left" style="display: flex; align-items: center; gap: 24px;">
+          <div class="brand" style="display: flex; align-items: center; gap: 12px; min-width: max-content;">
+            <img src="Image/Logo.png" class="logo-img" style="width: 40px; height: 40px; border-radius: 8px;">
+            <div class="brand-text">
+              <h2 style="font-size: 20px; font-weight: 700; margin: 0; color: var(--text-main);">AyurSutra</h2>
+              <span style="font-size: 12px; color: var(--text-muted);">Panchakarma Management System</span>
+            </div>
+          </div>
+          <button class="menu-toggle" id="menuToggle">Menu</button>
+        </div>
+        <div class="topbar-right">
+
+          <button id="themeToggle" class="btn ghost small">Dark</button>
+          <button id="addPatientBtn" class="btn small">+ Add Patient</button>
+          <div class="user-profile">
+            <div class="user-info">
+              <div class="user-name" id="userName">Loading...</div>
+              <div class="user-role" id="userRole">Admin</div>
+            </div>
+            <button class="btn small danger" onclick="logout()">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <div class="secondary-nav-container" style="display: flex; justify-content: center; padding: 0 32px 20px 32px;">
+        <nav class="nav-menu" style="display: inline-flex; gap: 8px; background: var(--card-bg); padding: 8px; border-radius: 100px; box-shadow: var(--shadow-sm); overflow-x: auto; max-width: 100%; border: 1px solid var(--border-color);">
+          <button class="tab active" data-tab="dashboard"><span class="label">Dashboard</span></button>
+          <button class="tab" data-tab="patients"><span class="label">Patient Management</span></button>
+          <button class="tab" data-tab="scheduling"><span class="label">Therapy Scheduling</span></button>
+          <button class="tab" data-tab="progress"><span class="label">Progress Tracking</span></button>
+          <button class="tab" data-tab="notifications"><span class="label">Notifications</span></button>
+          <button class="tab" data-tab="feedback"><span class="label">Payment Status</span></button>
+          <button class="tab" data-tab="verification"><span class="label">Verification</span></button>
+        </nav>
+      </div>
+
+      <!-- VIEWS CONTAINER -->
+      <main class="views-container">
+        <div class="two-col-grid">
+          <div class="left-col">
+            <!-- Dashboard -->
+            <section id="dashboard" class="view section active">
+              <div class="page-header">
+                <div class="page-title">
+                  <h2>Welcome to AyurSutra</h2>
+                  <p>Manage your Panchakarma practice with comprehensive tools.</p>
+                </div>
+              </div>
+
+              <div class="stats-grid">
+                <div class="stat-card card">
+                  <div class="stat-icon"></div>
+                  <div class="stat-info">
+                    <h4 id="m-revenue">₹0</h4>
+                    <p>Platform Revenue</p>
+                  </div>
+                </div>
+                <div class="stat-card card">
+                  <div class="stat-icon"></div>
+                  <div class="stat-info">
+                    <h4 id="m-patients">0</h4>
+                    <p>Total Patients</p>
+                    <span class="trend up">+12%</span>
+                  </div>
+                </div>
+                <div class="stat-card card">
+                  <div class="stat-icon"></div>
+                  <div class="stat-info">
+                    <h4 id="m-active">0</h4>
+                    <p>Active Treatments</p>
+                    <span class="trend up">+5%</span>
+                  </div>
+                </div>
+                <div class="stat-card card">
+                  <div class="stat-icon"></div>
+                  <div class="stat-info">
+                    <h4 id="m-sessions">0</h4>
+                    <p>Today's Sessions</p>
+                  </div>
+                </div>
+                <div class="stat-card card">
+                  <div class="stat-icon"></div>
+                  <div class="stat-info">
+                    <h4 id="m-alerts">0</h4>
+                    <p>Pending Alerts</p>
+                    <span class="trend down">-2%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="two-col-grid" style="gap:20px;">
+                <div class="card">
+                  <h4 class="card-title">Recent Activities</h4>
+                  <div class="list" id="recentActivities"></div>
+                </div>
+                <div class="card">
+                  <h4 class="card-title">Quick Actions</h4>
+                  <div style="display:flex;flex-direction:column;gap:12px;">
+                    <button class="btn ghost" id="quickSchedule">Schedule Session</button>
+                    <button class="btn ghost" id="quickNotify">Send Notification</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Patients -->
+            <section id="patients" class="view section" style="display:none">
+              <div class="page-header">
+                <div class="page-title">
+                  <h2>Patient Management</h2>
+                  <p>Patient List <span id="badgeCount" class="badge active"></span></p>
+                </div>
+              </div>
+              <div class="table-container">
+                <table class="table" id="patientsTable">
+                  <thead>
+                    <tr><th>Patient Name</th><th>Contact</th><th>Age</th><th>Status</th><th>Join Date</th><th>Last Visit</th><th>Actions</th></tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </section>
+
+            <!-- Scheduling -->
+            <section id="scheduling" class="view section" style="display:none">
+              <div class="page-header">
+                <div class="page-title">
+                  <h2>Therapy Scheduling</h2>
+                </div>
+                <button id="scheduleBtn" class="btn">Schedule Session</button>
+              </div>
+              <div class="list" id="sessionsList"></div>
+            </section>
+
+            <!-- Progress Tracking -->
+            <section id="progress" class="view section" style="display:none">
+              <div class="page-header">
+                <div class="page-title">
+                  <h2>Progress Tracking</h2>
+                </div>
+                <select id="progressPatientSelector"></select>
+              </div>
+              <div class="stats-grid">
+                <div class="stat-card card">
+                  <div class="stat-icon"></div>
+                  <div class="stat-info">
+                    <h4 id="m-revenue">₹0</h4>
+                    <p>Platform Revenue</p>
+                  </div>
+                </div>
+                <div class="stat-card card">
+                  <div class="stat-info"><h4 id="completedSessions">0/0</h4><p>Completed Sessions</p></div>
+                </div>
+                <div class="stat-card card">
+                  <div class="stat-info"><h4 id="improvement">0%</h4><p>Improvement</p></div>
+                </div>
+                <div class="stat-card card">
+                  <div class="stat-info"><h4 id="nextSession">-</h4><p>Next Session</p></div>
+                </div>
+                <div class="stat-card card">
+                  <div class="stat-info"><h4 id="therapyType">-</h4><p>Therapy Type</p></div>
+                </div>
+              </div>
+              <div class="card" style="height:350px;">
+                <canvas id="progressChart"></canvas>
+              </div>
+            </section>
+
+            <!-- Notifications -->
+            <section id="notifications" class="view section" style="display:none">
+              <div class="page-header">
+                <div class="page-title">
+                  <h2>Notifications</h2>
+                </div>
+                <button class="btn" id="sendNotification">Send Notification</button>
+              </div>
+              <div class="list" id="notificationsList"></div>
+            </section>
+
+            <!-- Feedback -->
+            <section id="feedback" class="view section" style="display:none">
+              <div class="page-header">
+                <div class="page-title"><h2>Patient Feedback</h2></div>
+              </div>
+              <div class="stats-grid">
+                <div class="stat-card card">
+                  <div class="stat-icon"></div>
+                  <div class="stat-info">
+                    <h4 id="m-revenue">₹0</h4>
+                    <p>Platform Revenue</p>
+                  </div>
+                </div>
+                <div class="stat-card card"><div class="stat-info"><h4 id="totalFeedback">0</h4><p>Total Feedback</p></div></div>
+                <div class="stat-card card"><div class="stat-info"><h4 id="avgSatisfaction">0</h4><p>Avg Satisfaction</p></div></div>
+                <div class="stat-card card"><div class="stat-info"><h4 id="actionRequired">0</h4><p>Action Required</p></div></div>
+              </div>
+              <div class="list" id="feedbackList"></div>
+            </section>
+
+            <!-- Verification -->
+            <section id="verification" class="view section" style="display:none">
+              <div class="page-header">
+                <div class="page-title">
+                  <h2>Doctor Verification</h2>
+                  <p>Approve new practitioners or suspend access.</p>
+                </div>
+              </div>
+              <h4 class="card-title">Pending Approvals</h4>
+              <div class="list" id="pendingDoctorsList">Loading...</div>
+              <h4 class="card-title" style="margin-top:30px;">Active & Suspended Doctors</h4>
+              <div class="list" id="allDoctorsList">Loading...</div>
+            </section>
+
+            
+          </div>
+
+          <!-- RIGHT SIDEBAR (Global inside views-container) -->
+          <div class="right-col">
+            <div class="card">
+              <h4 class="card-title">Patients</h4>
+              <div id="miniList" class="list"></div>
+            </div>
+            <div class="card" style="margin-top:20px;">
+              <h4 class="card-title">AI Report Maker</h4>
+              <div style="display:flex;flex-direction:column;gap:12px">
+                <select id="reportPatient"></select>
+                <select id="reportType"><option>Discharge Summary</option><option>Progress Note</option></select>
+                <textarea id="reportObservations" placeholder="Key observations..." rows="3"></textarea>
+                <div style="display:flex;gap:8px">
+                  <button id="generateReport" class="btn">Generate Report</button>
+                  <button id="downloadReport" class="btn ghost">Download</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal: Add/Edit Patient -->
+  <div id="modal" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true">
+      <h3 id="modalTitle">Add Patient</h3>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+        <div class="form-row">
+          <div class="form-field"><label>Name</label><input id="p_name" type="text" /></div>
+          <div class="form-field"><label>Age</label><input id="p_age" type="text" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Contact (phone)</label><input id="p_phone" type="text" /></div>
+          <div class="form-field"><label>Email</label><input id="p_email" type="email" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Therapy Type</label><select id="p_therapy">
+                <option>Panchakarma (Complete)</option>
+                <option>Vamana (Emesis)</option>
+                <option>Virechana (Purgation)</option>
+                <option>Basti (Enema)</option>
+                <option>Nasya (Nasal)</option>
+                <option>Raktamokshana (Bloodletting)</option>
+                <option>Abhyanga (Massage)</option>
+                <option>Shirodhara (Oil pouring)</option>
+                <option>Kati Basti</option>
+                <option>Janu Basti</option>
+                <option>Griva Basti</option>
+                <option>Udvartana</option>
+                <option>Pizhichil</option>
+                <option>Navarakizhi</option>
+                <option>Swedana (Steam)</option>
+                <option>Netra Tarpana</option>
+                <option>Karnapoorana</option>
+              </select></div>
+          <div class="form-field"><label>Join Date</label><input id="p_join" type="date" /></div>
+        </div>
+
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
+          <button id="closeModal" class="btn ghost">Cancel</button>
+          <button id="savePatient" class="btn">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Schedule Therapy -->
+  <div id="modalSchedule" class="modal-backdrop">
+    <div class="modal">
+      <h3>Schedule Therapy</h3>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+        <div class="form-row">
+          <div class="form-field"><label>Patient</label><select id="s_patient"></select></div>
+          <div class="form-field"><label>Therapy Type</label><select id="s_type">
+          <option>Panchakarma (Complete)</option>
+          <option>Vamana (Emesis)</option>
+          <option>Virechana (Purgation)</option>
+          <option>Basti (Enema)</option>
+          <option>Nasya (Nasal)</option>
+          <option>Raktamokshana (Bloodletting)</option>
+          <option>Abhyanga (Massage)</option>
+          <option>Shirodhara</option>
+          <option>Kati Basti</option>
+          <option>Janu Basti</option>
+          <option>Griva Basti</option>
+          <option>Udvartana</option>
+          <option>Pizhichil</option>
+          <option>Navarakizhi</option>
+          <option>Swedana (Steam)</option>
+          <option>Netra Tarpana</option>
+          <option>Karnapoorana</option>
+        </select></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Date</label><input id="s_date" type="date" /></div>
+          <div class="form-field"><label>Time</label><input id="s_time" type="time" /></div>
+        </div>
+        <div class="form-row">
+          <div class="form-field"><label>Room Number</label><input id="s_room" type="text" placeholder="e.g. 101" /></div>
+          <div class="form-field"><label>Doctor (Auto-assigned if empty)</label><select id="s_doctor"><option value="">Auto-assign Available Doctor</option></select></div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button id="closeSchedule" class="btn ghost">Cancel</button>
+          <button id="saveSchedule" class="btn">Schedule</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Send Notification -->
+  <div id="modalNotification" class="modal-backdrop">
+    <div class="modal" style="max-width:500px;">
+      <h3>Send Notification</h3>
+      <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
+        <div class="form-row">
+          <div class="form-field">
+            <label>Select Patient</label>
+            <select id="n_patient">
+              <option value="All Patients">All Patients</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Message</label>
+            <textarea id="n_message" rows="3" style="padding:10px; border-radius:8px; border:1px solid #cbd5e1;"></textarea>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button id="closeNotification" class="btn ghost">Cancel</button>
+          <button id="saveNotificationBtn" class="btn">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Simple client-side app using localStorage. All actions work locally.
+    const STORAGE_KEY = 'ayursutra_data_v1';
+
+    // Default sample data
+    const defaultData = {
+      patients: [
+        {id: 1, name: 'Ravi Kumar', phone: '+91-9876543210', email: 'ravi@example.com', age:45, status:'active', join:'2024-01-15', lastVisit:'2024-02-20', therapy:'Panchakarma'},
+        {id: 2, name: 'Priya Sharma', phone: '+91-9876543212', email: 'priya@example.com', age:32, status:'active', join:'2024-02-01', lastVisit:'2024-02-18', therapy:'Abhyanga'}
+      ],
+      sessions: [
+        {id:1, patientId:1, patientName:'Ravi Kumar', date:'2024-12-15', time:'10:00', type:'Abhyanga', status:'scheduled', practitioner:'Dr. Priya Sharma'},
+        {id:2, patientId:2, patientName:'Sunita Devi', date:'2024-12-15', time:'14:00', type:'Shirodhara', status:'completed', practitioner:'Dr. Meera'}
+      ],
+      notifications: [
+        {id:1, to:'Amit Kumar', channel:'SMS', status:'delivered', message:'Please fast for 12 hours before your Panchakarma session tomorrow. Drink plenty of water today.', sent:'2024-12-14 18:00'},
+      ],
+      feedback: [
+        {id:1, patient:'Amit Kumar', session:15, date:'2024-12-13', pain:2, energy:8, satisfaction:5, symptoms:['Reduced joint pain'], improvements:['Increased mobility'], sideEffects:['Mild fatigue initially'], notes:'Feeling much better overall.'}
+      ],
+      activities: ['New patient registered: Meera Sharma - Arthritis Treatment','Session scheduled: Abhyanga for Rajesh Singh','Feedback received: 5-star rating from Amit Kumar']
+    };
+
+    // Load or init
+    function loadData(){
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) { localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData)); return JSON.parse(JSON.stringify(defaultData)); }
+      try { return JSON.parse(raw); } catch(e){ localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData)); return defaultData; }
+    }
+    function saveData(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); renderAll(); }
+
+    let state = loadData();
+
+    // DOM refs
+    const tabs = document.querySelectorAll('.tab');
+    const views = document.querySelectorAll('.view');
+    const patientsTbody = document.querySelector('#patientsTable tbody');
+    const badgeCount = document.getElementById('badgeCount');
+    const miniList = document.getElementById('miniList');
+    const mPatients = document.getElementById('m-patients');
+    const mActive = document.getElementById('m-active');
+    const mSessions = document.getElementById('m-sessions');
+    const mAlerts = document.getElementById('m-alerts');
+    const recentActivities = document.getElementById('recentActivities');
+    const sessionsList = document.getElementById('sessionsList');
+    const notificationsList = document.getElementById('notificationsList');
+    const feedbackList = document.getElementById('feedbackList');
+    const totalFeedback = document.getElementById('totalFeedback');
+    const avgSatisfaction = document.getElementById('avgSatisfaction');
+    const actionRequired = document.getElementById('actionRequired');
+
+    // Modals
+    const modal = document.getElementById('modal');
+    const modalSchedule = document.getElementById('modalSchedule');
+
+    // Forms
+    const addPatientBtn = document.getElementById('addPatientBtn');
+    const savePatientBtn = document.getElementById('savePatient');
+    const closeModalBtn = document.getElementById('closeModal');
+
+   // const openScheduleBtn = document.getElementById('openSchedule');
+    const saveScheduleBtn = document.getElementById('saveSchedule');
+    const closeScheduleBtn = document.getElementById('closeSchedule');
+
+    // Report
+    const reportPatient = document.getElementById('reportPatient');
+    const generateReportBtn = document.getElementById('generateReport');
+    const downloadReportBtn = document.getElementById('downloadReport');
+
+    // Chart
+    const chartCanvas = document.getElementById('progressChart');
+    const ctx = chartCanvas.getContext('2d');
+
+    // utilities
+    function uid(){ return Date.now() + Math.floor(Math.random()*999); }
+
+    // Add event listeners for new UI elements
+    document.getElementById('menuToggle').addEventListener('click', () => {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+      document.getElementById('sidebar').classList.toggle('mobile-open');
+    });
+
+    document.getElementById('themeToggle').addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      document.getElementById('themeToggle').textContent = isDark ? 'Light' : 'Dark';
+    });
+
+    // Tab switching
+    tabs.forEach(t=>t.addEventListener('click', ()=>{
+      tabs.forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const key = t.dataset.tab;
+      views.forEach(v=>v.style.display = v.id===key? 'block': 'none');
+      renderAll();
+      
+      if (key === 'verification' && window.adminLoadVerificationDoctors) {
+        window.adminLoadVerificationDoctors();
+      }
+      if (key === 'feedback' && window.adminLoadFeedbacks) {
+        window.adminLoadFeedbacks();
+      }
+      if (key === 'notifications' && window.adminLoadNotifications) {
+        window.adminLoadNotifications();
+      }
+    }));
+
+    // Render patients table
+    function renderPatients(){
+      patientsTbody.innerHTML = '';
+      state.patients.forEach(p=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><strong>${p.name}</strong><div class="muted">${p.email||''}</div></td>
+                        <td>${p.phone||''}</td>
+                        <td>${p.age||''}</td>
+                        <td><span class="badge">${p.status||'active'}</span></td>
+                        <td>${p.join||''}</td>
+                        <td>${p.lastVisit||''}</td>
+                        <td>
+                          <button class="btn small ghost" data-id="${p.id}" data-action="edit">Edit</button>
+                          <button class="btn small ghost" data-id="${p.id}" data-action="delete">Delete</button>
+                        </td>`;
+        patientsTbody.appendChild(tr);
+      });
+      badgeCount.textContent = ` ${state.patients.length} patients `;
+      // wire actions
+      patientsTbody.querySelectorAll('button').forEach(btn=>{
+        btn.addEventListener('click', (e)=>{
+          const id = Number(btn.dataset.id);
+          const action = btn.dataset.action;
+          if(action==='edit') openPatientModal(id);
+          if(action==='delete') { if(confirm('Delete patient?')){ state.patients = state.patients.filter(x=>x.id!==id); state.activities.unshift('Patient deleted'); saveData(); }}
+        })
+      });
+    }
+
+    // Mini list
+    function renderMiniList(){
+      miniList.innerHTML = '';
+      state.patients.slice(0,6).forEach(p=>{
+        const el = document.createElement('div'); el.className='list-item'; el.innerHTML = `<strong>${p.name}</strong><div class="muted">${p.therapy} • ${p.join||''}</div>`;
+        miniList.appendChild(el);
+      });
+    }
+
+    // Sessions
+    // Sessions handled in module script
+    window.renderSessions = function() {
+      if(window.adminLoadSessions) window.adminLoadSessions();
+    };
+
+    // Notifications
+    // Notifications MOVED TO FIREBASE
+
+    // Feedback MOVED TO FIREBASE
+
+    // Activities
+    function renderActivities(){
+      recentActivities.innerHTML='';
+      state.activities.slice(0,6).forEach(a=>{ const d=document.createElement('div'); d.className='list-item'; d.textContent=a; recentActivities.appendChild(d); });
+    }
+
+    // Metrics
+    function renderMetrics(){
+      mPatients.textContent = state.patients.length;
+      mActive.textContent = state.patients.filter(p=>p.status==='active').length;
+      const today = new Date().toISOString().slice(0,10);
+      mSessions.textContent = state.sessions.filter(s=>s.date===today).length;
+      mAlerts.textContent = state.notifications.filter(n=>n.status!=='delivered').length;
+
+      document.getElementById('m-sessions').textContent = state.sessions.filter(s=>s.date===today).length;
+      // Feedback metrics moved to Firebase
+
+      // progress metrics
+      const completed = state.sessions.filter(s=>s.status==='completed').length;
+      const total = state.sessions.length || 1;
+      document.getElementById('completedSessions').textContent = `${completed}/${total}`;
+      document.getElementById('improvement').textContent = Math.round((completed/total)*100) + '%';
+      const next = state.sessions.find(s=>s.status==='scheduled');
+      document.getElementById('nextSession').textContent = next? next.date : '-';
+      document.getElementById('therapyType').textContent = next? next.type : '-';
+    }
+
+    // Chart drawing (simple line chart)
+    function drawChart(){
+      const labels = ['Week1','Week2','Week3','Week4','Week5','Week6'];
+      // sample series from feedback/sessions - generate simple numbers
+      const series = labels.map((_,i)=> 30 + i*8 + Math.floor(Math.random()*8));
+      const w = chartCanvas.width; const h = chartCanvas.height; ctx.clearRect(0,0,w,h);
+      // grid
+      ctx.strokeStyle = '#eee'; ctx.lineWidth=1;
+      for(let i=0;i<5;i++){ ctx.beginPath(); ctx.moveTo(40, 40 + i*(h-80)/4); ctx.lineTo(w-20, 40 + i*(h-80)/4); ctx.stroke(); }
+      // axis labels
+      ctx.fillStyle = '#666'; ctx.font='12px Arial'; labels.forEach((l,i)=>{ ctx.fillText(l, 60 + i*(w-120)/(labels.length-1), h-20); });
+      // line
+      ctx.beginPath(); ctx.strokeStyle = '#28c76f'; ctx.lineWidth=3; series.forEach((v,i)=>{ const x = 40 + i*(w-120)/(series.length-1); const y = (h-40) - (v/100)*(h-100); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
+      // points
+      ctx.fillStyle='#fff'; ctx.strokeStyle='#28c76f'; series.forEach((v,i)=>{ const x=40 + i*(w-120)/(series.length-1); const y=(h-40)-(v/100)*(h-100); ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill(); ctx.stroke(); });
+    }
+
+    // Reports handled in module script
+    window.populateReportPatients = function() {
+      if(window.adminPopulateReportPatients) window.adminPopulateReportPatients();
+    };
+
+    // Modal handlers
+    addPatientBtn.addEventListener('click', ()=>{ openPatientModal(); });
+    closeModalBtn.addEventListener('click', ()=>{ modal.style.display='none'; });
+
+    function openPatientModal(id=null){
+      document.getElementById('modalTitle').textContent = id? 'Edit Patient' : 'Add Patient';
+      modal.style.display='flex';
+      if(id){ const p = state.patients.find(x=>x.id===id); document.getElementById('p_name').value=p.name; document.getElementById('p_age').value=p.age; document.getElementById('p_phone').value=p.phone; document.getElementById('p_email').value=p.email; document.getElementById('p_therapy').value=p.therapy; document.getElementById('p_join').value=p.join;} else { document.getElementById('p_name').value=''; document.getElementById('p_age').value=''; document.getElementById('p_phone').value=''; document.getElementById('p_email').value=''; document.getElementById('p_therapy').value='Panchakarma'; document.getElementById('p_join').value=''; }
+      savePatientBtn.dataset.edit = id? id : '';
+    }
+
+    savePatientBtn.addEventListener('click', async () => {
+      const id = savePatientBtn.dataset.edit ? savePatientBtn.dataset.edit : null;
+      const p = { 
+        name: document.getElementById('p_name').value.trim(), 
+        age: document.getElementById('p_age').value.trim(), 
+        phone: document.getElementById('p_phone').value.trim(), 
+        email: document.getElementById('p_email').value.trim(), 
+        therapy: document.getElementById('p_therapy').value, 
+        join: document.getElementById('p_join').value, 
+        status: 'active', 
+        lastVisit: '' 
+      };
+      if(!p.name){ alert('Please provide name'); return; }
+      
+      try {
+        if(id){ 
+          await window.updatePatientDoc(id, p);
+        } else { 
+          await window.addPatientDoc(p);
+        }
+        modal.style.display='none'; 
+        if(window.adminLoadPatients) window.adminLoadPatients();
+
+window.adminLoadRevenue = async function() {
+  try {
+    const res = await fetch('/api/payments/admin/summary');
+    const data = await res.json();
+    document.getElementById('m-revenue').textContent = "₹" + (data.platformRevenue || 0).toLocaleString('en-IN');
+  } catch (e) { console.error(e); }
+};
+window.adminLoadRevenue();
+
+      } catch (error) {
+        console.error("Error saving patient:", error);
+        alert("Failed to save patient. Check console.");
+      }
+    });
+
+    // Scheduling modal
+    //openScheduleBtn.addEventListener('click', ()=> openScheduleModal());
+    closeScheduleBtn.addEventListener('click', ()=> modalSchedule.style.display='none');
+
+    window.openScheduleModal = async function(patientId=null, session=null){
+      modalSchedule.style.display='flex';
+      // Patients are populated from Firebase inside the module script
+      if(window.populateScheduleModal) {
+        await window.populateScheduleModal(patientId, session);
+      }
+    };
+
+    saveScheduleBtn.addEventListener('click', async () => {
+      const pEmail = document.getElementById('s_patient').value; 
+      const type = document.getElementById('s_type').value; 
+      const date = document.getElementById('s_date').value; 
+      const time = document.getElementById('s_time').value;
+      const room = document.getElementById('s_room').value;
+      const docEmail = document.getElementById('s_doctor').value;
+      
+      if(!pEmail||!date||!time){ alert('Please fill all required fields'); return; }
+      
+      try {
+        if(saveScheduleBtn.dataset.edit){ 
+          await window.updateSessionDoc(saveScheduleBtn.dataset.edit, { type, date, time, room, docEmail }); 
+        } else { 
+          await window.addSessionDoc({ patientEmail: pEmail, type, date, time, room, doctorEmail: docEmail }); 
+        }
+        modalSchedule.style.display='none'; 
+      } catch (error) {
+        console.error(error);
+        alert(error.message || "Failed to schedule session.");
+      }
+    });
+
+    // Quick actions
+    document.getElementById('quickSchedule').addEventListener('click', ()=>{ openScheduleModal(); tabs.forEach(t=>t.classList.remove('active')); document.querySelector('[data-tab="scheduling"]').classList.add('active'); views.forEach(v=>v.style.display = v.id==='scheduling' ? 'block' : 'none'); });
+    document.getElementById('quickNotify').addEventListener('click', ()=>{ const msg = prompt('Notification message:'); if(msg){ state.notifications.unshift({id:uid(), to:'All Patients', channel:'SMS', status:'scheduled', message:msg, sent:new Date().toISOString()}); state.activities.unshift('Notification scheduled'); saveData(); }});
+
+    // Send Notification sample
+    // Send Notification MOVED TO FIREBASE
+
+    // recent render
+    function renderAll(){ renderPatients(); renderMiniList(); renderSessions(); renderActivities(); renderMetrics(); populateReportPatients(); drawChart(); }
+
+    // initialize
+    renderAll();
+
+    // expose save for debugging
+    window._ayursutra = {state, saveData};
+
+  </script>
+  <script type="module">
+
+import { auth, db } from "./js/firebase.js";
+
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+import { GEMINI_API_KEY } from "./js/env.js";
+import { doc, getDoc, getDocs, collection, addDoc, updateDoc, deleteDoc } from "./js/firebase-sql-mock.js?v=2";
+
+window.addPatientDoc = async function(p) {
+  await addDoc(collection(db, "patients"), p);
+};
+
+window.updatePatientDoc = async function(id, p) {
+  await updateDoc(doc(db, "patients", id), p);
+};
+
+window.deletePatientDoc = async function(id) {
+  if (confirm('Delete patient?')) {
+    await deleteDoc(doc(db, "patients", id));
+    window.adminLoadPatients();
+
+window.adminLoadRevenue = async function() {
+  try {
+    const res = await fetch('/api/payments/admin/summary');
+    const data = await res.json();
+    document.getElementById('m-revenue').textContent = "₹" + (data.platformRevenue || 0).toLocaleString('en-IN');
+  } catch (e) { console.error(e); }
+};
+window.adminLoadRevenue();
+
+  }
+};
+
+window.adminLoadSessions = async function() {
+  const snapshot = await getDocs(collection(db, "sessions"));
+  const sessionsList = document.getElementById('sessionsList');
+  let html = '';
+  
+  // Need users mapping for names
+  const usersSnap = await getDocs(collection(db, "users"));
+  const userMap = {};
+  usersSnap.forEach(u => userMap[u.data().email] = u.data().name);
+
+  const patientsSnap = await getDocs(collection(db, "patients"));
+  patientsSnap.forEach(p => {
+    if(p.data().email) userMap[p.data().email] = p.data().name;
+  });
+
+  let sessionCount = 0;
+  const today = new Date().toISOString().slice(0,10);
+
+  snapshot.forEach(docSnap => {
+    const s = docSnap.data();
+    if(s.date === today) sessionCount++;
+
+    const pName = userMap[s.patientEmail] || s.patientEmail;
+    const docName = userMap[s.doctorEmail] || s.doctorEmail || "Auto-assigned";
+    
+    html += `<div class="session">
+      <div class="info">
+        <div><strong>${pName}</strong> <span class="muted">${s.type}</span><br>
+        <small class="muted">Doctor: ${docName} | Room: ${s.room || 'TBD'}</small></div>
+        <div class="muted">${s.date} • ${s.time}</div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="badge">${s.status || 'scheduled'}</span>
+      </div>
+    </div>`;
+  });
+  
+  if (sessionsList) sessionsList.innerHTML = html || "No sessions found.";
+  document.getElementById('m-sessions').textContent = sessionCount;
+};
+
+window.populateScheduleModal = async function(patientEmail=null, session=null) {
+  const pSelect = document.getElementById('s_patient');
+  const dSelect = document.getElementById('s_doctor');
+  
+  pSelect.innerHTML = '<option value="">Select Patient</option>';
+  dSelect.innerHTML = '<option value="">Auto-assign Available Doctor</option>';
+
+  const patientsSnap = await getDocs(collection(db, "patients"));
+  patientsSnap.forEach(p => {
+    const d = p.data();
+    if (d.email) pSelect.innerHTML += `<option value="${d.email}">${d.name}</option>`;
+  });
+  
+  const usersSnap = await getDocs(collection(db, "users"));
+  usersSnap.forEach(u => {
+    const d = u.data();
+    if (d.role === 'doctor' && d.approved === true && !d.blocked) {
+      dSelect.innerHTML += `<option value="${d.email}">${d.name}</option>`;
+    }
+  });
+
+  if(patientEmail) pSelect.value = patientEmail;
+  if(session) {
+    document.getElementById('s_type').value = session.type;
+    document.getElementById('s_date').value = session.date;
+    document.getElementById('s_time').value = session.time;
+    document.getElementById('s_room').value = session.room || '';
+    dSelect.value = session.doctorEmail || '';
+    document.getElementById('saveSchedule').dataset.edit = session.id;
+  } else {
+    document.getElementById('s_type').value = 'Abhyanga (Massage)';
+    document.getElementById('s_date').value = '';
+    document.getElementById('s_time').value = '';
+    document.getElementById('s_room').value = '';
+    document.getElementById('saveSchedule').dataset.edit = '';
+  }
+};
+
+window.addSessionDoc = async function(sessionData) {
+  // Check overlap for room & doctor
+  const sessionsSnap = await getDocs(collection(db, "sessions"));
+  let conflict = false;
+  let availableDoctors = [];
+  
+  const usersSnap = await getDocs(collection(db, "users"));
+  usersSnap.forEach(u => {
+    if (u.data().role === 'doctor' && u.data().approved === true && !u.data().blocked) {
+      availableDoctors.push(u.data().email);
+    }
+  });
+
+  sessionsSnap.forEach(docSnap => {
+    const s = docSnap.data();
+    if (s.date === sessionData.date && s.time === sessionData.time) {
+      if (s.room && s.room === sessionData.room) {
+        alert("Room is already booked at this time.");
+        conflict = true;
+      }
+      if (s.doctorEmail) {
+        availableDoctors = availableDoctors.filter(d => d !== s.doctorEmail);
+        if (sessionData.doctorEmail && s.doctorEmail === sessionData.doctorEmail) {
+           alert("Doctor is already booked at this time.");
+           conflict = true;
+        }
+      }
+    }
+  });
+
+  if (conflict) throw new Error("Scheduling conflict.");
+
+  if (!sessionData.doctorEmail) {
+    if (availableDoctors.length > 0) {
+      sessionData.doctorEmail = availableDoctors[0]; // Auto assign
+      alert("Auto-assigned to Doctor: " + sessionData.doctorEmail);
+    } else {
+      throw new Error("No doctors available at this time.");
+    }
+  }
+
+  sessionData.status = 'scheduled';
+  await addDoc(collection(db, "sessions"), sessionData);
+  
+  // Notification logic
+  await addDoc(collection(db, "notifications"), {
+    toEmail: sessionData.patientEmail,
+    message: `Your ${sessionData.type} session has been scheduled on ${sessionData.date} at ${sessionData.time} in room ${sessionData.room}.`,
+    timestamp: new Date().toISOString()
+  });
+
+  window.adminLoadSessions();
+};
+
+window.updateSessionDoc = async function(id, sessionData) {
+  await updateDoc(doc(db, "sessions", id), sessionData);
+  window.adminLoadSessions();
+};
+
+
+
+window.adminPopulateReportPatients = async function() {
+  const pSelect = document.getElementById('reportPatient');
+  if(!pSelect) return;
+  pSelect.innerHTML = '<option value="">Select Patient</option>';
+
+  const seenEmails = new Set();
+
+  const usersSnap = await getDocs(collection(db, "users"));
+  usersSnap.forEach(u => {
+    const data = u.data();
+    if (data.role === 'patient' && data.email && !seenEmails.has(data.email)) {
+      seenEmails.add(data.email);
+      pSelect.innerHTML += `<option value="${data.email}">${data.name || data.email}</option>`;
+    }
+  });
+
+  const patientsSnap = await getDocs(collection(db, "patients"));
+  patientsSnap.forEach(p => {
+    const data = p.data();
+    if(data.email && !seenEmails.has(data.email)) {
+      seenEmails.add(data.email);
+      pSelect.innerHTML += `<option value="${data.email}">${data.name || data.email}</option>`;
+    }
+  });
+};
+
+document.getElementById('generateReport').addEventListener('click', async () => {
+  const patientSelect = document.getElementById("reportPatient");
+  if (!patientSelect.options[patientSelect.selectedIndex]) {
+    alert("Please select a patient.");
+    return;
+  }
+  const patientEmail = patientSelect.value;
+  if (!patientEmail) {
+    alert("Please select a patient.");
+    return;
+  }
+  const patientName = patientSelect.options[patientSelect.selectedIndex].text;
+  const type = document.getElementById("reportType").value;
+  const obs = document.getElementById("reportObservations").value;
+
+  const btn = document.getElementById("generateReport");
+  const originalText = btn.innerText;
+  btn.innerText = "Generating AI Report...";
+  btn.disabled = true;
+
+  try {
+    const sessionsSnap = await getDocs(collection(db, "sessions"));
+    let sessionsList = [];
+    sessionsSnap.forEach(s => {
+      const d = s.data();
+      if(d.patientEmail === patientEmail) {
+        sessionsList.push(`${d.date} - ${d.type} (${d.status})`);
+      }
+    });
+
+    const feedbacksSnap = await getDocs(collection(db, "feedbacks"));
+    let fbList = [];
+    feedbacksSnap.forEach(f => {
+      const d = f.data();
+      if(d.patientEmail === patientEmail) {
+        fbList.push(`Pain: ${d.pain}/10, Energy: ${d.energy}/10, Satisfaction: ${d.satisfaction}/5. Notes: ${d.notes}`);
+      }
+    });
+
+    const prompt = `You are a professional Ayurvedic Doctor writing a ${type}.
+Patient Name: ${patientName}
+Sessions History:
+${sessionsList.join('\\n') || 'None'}
+
+Feedback History:
+${fbList.join('\\n') || 'None'}
+
+Observations:
+${obs}
+
+Generate a formal and detailed ${type} document for this patient based on the data above. Make it sound professional and empathetic, appropriate for an Ayurvedic setting.`;
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }]
+      })
+    });
+
+    const data = await response.json();
+    if(data.error) throw new Error(data.error.message);
+
+    const reportContent = data.candidates[0].content.parts[0].text;
+
+    const docText = `AyurSutra - ${type}\nGenerated on: ${new Date().toLocaleDateString()}\n-------------------------------------------------\n\n${reportContent}`;
+
+    const blob = new Blob([docText], {type: "text/plain"});
+    const blobUrl = URL.createObjectURL(blob);
+    
+    const downloadBtn = document.getElementById("downloadReport");
+    downloadBtn.onclick = () => {
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = `${patientName.replace(/\\s+/g, '_')}_${type.replace(/\\s+/g, '_')}.txt`;
+      a.click();
+    };
+    
+    alert("AI Report generated. Click Download to save file.");
+  } catch (err) {
+    console.error(err);
+    alert("Error generating report: " + err.message);
+  } finally {
+    btn.innerText = originalText;
+    btn.disabled = false;
+  }
+});
+
+window.adminLoadSuspiciousDoctors = async function() {
+  const snapshot = await getDocs(collection(db, "users"));
+  let html = "";
+  let count = 0;
+
+  snapshot.forEach(docSnap => {
+    const data = docSnap.data();
+    if (data.role === 'doctor') {
+      const rating = data.rating || 0;
+      const complaints = data.complaints || 0;
+      const flagged = data.flagged || false;
+      const rejectedRequests = data.rejectedRequests || 0;
+      
+      if (flagged || rating < 2.5 || complaints >= 5) {
+        count++;
+        let statusBadge = "Fraud Risk";
+        let color = "var(--danger)";
+        if (data.blocked) {
+           statusBadge = "Blocked";
+           color = "#333";
+        } else if (flagged) {
+           statusBadge = "Flagged";
+           color = "#f59e0b";
+        }
+        
+        html += `<div class="list-item" style="background:rgba(255,255,255,0.7);border-radius:12px;margin-bottom:10px;padding:15px;border:1px solid rgba(0,0,0,0.05)">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <strong>${data.name}</strong> <span class="muted">(${data.email})</span>
+              <span class="badge" style="background:${color}; color:white; margin-left:10px; border-radius:4px; padding:4px 8px;">${statusBadge}</span>
+            </div>
+          </div>
+          <div style="margin-top:8px;font-size:14px;">
+            Rating: <b>${rating.toFixed(1)}/5</b> | Complaints: <b>${complaints}</b> | Rej. Rate: <b>${(data.rejectionRate || 0).toFixed(1)}%</b> | Sessions: <b>${data.totalSessions || 0}</b> | Rejected Req: <b>${rejectedRequests}</b>
+          </div>
+          <div style="margin-top:12px;display:flex;gap:8px;">
+            <button class="btn small" onclick="window.toggleBlockDoctor('${docSnap.id}', ${data.blocked === true})">${data.blocked === true ? 'Unblock' : 'Block Doctor'}</button>
+            <button class="btn small ghost" onclick="window.resetDoctorFlag('${docSnap.id}')">Reset Flag</button>
+          </div>
+        </div>`;
+      }
+    }
+  });
+
+  const listEl = document.getElementById('suspiciousDoctorsList');
+  if(listEl) listEl.innerHTML = html || "No suspicious doctors found.";
+};
+
+window.toggleBlockDoctor = async function(docId, currentBlocked) {
+  if (confirm(currentBlocked ? "Unblock this doctor?" : "Block this doctor? They will not be able to log in.")) {
+    await updateDoc(doc(db, "users", docId), { blocked: !currentBlocked });
+    window.adminLoadSuspiciousDoctors();
+    if(window.adminLoadVerificationDoctors) window.adminLoadVerificationDoctors();
+  }
+};
+
+window.resetDoctorFlag = async function(docId) {
+  if (confirm("Reset flags, complaints, and rejection stats for this doctor?")) {
+    await updateDoc(doc(db, "users", docId), { 
+      flagged: false,
+      complaints: 0,
+      rejectedRequests: 0,
+      rejectionRate: 0
+    });
+    window.adminLoadSuspiciousDoctors();
+  }
+};
+
+window.adminLoadFeedbacks = async function() {
+  const snapshot = await getDocs(collection(db, "feedbacks"));
+  let html = "";
+  let totalFeedbacks = 0;
+  let totalSatisfaction = 0;
+  let actionRequired = 0;
+
+  // We need users to map emails to names. Let's fetch them once.
+  const usersSnap = await getDocs(collection(db, "users"));
+  const userMap = {};
+  usersSnap.forEach(u => userMap[u.data().email] = u.data().name);
+
+  snapshot.forEach(docSnap => {
+    const f = docSnap.data();
+    totalFeedbacks++;
+    totalSatisfaction += Number(f.satisfaction || 0);
+    if (f.reported === true || Number(f.satisfaction || 0) <= 2) {
+      actionRequired++;
+    }
+
+    const patientName = userMap[f.patientEmail] || f.patientEmail;
+    const docName = userMap[f.doctorEmail] || f.doctorEmail;
+
+    html += `<div class="list-item" style="background:rgba(255,255,255,0.7);border-radius:12px;margin-bottom:10px;padding:15px;border:1px solid rgba(0,0,0,0.05)">
+      <div style="display:flex;justify-content:space-between">
+        <strong>${patientName}</strong>
+        <div class="muted">To: Dr. ${docName} | ${f.timestamp ? f.timestamp.split('T')[0] : ''}</div>
+      </div>
+      <div style="margin-top:8px"><strong>Pain:</strong> ${f.pain}/10 &nbsp;&nbsp; <strong>Energy:</strong> ${f.energy}/10 &nbsp;&nbsp; <strong>Satisfaction:</strong> ${f.satisfaction}/5</div>
+      <div style="margin-top:8px"><i>"${f.notes || ''}"</i></div>
+    </div>`;
+  });
+
+  document.getElementById('feedbackList').innerHTML = html || "No feedback yet.";
+  document.getElementById('totalFeedback').textContent = totalFeedbacks;
+  document.getElementById('avgSatisfaction').textContent = totalFeedbacks ? (totalSatisfaction / totalFeedbacks).toFixed(1) : 0;
+  document.getElementById('actionRequired').textContent = actionRequired;
+};
+
+window.adminLoadNotifications = async function() {
+  const snapshot = await getDocs(collection(db, "notifications"));
+  let html = "";
+
+  const usersSnap = await getDocs(collection(db, "users"));
+  const userMap = {};
+  usersSnap.forEach(u => userMap[u.data().email] = u.data().name);
+
+  snapshot.forEach(docSnap => {
+    const n = docSnap.data();
+    const toName = n.toEmail === 'All Patients' ? 'All Patients' : (userMap[n.toEmail] || n.toEmail);
+    html += `<div class="list-item" style="background:rgba(255,255,255,0.7);border-radius:12px;margin-bottom:10px;padding:15px;border:1px solid rgba(0,0,0,0.05)">
+      <div style="display:flex;justify-content:space-between">
+        <strong>${toName}</strong>
+        <div class="muted">${n.timestamp ? n.timestamp.split('T')[0] : ''}</div>
+      </div>
+      <div style="margin-top:8px">${n.message}</div>
+    </div>`;
+  });
+
+  const listEl = document.getElementById('notificationsList');
+  if(listEl) listEl.innerHTML = html || "No notifications yet.";
+};
+
+window.adminLoadPatients = async function() {
+  const snapshot = await getDocs(collection(db, "users"));
+  const tbody = document.querySelector('#patientsTable tbody');
+  const miniList = document.getElementById('miniList');
+  const progressSelect = document.getElementById('progressPatientSelector');
+  
+  let html = "";
+  let miniHtml = "";
+  let selectHtml = '<option value="">Select a Patient...</option>';
+  let count = 0;
+
+  // Fetch from 'patients' collection
+  const patientsSnap = await getDocs(collection(db, "patients"));
+  
+  patientsSnap.forEach(docSnap => {
+    const data = docSnap.data();
+    count++;
+    const joinDate = data.join || data.createdAt?.split('T')[0] || 'N/A';
+    html += `<tr>
+      <td><strong>${data.name}</strong><br><span class="muted">${data.email || ''}</span></td>
+      <td>${data.phone || 'N/A'}</td>
+      <td>${data.age || 'N/A'}</td>
+      <td><span class="badge">active</span></td>
+      <td>${joinDate}</td>
+      <td>${data.lastVisit || 'N/A'}</td>
+      <td>
+        <button class="btn small ghost" onclick="openPatientModal('${docSnap.id}')">Edit</button>
+        <button class="btn small ghost" onclick="window.deletePatientDoc('${docSnap.id}')">Delete</button>
+      </td>
+    </tr>`;
+
+    if (count <= 6) {
+      miniHtml += `<div class="list-item"><strong>${data.name}</strong><div class="muted">${data.therapy || ''}</div></div>`;
+    }
+
+    selectHtml += `<option value="${data.email || docSnap.id}">${data.name}</option>`;
+  });
+
+
+  if (tbody) tbody.innerHTML = html || '<tr><td colspan="7">No patients found.</td></tr>';
+  if (miniList) miniList.innerHTML = miniHtml || '<div class="muted">No recent patients.</div>';
+  if (progressSelect) progressSelect.innerHTML = selectHtml;
+  document.getElementById('badgeCount').textContent = `${count} patients`;
+  document.getElementById('m-patients').textContent = count;
+  document.getElementById('m-active').textContent = count;
+};
+
+window.adminLoadProgress = async function(patientEmail) {
+  if (!patientEmail) {
+    document.getElementById('completedSessions').textContent = '0/0';
+    document.getElementById('improvement').textContent = '0%';
+    document.getElementById('nextSession').textContent = '-';
+    document.getElementById('therapyType').textContent = '-';
+    const canvas = document.getElementById('progressChart');
+    if (canvas) {
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+    }
+    return;
+  }
+
+  const sessionSnap = await getDocs(collection(db, "sessions"));
+  let completed = 0;
+  let total = 0;
+  let nextSession = null;
+  
+  sessionSnap.forEach(docSnap => {
+    const s = docSnap.data();
+    if (s.patientEmail === patientEmail) {
+      total++;
+      const today = new Date().toISOString().split('T')[0];
+      if (s.date && s.date < today) completed++;
+      else if (!nextSession || s.date < nextSession.date) nextSession = s; 
+    }
+  });
+
+  document.getElementById('completedSessions').textContent = `${completed}/${total || 1}`;
+  
+  // Calculate improvement using real feedback
+  const fbSnap = await getDocs(collection(db, "feedbacks"));
+  let fbCount = 0;
+  let fbScore = 0;
+  const chartData = [];
+  
+  fbSnap.forEach(docSnap => {
+    const f = docSnap.data();
+    if (f.patientEmail === patientEmail) {
+       fbCount++;
+       const score = ((Number(f.energy) || 5) * 10) - ((Number(f.pain) || 5) * 5) + ((Number(f.satisfaction) || 3) * 10);
+       fbScore += score;
+       chartData.push(score);
+    }
+  });
+
+  const improvementStr = fbCount ? Math.min(100, Math.max(0, Math.round(fbScore / fbCount))) + "%" : "0%";
+  document.getElementById('improvement').textContent = improvementStr;
+  
+  if (nextSession) {
+    document.getElementById('nextSession').textContent = nextSession.date;
+    document.getElementById('therapyType').textContent = nextSession.type || "Panchakarma";
+  } else {
+    document.getElementById('nextSession').textContent = '-';
+    document.getElementById('therapyType').textContent = '-';
+  }
+
+  drawRealChart(chartData.length ? chartData : [20, 35, 50, 65, 80]);
+};
+
+window.progressChartInstance = null;
+
+function drawRealChart(series) {
+  const canvas = document.getElementById('progressChart');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  if(window.progressChartInstance) {
+    window.progressChartInstance.destroy();
+  }
+
+  const labels = series.map((_, i) => 'Session ' + (i + 1));
+  
+  window.progressChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Improvement Score',
+        data: series,
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.2)',
+        borderWidth: 3,
+        pointBackgroundColor: '#fff',
+        pointBorderColor: '#10b981',
+        pointRadius: 4,
+        fill: true,
+        tension: 0.3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          grid: { color: '#eee' }
+        },
+        x: {
+          grid: { display: false }
+        }
+      },
+      plugins: {
+        legend: { display: false }
+      }
+    }
+  });
+}
+
+// Global selector listener
+document.getElementById('progressPatientSelector')?.addEventListener('change', (e) => {
+    window.adminLoadProgress(e.target.value);
+});
+
+
+// Logic for Modal 
+const modalNotification = document.getElementById("modalNotification");
+document.getElementById("sendNotification").addEventListener("click", async () => {
+  // fetch users for dropdown
+  const usersSnap = await getDocs(collection(db, "users"));
+  let html = '<option value="All Patients">All Patients</option>';
+  usersSnap.forEach(u => {
+    const d = u.data();
+    if(d.role === 'patient') {
+      html += `<option value="${d.email}">${d.name}</option>`;
+    }
+  });
+  document.getElementById("n_patient").innerHTML = html;
+  
+  modalNotification.style.display = "flex";
+});
+
+document.getElementById("closeNotification").addEventListener("click", () => {
+  modalNotification.style.display = "none";
+});
+
+document.getElementById("saveNotificationBtn").addEventListener("click", async () => {
+  const toEmail = document.getElementById("n_patient").value;
+  const message = document.getElementById("n_message").value;
+  if(!message.trim()){ alert("Message cannot be empty"); return; }
+  
+  await addDoc(collection(db, "notifications"), {
+    toEmail: toEmail,
+    message: message,
+    timestamp: new Date().toISOString()
+  });
+  
+  alert("Notification sent successfully!");
+  modalNotification.style.display = "none";
+  document.getElementById("n_message").value = "";
+  
+  window.adminLoadNotifications();
+}); // Firebase logic removed - handled by guard.js
+
+window.adminLoadPatients();
+
+window.adminLoadRevenue = async function() {
+  try {
+    const res = await fetch('/api/payments/admin/summary');
+    const data = await res.json();
+    document.getElementById('m-revenue').textContent = "₹" + (data.platformRevenue || 0).toLocaleString('en-IN');
+  } catch (e) { console.error(e); }
+};
+window.adminLoadRevenue();
+
+window.adminLoadSessions();
+window.adminLoadFeedbacks();
+window.adminLoadNotifications();
+window.adminPopulateReportPatients();
+
+</script>
+</body>
+<script type="module" src="js/logout.js"></script>
+<script type="module">
+  import { protect } from "./js/guard.js";
+  protect("admin");
+
+  // Schedule button logic
+  const schedBtn = document.getElementById("scheduleBtn");
+  if(schedBtn) {
+    schedBtn.addEventListener("click", () => {
+       if(window.openScheduleModal) window.openScheduleModal();
+    });
+  }
+</script>
+<script type="module" src="js/verifyDoctors.js?v=2"></script>
+</html>
