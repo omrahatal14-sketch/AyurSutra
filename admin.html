@@ -3,17 +3,575 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AyurSutra — Admin Dashboard (Interactive Prototype)</title>
-  <meta name="description" content="Interactive HTML/CSS/JS prototype for AyurSutra admin: patient management, therapy scheduling, progress tracking, notifications and feedback. All data stored locally in the browser (no backend)." />
+  <title>AyurSutra — Admin Dashboard</title>
+  <meta name="description" content="Admin dashboard for AyurSutra: patient management, therapy scheduling, progress tracking, notifications and feedback." />
 
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* ============== ADVANCED ADMIN DASHBOARD STYLES ============== */
+    :root {
+      --admin-glass: rgba(255, 255, 255, 0.78);
+      --admin-glass-strong: rgba(255, 255, 255, 0.92);
+      --admin-border: rgba(20, 83, 45, 0.08);
+      --admin-shadow-soft: 0 4px 20px rgba(20, 83, 45, 0.06);
+      --admin-shadow-hover: 0 16px 40px rgba(20, 83, 45, 0.12);
+      --admin-gradient-1: linear-gradient(135deg, #15803D 0%, #22C55E 100%);
+      --admin-gradient-2: linear-gradient(135deg, #CA8A04 0%, #F59E0B 100%);
+      --admin-gradient-3: linear-gradient(135deg, #C2410C 0%, #F97316 100%);
+      --admin-gradient-4: linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%);
+      --admin-gradient-5: linear-gradient(135deg, #0891B2 0%, #22D3EE 100%);
+    }
+
+    /* TOPBAR */
+    .topbar {
+      background: var(--admin-glass-strong) !important;
+      backdrop-filter: blur(24px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+      border-bottom: 1px solid var(--admin-border) !important;
+      height: 76px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      box-shadow: 0 2px 18px rgba(20, 83, 45, 0.05) !important;
+    }
+    .secondary-nav-container { padding-top: 18px !important; }
+    .nav-menu {
+      background: var(--admin-glass-strong) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      box-shadow: var(--admin-shadow-soft) !important;
+      padding: 6px !important;
+      border: 1px solid var(--admin-border) !important;
+    }
+    .tab {
+      transition: all 240ms var(--ease-spring) !important;
+      position: relative;
+      font-size: 14px !important;
+    }
+    .tab:hover { transform: translateY(-2px); }
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    /* PAGE TITLE */
+    .page-title h2 {
+      font-size: 32px !important;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+      background: linear-gradient(120deg, var(--text-main) 0%, var(--primary) 60%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    .page-title p { font-size: 15px; color: var(--text-muted); }
+
+    /* HERO / QUICK HEADER */
+    .admin-hero {
+      background: var(--admin-glass-strong);
+      border: 1px solid var(--admin-border);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: var(--radius-xl);
+      padding: 28px 32px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+      position: relative;
+      overflow: hidden;
+      box-shadow: var(--admin-shadow-soft);
+    }
+    .admin-hero::before {
+      content: '';
+      position: absolute;
+      right: -80px;
+      top: -80px;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.12), transparent 70%);
+      border-radius: 50%;
+    }
+    .admin-hero::after {
+      content: '';
+      position: absolute;
+      left: -60px;
+      bottom: -60px;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(202, 138, 4, 0.10), transparent 70%);
+      border-radius: 50%;
+    }
+    .admin-hero-text { position: relative; z-index: 2; flex: 1; min-width: 240px; }
+    .admin-hero-text h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .admin-hero-text p { color: var(--text-muted); font-size: 14px; max-width: 480px; }
+    .admin-hero-actions { display: flex; gap: 10px; flex-wrap: wrap; position: relative; z-index: 2; }
+
+    /* CARDS */
+    .card {
+      border: 1px solid var(--admin-border) !important;
+      background: var(--admin-glass-strong) !important;
+      backdrop-filter: blur(12px);
+      transition: transform 280ms var(--ease-out), box-shadow 280ms var(--ease-out) !important;
+    }
+    .card:hover { box-shadow: var(--admin-shadow-hover) !important; transform: translateY(-4px); }
+    .card-title {
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      color: var(--text-main);
+      letter-spacing: 0.01em;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-title .card-title-meta { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+    /* STAT CARDS - ADVANCED */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; margin-bottom: 28px; }
+    .stat-card {
+      padding: 22px 24px !important;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 320ms var(--ease-spring) !important;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      right: -50px; top: -50px;
+      width: 160px; height: 160px;
+      border-radius: 50%;
+      pointer-events: none;
+      opacity: 0.4;
+    }
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      border-radius: 4px 0 0 4px;
+    }
+    .stat-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: var(--admin-shadow-hover); }
+    .stat-card:hover .stat-icon { transform: rotate(-8deg) scale(1.08); }
+    .stat-card:hover .sparkline-svg path { stroke-width: 3; }
+
+    /* Per-card accent color */
+    .stat-card.tone-green::before { background: linear-gradient(180deg, #15803D, #22C55E); }
+    .stat-card.tone-green::after { background: radial-gradient(circle, rgba(34, 197, 94, 0.18), transparent 70%); }
+    .stat-card.tone-green .stat-icon { background: var(--admin-gradient-1); color: white; border: none; }
+
+    .stat-card.tone-amber::before { background: linear-gradient(180deg, #CA8A04, #F59E0B); }
+    .stat-card.tone-amber::after { background: radial-gradient(circle, rgba(245, 158, 11, 0.18), transparent 70%); }
+    .stat-card.tone-amber .stat-icon { background: var(--admin-gradient-2); color: white; border: none; }
+
+    .stat-card.tone-rose::before { background: linear-gradient(180deg, #C2410C, #F97316); }
+    .stat-card.tone-rose::after { background: radial-gradient(circle, rgba(249, 115, 22, 0.18), transparent 70%); }
+    .stat-card.tone-rose .stat-icon { background: var(--admin-gradient-3); color: white; border: none; }
+
+    .stat-card.tone-violet::before { background: linear-gradient(180deg, #7C3AED, #A78BFA); }
+    .stat-card.tone-violet::after { background: radial-gradient(circle, rgba(167, 139, 250, 0.18), transparent 70%); }
+    .stat-card.tone-violet .stat-icon { background: var(--admin-gradient-4); color: white; border: none; }
+
+    .stat-card.tone-cyan::before { background: linear-gradient(180deg, #0891B2, #22D3EE); }
+    .stat-card.tone-cyan::after { background: radial-gradient(circle, rgba(34, 211, 238, 0.18), transparent 70%); }
+    .stat-card.tone-cyan .stat-icon { background: var(--admin-gradient-5); color: white; border: none; }
+
+    .stat-card .stat-icon {
+      width: 52px !important; height: 52px !important;
+      transition: all 320ms var(--ease-spring);
+    }
+    .stat-icon svg { width: 26px; height: 26px; }
+    .stat-info { flex: 1; min-width: 0; }
+    .stat-info h4 {
+      font-size: 26px !important;
+      letter-spacing: -0.02em;
+      font-weight: 700;
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .stat-info p { color: var(--text-muted); font-size: 13px; margin: 0; font-weight: 500; }
+    .stat-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .sparkline-svg { width: 80px; height: 28px; overflow: visible; }
+    .sparkline-svg path {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke-width 200ms ease;
+    }
+    .sparkline-svg .spark-fill {
+      fill: currentColor;
+      opacity: 0.12;
+      stroke: none;
+    }
+    .stat-card.tone-green .sparkline-svg { color: #15803D; }
+    .stat-card.tone-amber .sparkline-svg { color: #CA8A04; }
+    .stat-card.tone-rose .sparkline-svg { color: #C2410C; }
+    .stat-card.tone-violet .sparkline-svg { color: #7C3AED; }
+    .stat-card.tone-cyan .sparkline-svg { color: #0891B2; }
+
+    .trend { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-pill); display: inline-flex; align-items: center; gap: 4px; }
+    .trend::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+    .trend.up   { background: var(--success-soft); color: var(--success); }
+    .trend.down { background: var(--danger-soft); color: var(--danger); }
+    .trend.flat { background: rgba(100, 116, 139, 0.10); color: #64748B; }
+
+    /* BADGE */
+    .badge { letter-spacing: 0.3px; font-weight: 700; padding: 5px 12px !important; }
+    .badge::before { width: 6px; height: 6px; }
+
+    /* BUTTONS */
+    .btn { border-radius: var(--radius-pill) !important; }
+    .btn.ghost { border-radius: var(--radius-md) !important; }
+    .btn.small { border-radius: var(--radius-md) !important; }
+    .btn-icon-only {
+      width: 38px; height: 38px;
+      padding: 0;
+      border-radius: var(--radius-md);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      border: 1px solid var(--admin-border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-icon-only:hover { background: var(--primary-100); color: var(--primary); transform: translateY(-1px); }
+    .btn-icon-only svg { width: 18px; height: 18px; }
+
+    /* USER PROFILE / AVATAR */
+    .user-profile { gap: 14px !important; }
+    .user-profile .avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: var(--admin-gradient-1);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+      box-shadow: 0 4px 12px rgba(21, 128, 61, 0.30);
+      border: 2px solid white;
+    }
+    .user-profile .user-info { text-align: right; }
+    .user-profile .user-name { font-weight: 600; font-size: 14px; }
+    .user-profile .user-role { font-size: 12px; color: var(--text-muted); }
+    .pulse-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--success);
+      display: inline-block;
+      margin-right: 4px;
+      box-shadow: 0 0 0 0 rgba(21, 128, 61, 0.5);
+      animation: pulse-ring 1.6s ease-out infinite;
+    }
+
+    /* VIEWS */
+    .views-container { padding: 28px 32px 48px !important; }
+    .view, .section { animation: fadeInUp 0.5s var(--ease-out) both; }
+    .stat-info h4 { font-size: 28px !important; letter-spacing: -0.02em; }
+    .stats-grid > * { animation: fadeInUp 0.55s var(--ease-out) both; }
+    .stats-grid > *:nth-child(1) { animation-delay: 50ms; }
+    .stats-grid > *:nth-child(2) { animation-delay: 130ms; }
+    .stats-grid > *:nth-child(3) { animation-delay: 210ms; }
+    .stats-grid > *:nth-child(4) { animation-delay: 290ms; }
+    .stats-grid > *:nth-child(5) { animation-delay: 370ms; }
+
+    /* MODAL */
+    .modal-backdrop {
+      background: rgba(15, 46, 22, 0.55) !important;
+      backdrop-filter: blur(14px) !important;
+    }
+    .custom-modal {
+      border-radius: var(--radius-xl) !important;
+      box-shadow: 0 30px 80px rgba(15, 46, 22, 0.30) !important;
+      padding: 32px !important;
+      max-width: 580px !important;
+    }
+    .custom-modal::before {
+      content: '';
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary-soft));
+    }
+    .custom-modal h3 {
+      font-family: 'Lora', serif;
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+
+    /* FORM */
+    .form-field { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .form-field label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .form-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .form-row .form-field { min-width: 0; }
+
+    /* LIST ITEMS - session cards */
+    .session {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 20px;
+      background: var(--admin-glass-strong);
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-md);
+      margin-bottom: 10px;
+      transition: all 240ms var(--ease-out);
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+    }
+    .session:hover {
+      transform: translateX(6px);
+      box-shadow: var(--admin-shadow-soft);
+      border-color: var(--primary-soft);
+    }
+    .session::before {
+      content: '';
+      width: 4px;
+      height: 36px;
+      background: var(--primary);
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .session .info { flex: 1; min-width: 0; }
+    .session .info strong { font-size: 15px; color: var(--text-main); }
+    .session .info small { color: var(--text-muted); font-size: 12px; }
+    .session .muted { color: var(--text-muted); font-size: 13px; }
+
+    /* TABLE */
+    .table-container {
+      overflow-x: auto;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--admin-border);
+      background: var(--admin-glass-strong);
+      box-shadow: var(--admin-shadow-soft);
+      backdrop-filter: blur(8px);
+    }
+    .table { width: 100%; border-collapse: collapse; }
+    .table th {
+      background: linear-gradient(180deg, rgba(34, 197, 94, 0.06), transparent);
+      padding: 16px 18px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--primary-800);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      border-bottom: 1.5px solid var(--admin-border);
+    }
+    .table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--admin-border);
+      font-size: 14px;
+      color: var(--text-main);
+      transition: background 200ms ease;
+    }
+    .table tr:last-child td { border-bottom: none; }
+    .table tbody tr { transition: var(--transition); }
+    .table tbody tr:hover { background: rgba(34, 197, 94, 0.04); }
+    .table tbody tr:hover td { color: var(--primary-800); }
+
+    /* LIST ITEMS */
+    .list-item {
+      border-radius: var(--radius-md) !important;
+      transition: all 240ms var(--ease-out) !important;
+      background: var(--admin-glass-strong);
+      border: 1px solid var(--admin-border);
+      backdrop-filter: blur(8px);
+    }
+    .list-item:hover { transform: translateX(6px) !important; box-shadow: var(--admin-shadow-soft); }
+
+    /* CHARTS */
+    .chart-card {
+      padding: 24px !important;
+      position: relative;
+    }
+    .chart-card .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .chart-card .chart-legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .chart-card .chart-legend .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .chart-card .chart-legend .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* QUICK ACTIONS */
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .quick-action {
+      padding: 14px;
+      background: var(--admin-glass-strong);
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 240ms var(--ease-spring);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      text-align: left;
+    }
+    .quick-action:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--admin-shadow-soft);
+      border-color: var(--primary);
+      color: var(--primary-800);
+    }
+    .quick-action .qa-icon {
+      width: 32px; height: 32px;
+      border-radius: var(--radius-sm);
+      background: var(--primary-100);
+      color: var(--primary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .quick-action .qa-icon svg { width: 16px; height: 16px; }
+
+    /* DOCTOR VERIFICATION */
+    .doctor-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      background: var(--admin-glass-strong);
+      border: 1px solid var(--admin-border);
+      border-radius: var(--radius-md);
+      margin-bottom: 12px;
+      backdrop-filter: blur(8px);
+      transition: all 240ms var(--ease-out);
+    }
+    .doctor-card:hover { box-shadow: var(--admin-shadow-soft); transform: translateY(-2px); }
+    .doctor-avatar {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: var(--admin-gradient-1);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    .doctor-info { flex: 1; min-width: 0; }
+    .doctor-info strong { display: block; margin-bottom: 2px; font-size: 15px; }
+    .doctor-info .muted { font-size: 12px; color: var(--text-muted); }
+    .doctor-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+    /* PROGRESS BAR / DOCTOR METER */
+    .meter {
+      width: 100%;
+      height: 6px;
+      background: rgba(20, 83, 45, 0.08);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .meter > span {
+      display: block;
+      height: 100%;
+      background: var(--admin-gradient-1);
+      border-radius: var(--radius-pill);
+      transition: width 800ms var(--ease-out);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1100px) {
+      .admin-hero { padding: 22px; }
+      .admin-hero-text h1 { font-size: 22px; }
+    }
+    @media (max-width: 768px) {
+      .page-title h2 { font-size: 22px !important; }
+      .views-container { padding: 16px !important; }
+      .admin-hero { padding: 18px; }
+      .admin-hero-text h1 { font-size: 20px; }
+      .quick-actions-grid { grid-template-columns: 1fr; }
+    }
+
+    /* DARK MODE REFINEMENTS */
+    body.dark-mode .admin-hero,
+    body.dark-mode .card,
+    body.dark-mode .table-container,
+    body.dark-mode .session,
+    body.dark-mode .list-item,
+    body.dark-mode .quick-action,
+    body.dark-mode .doctor-card {
+      background: rgba(11, 59, 34, 0.85) !important;
+      border-color: rgba(240, 253, 244, 0.08) !important;
+    }
+    body.dark-mode .table th { color: var(--text-soft) !important; }
+    body.dark-mode .stat-icon { box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4); }
+  </style>
 </head>
 <body>
   <div class="app-layout">
-    <!-- MAIN CONTENT -->
     <div class="main-content" style="padding-top:0;">
       <!-- TOPBAR -->
       <header class="topbar" style="padding-left: 24px; gap: 20px; background: transparent; border-bottom: none; height: auto; padding-top: 20px; padding-bottom: 20px;">
@@ -25,98 +583,205 @@
               <span style="font-size: 12px; color: var(--text-muted);">Panchakarma Management System</span>
             </div>
           </div>
-          <button class="menu-toggle" id="menuToggle">Menu</button>
         </div>
         <div class="topbar-right">
-
+          <button class="btn-icon-only" title="Notifications" aria-label="Notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/>
+              <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+            </svg>
+          </button>
           <button id="themeToggle" class="btn ghost small">Dark</button>
-          <button id="addPatientBtn" class="btn small">+ Add Patient</button>
+          <button id="addPatientBtn" class="btn small">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            Add Patient
+          </button>
           <div class="user-profile">
             <div class="user-info">
-              <div class="user-name" id="userName">Loading...</div>
-              <div class="user-role" id="userRole">Admin</div>
+              <div class="user-name" id="userName"><span class="pulse-dot"></span>Loading...</div>
+              <div class="user-role" id="userRole">Administrator</div>
             </div>
+            <div class="avatar" id="userAvatar">A</div>
             <button class="btn small danger" onclick="logout()">Logout</button>
           </div>
         </div>
       </header>
 
       <div class="secondary-nav-container" style="display: flex; justify-content: center; padding: 0 32px 20px 32px;">
-        <nav class="nav-menu" style="display: inline-flex; gap: 8px; background: var(--card-bg); padding: 8px; border-radius: 100px; box-shadow: var(--shadow-sm); overflow-x: auto; max-width: 100%; border: 1px solid var(--border-color);">
-          <button class="tab active" data-tab="dashboard"><span class="label">Dashboard</span></button>
-          <button class="tab" data-tab="patients"><span class="label">Patient Management</span></button>
-          <button class="tab" data-tab="scheduling"><span class="label">Therapy Scheduling</span></button>
-          <button class="tab" data-tab="progress"><span class="label">Progress Tracking</span></button>
-          <button class="tab" data-tab="notifications"><span class="label">Notifications</span></button>
-          <button class="tab" data-tab="feedback"><span class="label">Payment Status</span></button>
-          <button class="tab" data-tab="verification"><span class="label">Verification</span></button>
+        <nav class="nav-menu" style="display: inline-flex; gap: 8px; background: var(--card-bg); padding: 8px; border-radius: 100px; box-shadow: var(--shadow-sm); overflow-x: auto; max-width: 100%; border: 1px solid var(--admin-border);">
+          <button class="tab active" data-tab="dashboard">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span class="label">Dashboard</span>
+          </button>
+          <button class="tab" data-tab="patients">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span class="label">Patients</span>
+          </button>
+          <button class="tab" data-tab="scheduling">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span class="label">Scheduling</span>
+          </button>
+          <button class="tab" data-tab="progress">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+            <span class="label">Progress</span>
+          </button>
+          <button class="tab" data-tab="notifications">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            <span class="label">Notifications</span>
+          </button>
+          <button class="tab" data-tab="feedback">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span class="label">Payments</span>
+          </button>
+          <button class="tab" data-tab="verification">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg>
+            <span class="label">Verification</span>
+          </button>
         </nav>
       </div>
 
-      <!-- VIEWS CONTAINER -->
+      <!-- VIEWS -->
       <main class="views-container">
         <div class="two-col-grid">
           <div class="left-col">
-            <!-- Dashboard -->
+
+            <!-- HERO -->
             <section id="dashboard" class="view section active">
-              <div class="page-header">
-                <div class="page-title">
-                  <h2>Welcome to AyurSutra</h2>
-                  <p>Manage your Panchakarma practice with comprehensive tools.</p>
+              <div class="admin-hero">
+                <div class="admin-hero-text">
+                  <h1>Namaste, Administrator 🙏</h1>
+                  <p>Monitor your entire Panchakarma practice in real-time. Manage patients, schedule therapies, and track outcomes — all in one place.</p>
+                </div>
+                <div class="admin-hero-actions">
+                  <button class="btn" id="addPatientBtn2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                    New Patient
+                  </button>
+                  <button class="btn ghost" id="quickSchedule2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    Schedule
+                  </button>
                 </div>
               </div>
 
+              <!-- Stats Grid - Advanced -->
               <div class="stats-grid">
-                <div class="stat-card card">
-                  <div class="stat-icon"></div>
+                <div class="stat-card card tone-green">
+                  <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                  </div>
                   <div class="stat-info">
                     <h4 id="m-revenue">₹0</h4>
                     <p>Platform Revenue</p>
                   </div>
+                  <div class="stat-card-footer">
+                    <span class="trend up">+18.4%</span>
+                    <svg class="sparkline-svg" viewBox="0 0 80 28" preserveAspectRatio="none">
+                      <path class="spark-fill" d="M0,22 L10,18 L20,20 L30,15 L40,16 L50,10 L60,12 L70,6 L80,8 L80,28 L0,28 Z"/>
+                      <path d="M0,22 L10,18 L20,20 L30,15 L40,16 L50,10 L60,12 L70,6 L80,8"/>
+                    </svg>
+                  </div>
                 </div>
-                <div class="stat-card card">
-                  <div class="stat-icon"></div>
+
+                <div class="stat-card card tone-amber">
+                  <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                  </div>
                   <div class="stat-info">
                     <h4 id="m-patients">0</h4>
                     <p>Total Patients</p>
+                  </div>
+                  <div class="stat-card-footer">
                     <span class="trend up">+12%</span>
+                    <svg class="sparkline-svg" viewBox="0 0 80 28" preserveAspectRatio="none">
+                      <path class="spark-fill" d="M0,20 L10,17 L20,18 L30,12 L40,14 L50,10 L60,8 L70,5 L80,3 L80,28 L0,28 Z"/>
+                      <path d="M0,20 L10,17 L20,18 L30,12 L40,14 L50,10 L60,8 L70,5 L80,3"/>
+                    </svg>
                   </div>
                 </div>
-                <div class="stat-card card">
-                  <div class="stat-icon"></div>
+
+                <div class="stat-card card tone-cyan">
+                  <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                  </div>
                   <div class="stat-info">
                     <h4 id="m-active">0</h4>
                     <p>Active Treatments</p>
+                  </div>
+                  <div class="stat-card-footer">
                     <span class="trend up">+5%</span>
+                    <svg class="sparkline-svg" viewBox="0 0 80 28" preserveAspectRatio="none">
+                      <path class="spark-fill" d="M0,18 L10,16 L20,12 L30,14 L40,9 L50,11 L60,7 L70,5 L80,4 L80,28 L0,28 Z"/>
+                      <path d="M0,18 L10,16 L20,12 L30,14 L40,9 L50,11 L60,7 L70,5 L80,4"/>
+                    </svg>
                   </div>
                 </div>
-                <div class="stat-card card">
-                  <div class="stat-icon"></div>
+
+                <div class="stat-card card tone-violet">
+                  <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  </div>
                   <div class="stat-info">
                     <h4 id="m-sessions">0</h4>
                     <p>Today's Sessions</p>
                   </div>
+                  <div class="stat-card-footer">
+                    <span class="trend flat">Today</span>
+                    <svg class="sparkline-svg" viewBox="0 0 80 28" preserveAspectRatio="none">
+                      <path class="spark-fill" d="M0,14 L10,15 L20,12 L30,16 L40,10 L50,14 L60,8 L70,12 L80,10 L80,28 L0,28 Z"/>
+                      <path d="M0,14 L10,15 L20,12 L30,16 L40,10 L50,14 L60,8 L70,12 L80,10"/>
+                    </svg>
+                  </div>
                 </div>
-                <div class="stat-card card">
-                  <div class="stat-icon"></div>
+
+                <div class="stat-card card tone-rose">
+                  <div class="stat-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  </div>
                   <div class="stat-info">
                     <h4 id="m-alerts">0</h4>
                     <p>Pending Alerts</p>
+                  </div>
+                  <div class="stat-card-footer">
                     <span class="trend down">-2%</span>
+                    <svg class="sparkline-svg" viewBox="0 0 80 28" preserveAspectRatio="none">
+                      <path class="spark-fill" d="M0,8 L10,10 L20,12 L30,10 L40,14 L50,18 L60,16 L70,20 L80,22 L80,28 L0,28 Z"/>
+                      <path d="M0,8 L10,10 L20,12 L30,10 L40,14 L50,18 L60,16 L70,20 L80,22"/>
+                    </svg>
                   </div>
                 </div>
               </div>
 
               <div class="two-col-grid" style="gap:20px;">
                 <div class="card">
-                  <h4 class="card-title">Recent Activities</h4>
+                  <h4 class="card-title">
+                    <span>📋 Recent Activities</span>
+                    <span class="card-title-meta">Live feed</span>
+                  </h4>
                   <div class="list" id="recentActivities"></div>
                 </div>
                 <div class="card">
-                  <h4 class="card-title">Quick Actions</h4>
-                  <div style="display:flex;flex-direction:column;gap:12px;">
-                    <button class="btn ghost" id="quickSchedule">Schedule Session</button>
-                    <button class="btn ghost" id="quickNotify">Send Notification</button>
+                  <h4 class="card-title">
+                    <span>⚡ Quick Actions</span>
+                    <span class="card-title-meta">Shortcuts</span>
+                  </h4>
+                  <div class="quick-actions-grid">
+                    <button class="quick-action" id="quickSchedule">
+                      <span class="qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg></span>
+                      Schedule Session
+                    </button>
+                    <button class="quick-action" id="quickNotify">
+                      <span class="qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+                      Send Notification
+                    </button>
+                    <button class="quick-action" id="quickReport">
+                      <span class="qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+                      Generate Report
+                    </button>
+                    <button class="quick-action" id="quickVerify">
+                      <span class="qa-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9 9 4.03 9 9z"/></svg></span>
+                      Verify Doctors
+                    </button>
                   </div>
                 </div>
               </div>
@@ -127,7 +792,7 @@
               <div class="page-header">
                 <div class="page-title">
                   <h2>Patient Management</h2>
-                  <p>Patient List <span id="badgeCount" class="badge active"></span></p>
+                  <p>Active roster <span id="badgeCount" class="badge active"></span></p>
                 </div>
               </div>
               <div class="table-container">
@@ -145,42 +810,54 @@
               <div class="page-header">
                 <div class="page-title">
                   <h2>Therapy Scheduling</h2>
+                  <p>Manage today's therapy sessions</p>
                 </div>
-                <button id="scheduleBtn" class="btn">Schedule Session</button>
+                <button id="scheduleBtn" class="btn">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+                  New Session
+                </button>
               </div>
               <div class="list" id="sessionsList"></div>
             </section>
 
-            <!-- Progress Tracking -->
+            <!-- Progress -->
             <section id="progress" class="view section" style="display:none">
               <div class="page-header">
                 <div class="page-title">
                   <h2>Progress Tracking</h2>
+                  <p>Monitor patient improvement over time</p>
                 </div>
                 <select id="progressPatientSelector"></select>
               </div>
               <div class="stats-grid">
-                <div class="stat-card card">
-                  <div class="stat-icon"></div>
-                  <div class="stat-info">
-                    <h4 id="m-revenue">₹0</h4>
-                    <p>Platform Revenue</p>
-                  </div>
+                <div class="stat-card card tone-green">
+                  <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                  <div class="stat-info"><h4 id="m-revenue-p">₹0</h4><p>Revenue</p></div>
                 </div>
-                <div class="stat-card card">
-                  <div class="stat-info"><h4 id="completedSessions">0/0</h4><p>Completed Sessions</p></div>
+                <div class="stat-card card tone-amber">
+                  <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+                  <div class="stat-info"><h4 id="completedSessions">0/0</h4><p>Completed</p></div>
                 </div>
-                <div class="stat-card card">
+                <div class="stat-card card tone-cyan">
+                  <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg></div>
                   <div class="stat-info"><h4 id="improvement">0%</h4><p>Improvement</p></div>
                 </div>
-                <div class="stat-card card">
+                <div class="stat-card card tone-violet">
+                  <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
                   <div class="stat-info"><h4 id="nextSession">-</h4><p>Next Session</p></div>
                 </div>
-                <div class="stat-card card">
-                  <div class="stat-info"><h4 id="therapyType">-</h4><p>Therapy Type</p></div>
+                <div class="stat-card card tone-rose">
+                  <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+                  <div class="stat-info"><h4 id="therapyType">-</h4><p>Therapy</p></div>
                 </div>
               </div>
-              <div class="card" style="height:350px;">
+              <div class="card chart-card" style="height:380px;">
+                <div class="chart-header">
+                  <h4 class="card-title">Improvement Trend</h4>
+                  <div class="chart-legend">
+                    <span class="legend-item"><span class="legend-dot" style="background:#10b981"></span>Improvement Score</span>
+                  </div>
+                </div>
                 <canvas id="progressChart"></canvas>
               </div>
             </section>
@@ -190,28 +867,41 @@
               <div class="page-header">
                 <div class="page-title">
                   <h2>Notifications</h2>
+                  <p>Communication log</p>
                 </div>
-                <button class="btn" id="sendNotification">Send Notification</button>
+                <button class="btn" id="sendNotification">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  Compose
+                </button>
               </div>
               <div class="list" id="notificationsList"></div>
             </section>
 
-            <!-- Feedback -->
+            <!-- Feedback / Payments -->
             <section id="feedback" class="view section" style="display:none">
               <div class="page-header">
-                <div class="page-title"><h2>Patient Feedback</h2></div>
+                <div class="page-title">
+                  <h2>Patient Feedback</h2>
+                  <p>Insights from your community</p>
+                </div>
               </div>
               <div class="stats-grid">
-                <div class="stat-card card">
-                  <div class="stat-icon"></div>
-                  <div class="stat-info">
-                    <h4 id="m-revenue">₹0</h4>
-                    <p>Platform Revenue</p>
-                  </div>
+                <div class="stat-card card tone-green">
+                  <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+                  <div class="stat-info"><h4 id="m-revenue-fb">₹0</h4><p>Platform Revenue</p></div>
                 </div>
-                <div class="stat-card card"><div class="stat-info"><h4 id="totalFeedback">0</h4><p>Total Feedback</p></div></div>
-                <div class="stat-card card"><div class="stat-info"><h4 id="avgSatisfaction">0</h4><p>Avg Satisfaction</p></div></div>
-                <div class="stat-card card"><div class="stat-info"><h4 id="actionRequired">0</h4><p>Action Required</p></div></div>
+                <div class="stat-card card tone-amber">
+                  <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                  <div class="stat-info"><h4 id="totalFeedback">0</h4><p>Total Feedback</p></div>
+                </div>
+                <div class="stat-card card tone-violet">
+                  <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                  <div class="stat-info"><h4 id="avgSatisfaction">0</h4><p>Avg Satisfaction</p></div>
+                </div>
+                <div class="stat-card card tone-rose">
+                  <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+                  <div class="stat-info"><h4 id="actionRequired">0</h4><p>Action Required</p></div>
+                </div>
               </div>
               <div class="list" id="feedbackList"></div>
             </section>
@@ -221,32 +911,37 @@
               <div class="page-header">
                 <div class="page-title">
                   <h2>Doctor Verification</h2>
-                  <p>Approve new practitioners or suspend access.</p>
+                  <p>Approve new practitioners or suspend access</p>
                 </div>
               </div>
-              <h4 class="card-title">Pending Approvals</h4>
+              <h4 class="card-title"><span>⏳ Pending Approvals</span></h4>
               <div class="list" id="pendingDoctorsList">Loading...</div>
-              <h4 class="card-title" style="margin-top:30px;">Active & Suspended Doctors</h4>
+              <h4 class="card-title" style="margin-top:30px;"><span>👨‍⚕️ Active & Suspended Doctors</span></h4>
               <div class="list" id="allDoctorsList">Loading...</div>
             </section>
 
-            
           </div>
 
-          <!-- RIGHT SIDEBAR (Global inside views-container) -->
+          <!-- RIGHT SIDEBAR -->
           <div class="right-col">
             <div class="card">
-              <h4 class="card-title">Patients</h4>
+              <h4 class="card-title">
+                <span>👥 Recent Patients</span>
+                <span class="card-title-meta">Last 6</span>
+              </h4>
               <div id="miniList" class="list"></div>
             </div>
             <div class="card" style="margin-top:20px;">
-              <h4 class="card-title">AI Report Maker</h4>
+              <h4 class="card-title">
+                <span>🤖 AI Report Maker</span>
+                <span class="card-title-meta">Gemini</span>
+              </h4>
               <div style="display:flex;flex-direction:column;gap:12px">
                 <select id="reportPatient"></select>
                 <select id="reportType"><option>Discharge Summary</option><option>Progress Note</option></select>
                 <textarea id="reportObservations" placeholder="Key observations..." rows="3"></textarea>
                 <div style="display:flex;gap:8px">
-                  <button id="generateReport" class="btn">Generate Report</button>
+                  <button id="generateReport" class="btn" style="flex:1;">Generate</button>
                   <button id="downloadReport" class="btn ghost">Download</button>
                 </div>
               </div>
@@ -257,10 +952,11 @@
     </div>
   </div>
 
-  <!-- Modal: Add/Edit Patient -->
+  <!-- MODALS -->
   <div id="modal" class="modal-backdrop">
     <div class="custom-modal" role="dialog" aria-modal="true">
       <h3 id="modalTitle">Add Patient</h3>
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:14px;">Register a new patient to begin their Panchakarma journey.</p>
       <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
         <div class="form-row">
           <div class="form-field"><label>Name</label><input id="p_name" type="text" /></div>
@@ -295,16 +991,16 @@
 
         <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px">
           <button id="closeModal" class="btn ghost">Cancel</button>
-          <button id="savePatient" class="btn">Save</button>
+          <button id="savePatient" class="btn">Save Patient</button>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Modal: Schedule Therapy -->
   <div id="modalSchedule" class="modal-backdrop">
     <div class="custom-modal">
       <h3>Schedule Therapy</h3>
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:14px;">Reserve a session slot with conflict detection.</p>
       <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
         <div class="form-row">
           <div class="form-field"><label>Patient</label><select id="s_patient"></select></div>
@@ -344,10 +1040,10 @@
     </div>
   </div>
 
-  <!-- Modal: Send Notification -->
   <div id="modalNotification" class="modal-backdrop">
     <div class="custom-modal" style="max-width:500px;">
       <h3>Send Notification</h3>
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:14px;">Reach out to patients instantly.</p>
       <div style="margin-top:12px;display:flex;flex-direction:column;gap:10px">
         <div class="form-row">
           <div class="form-field">
@@ -360,7 +1056,7 @@
         <div class="form-row">
           <div class="form-field">
             <label>Message</label>
-            <textarea id="n_message" rows="3" style="padding:10px; border-radius:8px; border:1px solid #cbd5e1;"></textarea>
+            <textarea id="n_message" rows="3" style="padding:10px; border-radius:8px; border:1px solid var(--admin-border);"></textarea>
           </div>
         </div>
         <div style="display:flex;gap:8px;justify-content:flex-end">
@@ -372,10 +1068,7 @@
   </div>
 
   <script>
-    // Simple client-side app using localStorage. All actions work locally.
     const STORAGE_KEY = 'ayursutra_data_v1';
-
-    // Default sample data
     const defaultData = {
       patients: [
         {id: 1, name: 'Ravi Kumar', phone: '+91-9876543210', email: 'ravi@example.com', age:45, status:'active', join:'2024-01-15', lastVisit:'2024-02-20', therapy:'Panchakarma'},
@@ -394,7 +1087,6 @@
       activities: ['New patient registered: Meera Sharma - Arthritis Treatment','Session scheduled: Abhyanga for Rajesh Singh','Feedback received: 5-star rating from Amit Kumar']
     };
 
-    // Load or init
     function loadData(){
       const raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) { localStorage.setItem(STORAGE_KEY, JSON.stringify(defaultData)); return JSON.parse(JSON.stringify(defaultData)); }
@@ -404,7 +1096,6 @@
 
     let state = loadData();
 
-    // DOM refs
     const tabs = document.querySelectorAll('.tab');
     const views = document.querySelectorAll('.view');
     const patientsTbody = document.querySelector('#patientsTable tbody');
@@ -422,33 +1113,26 @@
     const avgSatisfaction = document.getElementById('avgSatisfaction');
     const actionRequired = document.getElementById('actionRequired');
 
-    // Modals
     const modal = document.getElementById('modal');
     const modalSchedule = document.getElementById('modalSchedule');
 
-    // Forms
     const addPatientBtn = document.getElementById('addPatientBtn');
     const savePatientBtn = document.getElementById('savePatient');
     const closeModalBtn = document.getElementById('closeModal');
 
-   // const openScheduleBtn = document.getElementById('openSchedule');
     const saveScheduleBtn = document.getElementById('saveSchedule');
     const closeScheduleBtn = document.getElementById('closeSchedule');
 
-    // Report
     const reportPatient = document.getElementById('reportPatient');
     const generateReportBtn = document.getElementById('generateReport');
     const downloadReportBtn = document.getElementById('downloadReport');
 
-    // Chart
     const chartCanvas = document.getElementById('progressChart');
-    const ctx = chartCanvas.getContext('2d');
+    const ctx = chartCanvas ? chartCanvas.getContext('2d') : null;
 
-    // utilities
     function uid(){ return Date.now() + Math.floor(Math.random()*999); }
 
-    // Add event listeners for new UI elements
-    document.getElementById('menuToggle').addEventListener('click', () => {
+    document.getElementById('menuToggle')?.addEventListener('click', () => {
       document.getElementById('sidebar').classList.toggle('collapsed');
       document.getElementById('sidebar').classList.toggle('mobile-open');
     });
@@ -459,26 +1143,18 @@
       document.getElementById('themeToggle').textContent = isDark ? 'Light' : 'Dark';
     });
 
-    // Tab switching
     tabs.forEach(t=>t.addEventListener('click', ()=>{
       tabs.forEach(x=>x.classList.remove('active'));
       t.classList.add('active');
       const key = t.dataset.tab;
       views.forEach(v=>v.style.display = v.id===key? 'block': 'none');
       renderAll();
-      
-      if (key === 'verification' && window.adminLoadVerificationDoctors) {
-        window.adminLoadVerificationDoctors();
-      }
-      if (key === 'feedback' && window.adminLoadFeedbacks) {
-        window.adminLoadFeedbacks();
-      }
-      if (key === 'notifications' && window.adminLoadNotifications) {
-        window.adminLoadNotifications();
-      }
+
+      if (key === 'verification' && window.adminLoadVerificationDoctors) window.adminLoadVerificationDoctors();
+      if (key === 'feedback' && window.adminLoadFeedbacks) window.adminLoadFeedbacks();
+      if (key === 'notifications' && window.adminLoadNotifications) window.adminLoadNotifications();
     }));
 
-    // Render patients table
     function renderPatients(){
       patientsTbody.innerHTML = '';
       state.patients.forEach(p=>{
@@ -496,7 +1172,6 @@
         patientsTbody.appendChild(tr);
       });
       badgeCount.textContent = ` ${state.patients.length} patients `;
-      // wire actions
       patientsTbody.querySelectorAll('button').forEach(btn=>{
         btn.addEventListener('click', (e)=>{
           const id = Number(btn.dataset.id);
@@ -507,7 +1182,6 @@
       });
     }
 
-    // Mini list
     function renderMiniList(){
       miniList.innerHTML = '';
       state.patients.slice(0,6).forEach(p=>{
@@ -516,35 +1190,23 @@
       });
     }
 
-    // Sessions
-    // Sessions handled in module script
     window.renderSessions = function() {
       if(window.adminLoadSessions) window.adminLoadSessions();
     };
 
-    // Notifications
-    // Notifications MOVED TO FIREBASE
-
-    // Feedback MOVED TO FIREBASE
-
-    // Activities
     function renderActivities(){
       recentActivities.innerHTML='';
       state.activities.slice(0,6).forEach(a=>{ const d=document.createElement('div'); d.className='list-item'; d.textContent=a; recentActivities.appendChild(d); });
     }
 
-    // Metrics
     function renderMetrics(){
       mPatients.textContent = state.patients.length;
       mActive.textContent = state.patients.filter(p=>p.status==='active').length;
       const today = new Date().toISOString().slice(0,10);
       mSessions.textContent = state.sessions.filter(s=>s.date===today).length;
       mAlerts.textContent = state.notifications.filter(n=>n.status!=='delivered').length;
-
       document.getElementById('m-sessions').textContent = state.sessions.filter(s=>s.date===today).length;
-      // Feedback metrics moved to Firebase
 
-      // progress metrics
       const completed = state.sessions.filter(s=>s.status==='completed').length;
       const total = state.sessions.length || 1;
       document.getElementById('completedSessions').textContent = `${completed}/${total}`;
@@ -554,30 +1216,24 @@
       document.getElementById('therapyType').textContent = next? next.type : '-';
     }
 
-    // Chart drawing (simple line chart)
     function drawChart(){
       const labels = ['Week1','Week2','Week3','Week4','Week5','Week6'];
-      // sample series from feedback/sessions - generate simple numbers
       const series = labels.map((_,i)=> 30 + i*8 + Math.floor(Math.random()*8));
+      if(!ctx) return;
       const w = chartCanvas.width; const h = chartCanvas.height; ctx.clearRect(0,0,w,h);
-      // grid
       ctx.strokeStyle = '#eee'; ctx.lineWidth=1;
       for(let i=0;i<5;i++){ ctx.beginPath(); ctx.moveTo(40, 40 + i*(h-80)/4); ctx.lineTo(w-20, 40 + i*(h-80)/4); ctx.stroke(); }
-      // axis labels
       ctx.fillStyle = '#666'; ctx.font='12px Arial'; labels.forEach((l,i)=>{ ctx.fillText(l, 60 + i*(w-120)/(labels.length-1), h-20); });
-      // line
       ctx.beginPath(); ctx.strokeStyle = '#28c76f'; ctx.lineWidth=3; series.forEach((v,i)=>{ const x = 40 + i*(w-120)/(series.length-1); const y = (h-40) - (v/100)*(h-100); if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }); ctx.stroke();
-      // points
       ctx.fillStyle='#fff'; ctx.strokeStyle='#28c76f'; series.forEach((v,i)=>{ const x=40 + i*(w-120)/(series.length-1); const y=(h-40)-(v/100)*(h-100); ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill(); ctx.stroke(); });
     }
 
-    // Reports handled in module script
     window.populateReportPatients = function() {
       if(window.adminPopulateReportPatients) window.adminPopulateReportPatients();
     };
 
-    // Modal handlers
     addPatientBtn.addEventListener('click', ()=>{ openPatientModal(); });
+    document.getElementById('addPatientBtn2')?.addEventListener('click', ()=> openPatientModal());
     closeModalBtn.addEventListener('click', ()=>{ modal.style.display='none'; });
 
     function openPatientModal(id=null){
@@ -589,35 +1245,34 @@
 
     savePatientBtn.addEventListener('click', async () => {
       const id = savePatientBtn.dataset.edit ? savePatientBtn.dataset.edit : null;
-      const p = { 
-        name: document.getElementById('p_name').value.trim(), 
-        age: document.getElementById('p_age').value.trim(), 
-        phone: document.getElementById('p_phone').value.trim(), 
-        email: document.getElementById('p_email').value.trim(), 
-        therapy: document.getElementById('p_therapy').value, 
-        join: document.getElementById('p_join').value, 
-        status: 'active', 
-        lastVisit: '' 
+      const p = {
+        name: document.getElementById('p_name').value.trim(),
+        age: document.getElementById('p_age').value.trim(),
+        phone: document.getElementById('p_phone').value.trim(),
+        email: document.getElementById('p_email').value.trim(),
+        therapy: document.getElementById('p_therapy').value,
+        join: document.getElementById('p_join').value,
+        status: 'active',
+        lastVisit: ''
       };
       if(!p.name){ alert('Please provide name'); return; }
-      
+
       try {
-        if(id){ 
+        if(id){
           await window.updatePatientDoc(id, p);
-        } else { 
+        } else {
           await window.addPatientDoc(p);
         }
-        modal.style.display='none'; 
+        modal.style.display='none';
         if(window.adminLoadPatients) window.adminLoadPatients();
 
-window.adminLoadRevenue = async function() {
-  try {
-    const res = await fetch('/api/payments/admin/summary');
-    const data = await res.json();
-    document.getElementById('m-revenue').textContent = "₹" + (data.platformRevenue || 0).toLocaleString('en-IN');
-  } catch (e) { console.error(e); }
-};
-window.adminLoadRevenue();
+        try {
+          const res = await fetch('/api/payments/admin/summary');
+          const data = await res.json();
+          document.getElementById('m-revenue').textContent = "₹" + (data.platformRevenue || 0).toLocaleString('en-IN');
+          document.getElementById('m-revenue-p').textContent = "₹" + (data.platformRevenue || 0).toLocaleString('en-IN');
+          document.getElementById('m-revenue-fb').textContent = "₹" + (data.platformRevenue || 0).toLocaleString('en-IN');
+        } catch (e) { console.error(e); }
 
       } catch (error) {
         console.error("Error saving patient:", error);
@@ -625,712 +1280,566 @@ window.adminLoadRevenue();
       }
     });
 
-    // Scheduling modal
-    //openScheduleBtn.addEventListener('click', ()=> openScheduleModal());
     closeScheduleBtn.addEventListener('click', ()=> modalSchedule.style.display='none');
 
     window.openScheduleModal = async function(patientId=null, session=null){
       modalSchedule.style.display='flex';
-      // Patients are populated from Firebase inside the module script
       if(window.populateScheduleModal) {
         await window.populateScheduleModal(patientId, session);
       }
     };
 
     saveScheduleBtn.addEventListener('click', async () => {
-      const pEmail = document.getElementById('s_patient').value; 
-      const type = document.getElementById('s_type').value; 
-      const date = document.getElementById('s_date').value; 
+      const pEmail = document.getElementById('s_patient').value;
+      const type = document.getElementById('s_type').value;
+      const date = document.getElementById('s_date').value;
       const time = document.getElementById('s_time').value;
       const room = document.getElementById('s_room').value;
       const docEmail = document.getElementById('s_doctor').value;
-      
+
       if(!pEmail||!date||!time){ alert('Please fill all required fields'); return; }
-      
+
       try {
-        if(saveScheduleBtn.dataset.edit){ 
-          await window.updateSessionDoc(saveScheduleBtn.dataset.edit, { type, date, time, room, docEmail }); 
-        } else { 
-          await window.addSessionDoc({ patientEmail: pEmail, type, date, time, room, doctorEmail: docEmail }); 
+        if(saveScheduleBtn.dataset.edit){
+          await window.updateSessionDoc(saveScheduleBtn.dataset.edit, { type, date, time, room, docEmail });
+        } else {
+          await window.addSessionDoc({ patientEmail: pEmail, type, date, time, room, doctorEmail: docEmail });
         }
-        modalSchedule.style.display='none'; 
+        modalSchedule.style.display='none';
       } catch (error) {
         console.error(error);
         alert(error.message || "Failed to schedule session.");
       }
     });
 
-    // Quick actions
     document.getElementById('quickSchedule').addEventListener('click', ()=>{ openScheduleModal(); tabs.forEach(t=>t.classList.remove('active')); document.querySelector('[data-tab="scheduling"]').classList.add('active'); views.forEach(v=>v.style.display = v.id==='scheduling' ? 'block' : 'none'); });
+    document.getElementById('quickSchedule2')?.addEventListener('click', ()=>{ openScheduleModal(); tabs.forEach(t=>t.classList.remove('active')); document.querySelector('[data-tab="scheduling"]').classList.add('active'); views.forEach(v=>v.style.display = v.id==='scheduling' ? 'block' : 'none'); });
     document.getElementById('quickNotify').addEventListener('click', ()=>{ const msg = prompt('Notification message:'); if(msg){ state.notifications.unshift({id:uid(), to:'All Patients', channel:'SMS', status:'scheduled', message:msg, sent:new Date().toISOString()}); state.activities.unshift('Notification scheduled'); saveData(); }});
+    document.getElementById('quickReport')?.addEventListener('click', ()=>{ document.getElementById('reportPatient')?.scrollIntoView({behavior:'smooth'}); });
+    document.getElementById('quickVerify')?.addEventListener('click', ()=>{ tabs.forEach(t=>t.classList.remove('active')); document.querySelector('[data-tab="verification"]').classList.add('active'); views.forEach(v=>v.style.display = v.id==='verification' ? 'block' : 'none'); });
 
-    // Send Notification sample
-    // Send Notification MOVED TO FIREBASE
-
-    // recent render
     function renderAll(){ renderPatients(); renderMiniList(); renderSessions(); renderActivities(); renderMetrics(); populateReportPatients(); drawChart(); }
-
-    // initialize
     renderAll();
 
-    // expose save for debugging
     window._ayursutra = {state, saveData};
-
   </script>
   <script type="module">
+    import { auth, db } from "./js/firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { GEMINI_API_KEY } from "./js/env.js";
+    import { doc, getDoc, getDocs, collection, addDoc, updateDoc, deleteDoc } from "./js/firebase-sql-mock.js?v=2";
 
-import { auth, db } from "./js/firebase.js";
-
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-import { GEMINI_API_KEY } from "./js/env.js";
-import { doc, getDoc, getDocs, collection, addDoc, updateDoc, deleteDoc } from "./js/firebase-sql-mock.js?v=2";
-
-window.addPatientDoc = async function(p) {
-  await addDoc(collection(db, "patients"), p);
-};
-
-window.updatePatientDoc = async function(id, p) {
-  await updateDoc(doc(db, "patients", id), p);
-};
-
-window.deletePatientDoc = async function(id) {
-  if (confirm('Delete patient?')) {
-    await deleteDoc(doc(db, "patients", id));
-    window.adminLoadPatients();
-
-window.adminLoadRevenue = async function() {
-  try {
-    const res = await fetch('/api/payments/admin/summary');
-    const data = await res.json();
-    document.getElementById('m-revenue').textContent = "₹" + (data.platformRevenue || 0).toLocaleString('en-IN');
-  } catch (e) { console.error(e); }
-};
-window.adminLoadRevenue();
-
-  }
-};
-
-window.adminLoadSessions = async function() {
-  const snapshot = await getDocs(collection(db, "sessions"));
-  const sessionsList = document.getElementById('sessionsList');
-  let html = '';
-  
-  // Need users mapping for names
-  const usersSnap = await getDocs(collection(db, "users"));
-  const userMap = {};
-  usersSnap.forEach(u => userMap[u.data().email] = u.data().name);
-
-  const patientsSnap = await getDocs(collection(db, "patients"));
-  patientsSnap.forEach(p => {
-    if(p.data().email) userMap[p.data().email] = p.data().name;
-  });
-
-  let sessionCount = 0;
-  const today = new Date().toISOString().slice(0,10);
-
-  snapshot.forEach(docSnap => {
-    const s = docSnap.data();
-    if(s.date === today) sessionCount++;
-
-    const pName = userMap[s.patientEmail] || s.patientEmail;
-    const docName = userMap[s.doctorEmail] || s.doctorEmail || "Auto-assigned";
-    
-    html += `<div class="session">
-      <div class="info">
-        <div><strong>${pName}</strong> <span class="muted">${s.type}</span><br>
-        <small class="muted">Doctor: ${docName} | Room: ${s.room || 'TBD'}</small></div>
-        <div class="muted">${s.date} • ${s.time}</div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <span class="badge">${s.status || 'scheduled'}</span>
-      </div>
-    </div>`;
-  });
-  
-  if (sessionsList) sessionsList.innerHTML = html || "No sessions found.";
-  document.getElementById('m-sessions').textContent = sessionCount;
-};
-
-window.populateScheduleModal = async function(patientEmail=null, session=null) {
-  const pSelect = document.getElementById('s_patient');
-  const dSelect = document.getElementById('s_doctor');
-  
-  pSelect.innerHTML = '<option value="">Select Patient</option>';
-  dSelect.innerHTML = '<option value="">Auto-assign Available Doctor</option>';
-
-  const patientsSnap = await getDocs(collection(db, "patients"));
-  patientsSnap.forEach(p => {
-    const d = p.data();
-    if (d.email) pSelect.innerHTML += `<option value="${d.email}">${d.name}</option>`;
-  });
-  
-  const usersSnap = await getDocs(collection(db, "users"));
-  usersSnap.forEach(u => {
-    const d = u.data();
-    if (d.role === 'doctor' && d.approved === true && !d.blocked) {
-      dSelect.innerHTML += `<option value="${d.email}">${d.name}</option>`;
-    }
-  });
-
-  if(patientEmail) pSelect.value = patientEmail;
-  if(session) {
-    document.getElementById('s_type').value = session.type;
-    document.getElementById('s_date').value = session.date;
-    document.getElementById('s_time').value = session.time;
-    document.getElementById('s_room').value = session.room || '';
-    dSelect.value = session.doctorEmail || '';
-    document.getElementById('saveSchedule').dataset.edit = session.id;
-  } else {
-    document.getElementById('s_type').value = 'Abhyanga (Massage)';
-    document.getElementById('s_date').value = '';
-    document.getElementById('s_time').value = '';
-    document.getElementById('s_room').value = '';
-    document.getElementById('saveSchedule').dataset.edit = '';
-  }
-};
-
-window.addSessionDoc = async function(sessionData) {
-  // Check overlap for room & doctor
-  const sessionsSnap = await getDocs(collection(db, "sessions"));
-  let conflict = false;
-  let availableDoctors = [];
-  
-  const usersSnap = await getDocs(collection(db, "users"));
-  usersSnap.forEach(u => {
-    if (u.data().role === 'doctor' && u.data().approved === true && !u.data().blocked) {
-      availableDoctors.push(u.data().email);
-    }
-  });
-
-  sessionsSnap.forEach(docSnap => {
-    const s = docSnap.data();
-    if (s.date === sessionData.date && s.time === sessionData.time) {
-      if (s.room && s.room === sessionData.room) {
-        alert("Room is already booked at this time.");
-        conflict = true;
-      }
-      if (s.doctorEmail) {
-        availableDoctors = availableDoctors.filter(d => d !== s.doctorEmail);
-        if (sessionData.doctorEmail && s.doctorEmail === sessionData.doctorEmail) {
-           alert("Doctor is already booked at this time.");
-           conflict = true;
-        }
-      }
-    }
-  });
-
-  if (conflict) throw new Error("Scheduling conflict.");
-
-  if (!sessionData.doctorEmail) {
-    if (availableDoctors.length > 0) {
-      sessionData.doctorEmail = availableDoctors[0]; // Auto assign
-      alert("Auto-assigned to Doctor: " + sessionData.doctorEmail);
-    } else {
-      throw new Error("No doctors available at this time.");
-    }
-  }
-
-  sessionData.status = 'scheduled';
-  await addDoc(collection(db, "sessions"), sessionData);
-  
-  // Notification logic
-  await addDoc(collection(db, "notifications"), {
-    toEmail: sessionData.patientEmail,
-    message: `Your ${sessionData.type} session has been scheduled on ${sessionData.date} at ${sessionData.time} in room ${sessionData.room}.`,
-    timestamp: new Date().toISOString()
-  });
-
-  window.adminLoadSessions();
-};
-
-window.updateSessionDoc = async function(id, sessionData) {
-  await updateDoc(doc(db, "sessions", id), sessionData);
-  window.adminLoadSessions();
-};
-
-
-
-window.adminPopulateReportPatients = async function() {
-  const pSelect = document.getElementById('reportPatient');
-  if(!pSelect) return;
-  pSelect.innerHTML = '<option value="">Select Patient</option>';
-
-  const seenEmails = new Set();
-
-  const usersSnap = await getDocs(collection(db, "users"));
-  usersSnap.forEach(u => {
-    const data = u.data();
-    if (data.role === 'patient' && data.email && !seenEmails.has(data.email)) {
-      seenEmails.add(data.email);
-      pSelect.innerHTML += `<option value="${data.email}">${data.name || data.email}</option>`;
-    }
-  });
-
-  const patientsSnap = await getDocs(collection(db, "patients"));
-  patientsSnap.forEach(p => {
-    const data = p.data();
-    if(data.email && !seenEmails.has(data.email)) {
-      seenEmails.add(data.email);
-      pSelect.innerHTML += `<option value="${data.email}">${data.name || data.email}</option>`;
-    }
-  });
-};
-
-document.getElementById('generateReport').addEventListener('click', async () => {
-  const patientSelect = document.getElementById("reportPatient");
-  if (!patientSelect.options[patientSelect.selectedIndex]) {
-    alert("Please select a patient.");
-    return;
-  }
-  const patientEmail = patientSelect.value;
-  if (!patientEmail) {
-    alert("Please select a patient.");
-    return;
-  }
-  const patientName = patientSelect.options[patientSelect.selectedIndex].text;
-  const type = document.getElementById("reportType").value;
-  const obs = document.getElementById("reportObservations").value;
-
-  const btn = document.getElementById("generateReport");
-  const originalText = btn.innerText;
-  btn.innerText = "Generating AI Report...";
-  btn.disabled = true;
-
-  try {
-    const sessionsSnap = await getDocs(collection(db, "sessions"));
-    let sessionsList = [];
-    sessionsSnap.forEach(s => {
-      const d = s.data();
-      if(d.patientEmail === patientEmail) {
-        sessionsList.push(`${d.date} - ${d.type} (${d.status})`);
-      }
-    });
-
-    const feedbacksSnap = await getDocs(collection(db, "feedbacks"));
-    let fbList = [];
-    feedbacksSnap.forEach(f => {
-      const d = f.data();
-      if(d.patientEmail === patientEmail) {
-        fbList.push(`Pain: ${d.pain}/10, Energy: ${d.energy}/10, Satisfaction: ${d.satisfaction}/5. Notes: ${d.notes}`);
-      }
-    });
-
-    const prompt = `You are a professional Ayurvedic Doctor writing a ${type}.
-Patient Name: ${patientName}
-Sessions History:
-${sessionsList.join('\\n') || 'None'}
-
-Feedback History:
-${fbList.join('\\n') || 'None'}
-
-Observations:
-${obs}
-
-Generate a formal and detailed ${type} document for this patient based on the data above. Make it sound professional and empathetic, appropriate for an Ayurvedic setting.`;
-
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }]
-      })
-    });
-
-    const data = await response.json();
-    if(data.error) throw new Error(data.error.message);
-
-    const reportContent = data.candidates[0].content.parts[0].text;
-
-    const docText = `AyurSutra - ${type}\nGenerated on: ${new Date().toLocaleDateString()}\n-------------------------------------------------\n\n${reportContent}`;
-
-    const blob = new Blob([docText], {type: "text/plain"});
-    const blobUrl = URL.createObjectURL(blob);
-    
-    const downloadBtn = document.getElementById("downloadReport");
-    downloadBtn.onclick = () => {
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = `${patientName.replace(/\\s+/g, '_')}_${type.replace(/\\s+/g, '_')}.txt`;
-      a.click();
+    window.addPatientDoc = async function(p) {
+      await addDoc(collection(db, "patients"), p);
     };
-    
-    alert("AI Report generated. Click Download to save file.");
-  } catch (err) {
-    console.error(err);
-    alert("Error generating report: " + err.message);
-  } finally {
-    btn.innerText = originalText;
-    btn.disabled = false;
-  }
-});
 
-window.adminLoadSuspiciousDoctors = async function() {
-  const snapshot = await getDocs(collection(db, "users"));
-  let html = "";
-  let count = 0;
+    window.updatePatientDoc = async function(id, p) {
+      await updateDoc(doc(db, "patients", id), p);
+    };
 
-  snapshot.forEach(docSnap => {
-    const data = docSnap.data();
-    if (data.role === 'doctor') {
-      const rating = data.rating || 0;
-      const complaints = data.complaints || 0;
-      const flagged = data.flagged || false;
-      const rejectedRequests = data.rejectedRequests || 0;
-      
-      if (flagged || rating < 2.5 || complaints >= 5) {
-        count++;
-        let statusBadge = "Fraud Risk";
-        let color = "var(--danger)";
-        if (data.blocked) {
-           statusBadge = "Blocked";
-           color = "#333";
-        } else if (flagged) {
-           statusBadge = "Flagged";
-           color = "#f59e0b";
-        }
-        
-        html += `<div class="list-item" style="background:rgba(255,255,255,0.7);border-radius:12px;margin-bottom:10px;padding:15px;border:1px solid rgba(0,0,0,0.05)">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <div>
-              <strong>${data.name}</strong> <span class="muted">(${data.email})</span>
-              <span class="badge" style="background:${color}; color:white; margin-left:10px; border-radius:4px; padding:4px 8px;">${statusBadge}</span>
-            </div>
+    window.deletePatientDoc = async function(id) {
+      if (confirm('Delete patient?')) {
+        await deleteDoc(doc(db, "patients", id));
+        window.adminLoadPatients();
+      }
+    };
+
+    window.adminLoadRevenue = async function() {
+      try {
+        const res = await fetch('/api/payments/admin/summary');
+        const data = await res.json();
+        const r = "₹" + (data.platformRevenue || 0).toLocaleString('en-IN');
+        document.getElementById('m-revenue').textContent = r;
+        if(document.getElementById('m-revenue-p')) document.getElementById('m-revenue-p').textContent = r;
+        if(document.getElementById('m-revenue-fb')) document.getElementById('m-revenue-fb').textContent = r;
+      } catch (e) { console.error(e); }
+    };
+
+    window.adminLoadSessions = async function() {
+      const snapshot = await getDocs(collection(db, "sessions"));
+      const sessionsList = document.getElementById('sessionsList');
+      let html = '';
+      const usersSnap = await getDocs(collection(db, "users"));
+      const userMap = {};
+      usersSnap.forEach(u => userMap[u.data().email] = u.data().name);
+
+      const patientsSnap = await getDocs(collection(db, "patients"));
+      patientsSnap.forEach(p => { if(p.data().email) userMap[p.data().email] = p.data().name; });
+
+      let sessionCount = 0;
+      const today = new Date().toISOString().slice(0,10);
+
+      snapshot.forEach(docSnap => {
+        const s = docSnap.data();
+        if(s.date === today) sessionCount++;
+        const pName = userMap[s.patientEmail] || s.patientEmail;
+        const docName = userMap[s.doctorEmail] || s.doctorEmail || "Auto-assigned";
+        html += `<div class="session">
+          <div class="info">
+            <div><strong>${pName}</strong> <span class="muted">${s.type}</span><br>
+            <small class="muted">Doctor: ${docName} | Room: ${s.room || 'TBD'}</small></div>
+            <div class="muted">${s.date} • ${s.time}</div>
           </div>
-          <div style="margin-top:8px;font-size:14px;">
-            Rating: <b>${rating.toFixed(1)}/5</b> | Complaints: <b>${complaints}</b> | Rej. Rate: <b>${(data.rejectionRate || 0).toFixed(1)}%</b> | Sessions: <b>${data.totalSessions || 0}</b> | Rejected Req: <b>${rejectedRequests}</b>
-          </div>
-          <div style="margin-top:12px;display:flex;gap:8px;">
-            <button class="btn small" onclick="window.toggleBlockDoctor('${docSnap.id}', ${data.blocked === true})">${data.blocked === true ? 'Unblock' : 'Block Doctor'}</button>
-            <button class="btn small ghost" onclick="window.resetDoctorFlag('${docSnap.id}')">Reset Flag</button>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span class="badge">${s.status || 'scheduled'}</span>
           </div>
         </div>`;
-      }
-    }
-  });
+      });
 
-  const listEl = document.getElementById('suspiciousDoctorsList');
-  if(listEl) listEl.innerHTML = html || "No suspicious doctors found.";
-};
+      if (sessionsList) sessionsList.innerHTML = html || "No sessions found.";
+      document.getElementById('m-sessions').textContent = sessionCount;
+    };
 
-window.toggleBlockDoctor = async function(docId, currentBlocked) {
-  if (confirm(currentBlocked ? "Unblock this doctor?" : "Block this doctor? They will not be able to log in.")) {
-    await updateDoc(doc(db, "users", docId), { blocked: !currentBlocked });
-    window.adminLoadSuspiciousDoctors();
-    if(window.adminLoadVerificationDoctors) window.adminLoadVerificationDoctors();
-  }
-};
-
-window.resetDoctorFlag = async function(docId) {
-  if (confirm("Reset flags, complaints, and rejection stats for this doctor?")) {
-    await updateDoc(doc(db, "users", docId), { 
-      flagged: false,
-      complaints: 0,
-      rejectedRequests: 0,
-      rejectionRate: 0
-    });
-    window.adminLoadSuspiciousDoctors();
-  }
-};
-
-window.adminLoadFeedbacks = async function() {
-  const snapshot = await getDocs(collection(db, "feedbacks"));
-  let html = "";
-  let totalFeedbacks = 0;
-  let totalSatisfaction = 0;
-  let actionRequired = 0;
-
-  // We need users to map emails to names. Let's fetch them once.
-  const usersSnap = await getDocs(collection(db, "users"));
-  const userMap = {};
-  usersSnap.forEach(u => userMap[u.data().email] = u.data().name);
-
-  snapshot.forEach(docSnap => {
-    const f = docSnap.data();
-    totalFeedbacks++;
-    totalSatisfaction += Number(f.satisfaction || 0);
-    if (f.reported === true || Number(f.satisfaction || 0) <= 2) {
-      actionRequired++;
-    }
-
-    const patientName = userMap[f.patientEmail] || f.patientEmail;
-    const docName = userMap[f.doctorEmail] || f.doctorEmail;
-
-    html += `<div class="list-item" style="background:rgba(255,255,255,0.7);border-radius:12px;margin-bottom:10px;padding:15px;border:1px solid rgba(0,0,0,0.05)">
-      <div style="display:flex;justify-content:space-between">
-        <strong>${patientName}</strong>
-        <div class="muted">To: Dr. ${docName} | ${f.timestamp ? f.timestamp.split('T')[0] : ''}</div>
-      </div>
-      <div style="margin-top:8px"><strong>Pain:</strong> ${f.pain}/10 &nbsp;&nbsp; <strong>Energy:</strong> ${f.energy}/10 &nbsp;&nbsp; <strong>Satisfaction:</strong> ${f.satisfaction}/5</div>
-      <div style="margin-top:8px"><i>"${f.notes || ''}"</i></div>
-    </div>`;
-  });
-
-  document.getElementById('feedbackList').innerHTML = html || "No feedback yet.";
-  document.getElementById('totalFeedback').textContent = totalFeedbacks;
-  document.getElementById('avgSatisfaction').textContent = totalFeedbacks ? (totalSatisfaction / totalFeedbacks).toFixed(1) : 0;
-  document.getElementById('actionRequired').textContent = actionRequired;
-};
-
-window.adminLoadNotifications = async function() {
-  const snapshot = await getDocs(collection(db, "notifications"));
-  let html = "";
-
-  const usersSnap = await getDocs(collection(db, "users"));
-  const userMap = {};
-  usersSnap.forEach(u => userMap[u.data().email] = u.data().name);
-
-  snapshot.forEach(docSnap => {
-    const n = docSnap.data();
-    const toName = n.toEmail === 'All Patients' ? 'All Patients' : (userMap[n.toEmail] || n.toEmail);
-    html += `<div class="list-item" style="background:rgba(255,255,255,0.7);border-radius:12px;margin-bottom:10px;padding:15px;border:1px solid rgba(0,0,0,0.05)">
-      <div style="display:flex;justify-content:space-between">
-        <strong>${toName}</strong>
-        <div class="muted">${n.timestamp ? n.timestamp.split('T')[0] : ''}</div>
-      </div>
-      <div style="margin-top:8px">${n.message}</div>
-    </div>`;
-  });
-
-  const listEl = document.getElementById('notificationsList');
-  if(listEl) listEl.innerHTML = html || "No notifications yet.";
-};
-
-window.adminLoadPatients = async function() {
-  const snapshot = await getDocs(collection(db, "users"));
-  const tbody = document.querySelector('#patientsTable tbody');
-  const miniList = document.getElementById('miniList');
-  const progressSelect = document.getElementById('progressPatientSelector');
-  
-  let html = "";
-  let miniHtml = "";
-  let selectHtml = '<option value="">Select a Patient...</option>';
-  let count = 0;
-
-  // Fetch from 'patients' collection
-  const patientsSnap = await getDocs(collection(db, "patients"));
-  
-  patientsSnap.forEach(docSnap => {
-    const data = docSnap.data();
-    count++;
-    const joinDate = data.join || data.createdAt?.split('T')[0] || 'N/A';
-    html += `<tr>
-      <td><strong>${data.name}</strong><br><span class="muted">${data.email || ''}</span></td>
-      <td>${data.phone || 'N/A'}</td>
-      <td>${data.age || 'N/A'}</td>
-      <td><span class="badge">active</span></td>
-      <td>${joinDate}</td>
-      <td>${data.lastVisit || 'N/A'}</td>
-      <td>
-        <button class="btn small ghost" onclick="openPatientModal('${docSnap.id}')">Edit</button>
-        <button class="btn small ghost" onclick="window.deletePatientDoc('${docSnap.id}')">Delete</button>
-      </td>
-    </tr>`;
-
-    if (count <= 6) {
-      miniHtml += `<div class="list-item"><strong>${data.name}</strong><div class="muted">${data.therapy || ''}</div></div>`;
-    }
-
-    selectHtml += `<option value="${data.email || docSnap.id}">${data.name}</option>`;
-  });
-
-
-  if (tbody) tbody.innerHTML = html || '<tr><td colspan="7">No patients found.</td></tr>';
-  if (miniList) miniList.innerHTML = miniHtml || '<div class="muted">No recent patients.</div>';
-  if (progressSelect) progressSelect.innerHTML = selectHtml;
-  document.getElementById('badgeCount').textContent = `${count} patients`;
-  document.getElementById('m-patients').textContent = count;
-  document.getElementById('m-active').textContent = count;
-};
-
-window.adminLoadProgress = async function(patientEmail) {
-  if (!patientEmail) {
-    document.getElementById('completedSessions').textContent = '0/0';
-    document.getElementById('improvement').textContent = '0%';
-    document.getElementById('nextSession').textContent = '-';
-    document.getElementById('therapyType').textContent = '-';
-    const canvas = document.getElementById('progressChart');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0,0, canvas.width, canvas.height);
-    }
-    return;
-  }
-
-  const sessionSnap = await getDocs(collection(db, "sessions"));
-  let completed = 0;
-  let total = 0;
-  let nextSession = null;
-  
-  sessionSnap.forEach(docSnap => {
-    const s = docSnap.data();
-    if (s.patientEmail === patientEmail) {
-      total++;
-      const today = new Date().toISOString().split('T')[0];
-      if (s.date && s.date < today) completed++;
-      else if (!nextSession || s.date < nextSession.date) nextSession = s; 
-    }
-  });
-
-  document.getElementById('completedSessions').textContent = `${completed}/${total || 1}`;
-  
-  // Calculate improvement using real feedback
-  const fbSnap = await getDocs(collection(db, "feedbacks"));
-  let fbCount = 0;
-  let fbScore = 0;
-  const chartData = [];
-  
-  fbSnap.forEach(docSnap => {
-    const f = docSnap.data();
-    if (f.patientEmail === patientEmail) {
-       fbCount++;
-       const score = ((Number(f.energy) || 5) * 10) - ((Number(f.pain) || 5) * 5) + ((Number(f.satisfaction) || 3) * 10);
-       fbScore += score;
-       chartData.push(score);
-    }
-  });
-
-  const improvementStr = fbCount ? Math.min(100, Math.max(0, Math.round(fbScore / fbCount))) + "%" : "0%";
-  document.getElementById('improvement').textContent = improvementStr;
-  
-  if (nextSession) {
-    document.getElementById('nextSession').textContent = nextSession.date;
-    document.getElementById('therapyType').textContent = nextSession.type || "Panchakarma";
-  } else {
-    document.getElementById('nextSession').textContent = '-';
-    document.getElementById('therapyType').textContent = '-';
-  }
-
-  drawRealChart(chartData.length ? chartData : [20, 35, 50, 65, 80]);
-};
-
-window.progressChartInstance = null;
-
-function drawRealChart(series) {
-  const canvas = document.getElementById('progressChart');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  
-  if(window.progressChartInstance) {
-    window.progressChartInstance.destroy();
-  }
-
-  const labels = series.map((_, i) => 'Session ' + (i + 1));
-  
-  window.progressChartInstance = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Improvement Score',
-        data: series,
-        borderColor: '#10b981',
-        backgroundColor: 'rgba(16, 185, 129, 0.2)',
-        borderWidth: 3,
-        pointBackgroundColor: '#fff',
-        pointBorderColor: '#10b981',
-        pointRadius: 4,
-        fill: true,
-        tension: 0.3
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          grid: { color: '#eee' }
-        },
-        x: {
-          grid: { display: false }
+    window.populateScheduleModal = async function(patientEmail=null, session=null) {
+      const pSelect = document.getElementById('s_patient');
+      const dSelect = document.getElementById('s_doctor');
+      pSelect.innerHTML = '<option value="">Select Patient</option>';
+      dSelect.innerHTML = '<option value="">Auto-assign Available Doctor</option>';
+      const patientsSnap = await getDocs(collection(db, "patients"));
+      patientsSnap.forEach(p => {
+        const d = p.data();
+        if (d.email) pSelect.innerHTML += `<option value="${d.email}">${d.name}</option>`;
+      });
+      const usersSnap = await getDocs(collection(db, "users"));
+      usersSnap.forEach(u => {
+        const d = u.data();
+        if (d.role === 'doctor' && d.approved === true && !d.blocked) {
+          dSelect.innerHTML += `<option value="${d.email}">${d.name}</option>`;
         }
-      },
-      plugins: {
-        legend: { display: false }
+      });
+      if(patientEmail) pSelect.value = patientEmail;
+      if(session) {
+        document.getElementById('s_type').value = session.type;
+        document.getElementById('s_date').value = session.date;
+        document.getElementById('s_time').value = session.time;
+        document.getElementById('s_room').value = session.room || '';
+        dSelect.value = session.doctorEmail || '';
+        document.getElementById('saveSchedule').dataset.edit = session.id;
+      } else {
+        document.getElementById('s_type').value = 'Abhyanga (Massage)';
+        document.getElementById('s_date').value = '';
+        document.getElementById('s_time').value = '';
+        document.getElementById('s_room').value = '';
+        document.getElementById('saveSchedule').dataset.edit = '';
       }
+    };
+
+    window.addSessionDoc = async function(sessionData) {
+      const sessionsSnap = await getDocs(collection(db, "sessions"));
+      let conflict = false;
+      let availableDoctors = [];
+      const usersSnap = await getDocs(collection(db, "users"));
+      usersSnap.forEach(u => {
+        if (u.data().role === 'doctor' && u.data().approved === true && !u.data().blocked) {
+          availableDoctors.push(u.data().email);
+        }
+      });
+      sessionsSnap.forEach(docSnap => {
+        const s = docSnap.data();
+        if (s.date === sessionData.date && s.time === sessionData.time) {
+          if (s.room && s.room === sessionData.room) {
+            alert("Room is already booked at this time.");
+            conflict = true;
+          }
+          if (s.doctorEmail) {
+            availableDoctors = availableDoctors.filter(d => d !== s.doctorEmail);
+            if (sessionData.doctorEmail && s.doctorEmail === sessionData.doctorEmail) {
+               alert("Doctor is already booked at this time.");
+               conflict = true;
+            }
+          }
+        }
+      });
+      if (conflict) throw new Error("Scheduling conflict.");
+      if (!sessionData.doctorEmail) {
+        if (availableDoctors.length > 0) {
+          sessionData.doctorEmail = availableDoctors[0];
+          alert("Auto-assigned to Doctor: " + sessionData.doctorEmail);
+        } else {
+          throw new Error("No doctors available at this time.");
+        }
+      }
+      sessionData.status = 'scheduled';
+      await addDoc(collection(db, "sessions"), sessionData);
+      await addDoc(collection(db, "notifications"), {
+        toEmail: sessionData.patientEmail,
+        message: `Your ${sessionData.type} session has been scheduled on ${sessionData.date} at ${sessionData.time} in room ${sessionData.room}.`,
+        timestamp: new Date().toISOString()
+      });
+      window.adminLoadSessions();
+    };
+
+    window.updateSessionDoc = async function(id, sessionData) {
+      await updateDoc(doc(db, "sessions", id), sessionData);
+      window.adminLoadSessions();
+    };
+
+    window.adminPopulateReportPatients = async function() {
+      const pSelect = document.getElementById('reportPatient');
+      if(!pSelect) return;
+      pSelect.innerHTML = '<option value="">Select Patient</option>';
+      const seenEmails = new Set();
+      const usersSnap = await getDocs(collection(db, "users"));
+      usersSnap.forEach(u => {
+        const data = u.data();
+        if (data.role === 'patient' && data.email && !seenEmails.has(data.email)) {
+          seenEmails.add(data.email);
+          pSelect.innerHTML += `<option value="${data.email}">${data.name || data.email}</option>`;
+        }
+      });
+      const patientsSnap = await getDocs(collection(db, "patients"));
+      patientsSnap.forEach(p => {
+        const data = p.data();
+        if(data.email && !seenEmails.has(data.email)) {
+          seenEmails.add(data.email);
+          pSelect.innerHTML += `<option value="${data.email}">${data.name || data.email}</option>`;
+        }
+      });
+    };
+
+    document.getElementById('generateReport').addEventListener('click', async () => {
+      const patientSelect = document.getElementById("reportPatient");
+      if (!patientSelect.options[patientSelect.selectedIndex]) { alert("Please select a patient."); return; }
+      const patientEmail = patientSelect.value;
+      if (!patientEmail) { alert("Please select a patient."); return; }
+      const patientName = patientSelect.options[patientSelect.selectedIndex].text;
+      const type = document.getElementById("reportType").value;
+      const obs = document.getElementById("reportObservations").value;
+      const btn = document.getElementById("generateReport");
+      const originalText = btn.innerText;
+      btn.innerText = "Generating AI Report...";
+      btn.disabled = true;
+      try {
+        const sessionsSnap = await getDocs(collection(db, "sessions"));
+        let sessionsList = [];
+        sessionsSnap.forEach(s => { const d = s.data(); if(d.patientEmail === patientEmail) sessionsList.push(`${d.date} - ${d.type} (${d.status})`); });
+        const feedbacksSnap = await getDocs(collection(db, "feedbacks"));
+        let fbList = [];
+        feedbacksSnap.forEach(f => { const d = f.data(); if(d.patientEmail === patientEmail) fbList.push(`Pain: ${d.pain}/10, Energy: ${d.energy}/10, Satisfaction: ${d.satisfaction}/5. Notes: ${d.notes}`); });
+        const prompt = `You are a professional Ayurvedic Doctor writing a ${type}. Patient Name: ${patientName}. Sessions History: ${sessionsList.join('\n') || 'None'}. Feedback History: ${fbList.join('\n') || 'None'}. Observations: ${obs}. Generate a formal and detailed ${type} document for this patient based on the data above. Make it sound professional and empathetic, appropriate for an Ayurvedic setting.`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+        const response = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] }) });
+        const data = await response.json();
+        if(data.error) throw new Error(data.error.message);
+        const reportContent = data.candidates[0].content.parts[0].text;
+        const docText = `AyurSutra - ${type}\nGenerated on: ${new Date().toLocaleDateString()}\n-------------------------------------------------\n\n${reportContent}`;
+        const blob = new Blob([docText], {type: "text/plain"});
+        const blobUrl = URL.createObjectURL(blob);
+        const downloadBtn = document.getElementById("downloadReport");
+        downloadBtn.onclick = () => {
+          const a = document.createElement("a");
+          a.href = blobUrl;
+          a.download = `${patientName.replace(/\s+/g, '_')}_${type.replace(/\s+/g, '_')}.txt`;
+          a.click();
+        };
+        alert("AI Report generated. Click Download to save file.");
+      } catch (err) {
+        console.error(err);
+        alert("Error generating report: " + err.message);
+      } finally {
+        btn.innerText = originalText;
+        btn.disabled = false;
+      }
+    });
+
+    window.adminLoadSuspiciousDoctors = async function() {
+      const snapshot = await getDocs(collection(db, "users"));
+      let html = "";
+      let count = 0;
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.role === 'doctor') {
+          const rating = data.rating || 0;
+          const complaints = data.complaints || 0;
+          const flagged = data.flagged || false;
+          const rejectedRequests = data.rejectedRequests || 0;
+          if (flagged || rating < 2.5 || complaints >= 5) {
+            count++;
+            let statusBadge = "Fraud Risk";
+            let color = "var(--danger)";
+            if (data.blocked) { statusBadge = "Blocked"; color = "#333"; }
+            else if (flagged) { statusBadge = "Flagged"; color = "#f59e0b"; }
+            html += `<div class="doctor-card">
+              <div class="doctor-avatar">${(data.name || 'D').charAt(0).toUpperCase()}</div>
+              <div class="doctor-info">
+                <strong>${data.name}</strong>
+                <div class="muted">${data.email}</div>
+                <div style="margin-top:6px;font-size:13px;color:var(--text-muted);">
+                  Rating: <b style="color:var(--text-main)">${rating.toFixed(1)}/5</b> · Complaints: <b style="color:var(--text-main)">${complaints}</b> · Rej. Rate: <b style="color:var(--text-main)">${(data.rejectionRate || 0).toFixed(1)}%</b>
+                </div>
+                <span class="badge danger" style="margin-top:8px;">${statusBadge}</span>
+              </div>
+              <div class="doctor-actions">
+                <button class="btn small ghost" onclick="window.toggleBlockDoctor('${docSnap.id}', ${data.blocked === true})">${data.blocked === true ? 'Unblock' : 'Block'}</button>
+                <button class="btn small ghost" onclick="window.resetDoctorFlag('${docSnap.id}')">Reset</button>
+              </div>
+            </div>`;
+          }
+        }
+      });
+      const listEl = document.getElementById('suspiciousDoctorsList');
+      if(listEl) listEl.innerHTML = html || "No suspicious doctors found.";
+    };
+
+    window.toggleBlockDoctor = async function(docId, currentBlocked) {
+      if (confirm(currentBlocked ? "Unblock this doctor?" : "Block this doctor? They will not be able to log in.")) {
+        await updateDoc(doc(db, "users", docId), { blocked: !currentBlocked });
+        window.adminLoadSuspiciousDoctors();
+        if(window.adminLoadVerificationDoctors) window.adminLoadVerificationDoctors();
+      }
+    };
+
+    window.resetDoctorFlag = async function(docId) {
+      if (confirm("Reset flags, complaints, and rejection stats for this doctor?")) {
+        await updateDoc(doc(db, "users", docId), { flagged: false, complaints: 0, rejectedRequests: 0, rejectionRate: 0 });
+        window.adminLoadSuspiciousDoctors();
+      }
+    };
+
+    window.adminLoadFeedbacks = async function() {
+      const snapshot = await getDocs(collection(db, "feedbacks"));
+      let html = "";
+      let totalFeedbacks = 0;
+      let totalSatisfaction = 0;
+      let actionRequired = 0;
+      const usersSnap = await getDocs(collection(db, "users"));
+      const userMap = {};
+      usersSnap.forEach(u => userMap[u.data().email] = u.data().name);
+
+      snapshot.forEach(docSnap => {
+        const f = docSnap.data();
+        totalFeedbacks++;
+        totalSatisfaction += Number(f.satisfaction || 0);
+        if (f.reported === true || Number(f.satisfaction || 0) <= 2) actionRequired++;
+        const patientName = userMap[f.patientEmail] || f.patientEmail;
+        const docName = userMap[f.doctorEmail] || f.doctorEmail;
+        html += `<div class="list-item">
+          <div style="display:flex;justify-content:space-between">
+            <strong>${patientName}</strong>
+            <span class="muted">To: Dr. ${docName}</span>
+          </div>
+          <div style="margin-top:8px;display:flex;gap:14px;font-size:13px;">
+            <span>� Pain: <b>${f.pain}/10</b></span>
+            <span>⚡ Energy: <b>${f.energy}/10</b></span>
+            <span>⭐ Satisfaction: <b>${f.satisfaction}/5</b></span>
+          </div>
+          <div style="margin-top:8px;font-style:italic;color:var(--text-muted);">"${f.notes || ''}"</div>
+        </div>`;
+      });
+
+      document.getElementById('feedbackList').innerHTML = html || "No feedback yet.";
+      document.getElementById('totalFeedback').textContent = totalFeedbacks;
+      document.getElementById('avgSatisfaction').textContent = totalFeedbacks ? (totalSatisfaction / totalFeedbacks).toFixed(1) : 0;
+      document.getElementById('actionRequired').textContent = actionRequired;
+    };
+
+    window.adminLoadNotifications = async function() {
+      const snapshot = await getDocs(collection(db, "notifications"));
+      let html = "";
+      const usersSnap = await getDocs(collection(db, "users"));
+      const userMap = {};
+      usersSnap.forEach(u => userMap[u.data().email] = u.data().name);
+      snapshot.forEach(docSnap => {
+        const n = docSnap.data();
+        const toName = n.toEmail === 'All Patients' ? 'All Patients' : (userMap[n.toEmail] || n.toEmail);
+        html += `<div class="list-item">
+          <div style="display:flex;justify-content:space-between">
+            <strong>📨 ${toName}</strong>
+            <div class="muted">${n.timestamp ? n.timestamp.split('T')[0] : ''}</div>
+          </div>
+          <div style="margin-top:8px;">${n.message}</div>
+        </div>`;
+      });
+      const listEl = document.getElementById('notificationsList');
+      if(listEl) listEl.innerHTML = html || "No notifications yet.";
+    };
+
+    window.adminLoadPatients = async function() {
+      const snapshot = await getDocs(collection(db, "users"));
+      const tbody = document.querySelector('#patientsTable tbody');
+      const miniList = document.getElementById('miniList');
+      const progressSelect = document.getElementById('progressPatientSelector');
+      let html = "";
+      let miniHtml = "";
+      let selectHtml = '<option value="">Select a Patient...</option>';
+      let count = 0;
+      const patientsSnap = await getDocs(collection(db, "patients"));
+      patientsSnap.forEach(docSnap => {
+        const data = docSnap.data();
+        count++;
+        const joinDate = data.join || data.createdAt?.split('T')[0] || 'N/A';
+        html += `<tr>
+          <td><strong>${data.name}</strong><br><span class="muted">${data.email || ''}</span></td>
+          <td>${data.phone || 'N/A'}</td>
+          <td>${data.age || 'N/A'}</td>
+          <td><span class="badge active">active</span></td>
+          <td>${joinDate}</td>
+          <td>${data.lastVisit || 'N/A'}</td>
+          <td>
+            <button class="btn small ghost" onclick="openPatientModal('${docSnap.id}')">Edit</button>
+            <button class="btn small ghost" onclick="window.deletePatientDoc('${docSnap.id}')">Delete</button>
+          </td>
+        </tr>`;
+        if (count <= 6) {
+          miniHtml += `<div class="list-item"><strong>${data.name}</strong><div class="muted">${data.therapy || ''}</div></div>`;
+        }
+        selectHtml += `<option value="${data.email || docSnap.id}">${data.name}</option>`;
+      });
+      if (tbody) tbody.innerHTML = html || '<tr><td colspan="7">No patients found.</td></tr>';
+      if (miniList) miniList.innerHTML = miniHtml || '<div class="muted">No recent patients.</div>';
+      if (progressSelect) progressSelect.innerHTML = selectHtml;
+      document.getElementById('badgeCount').textContent = `${count} patients`;
+      document.getElementById('m-patients').textContent = count;
+      document.getElementById('m-active').textContent = count;
+    };
+
+    window.adminLoadProgress = async function(patientEmail) {
+      if (!patientEmail) {
+        document.getElementById('completedSessions').textContent = '0/0';
+        document.getElementById('improvement').textContent = '0%';
+        document.getElementById('nextSession').textContent = '-';
+        document.getElementById('therapyType').textContent = '-';
+        const canvas = document.getElementById('progressChart');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0,0, canvas.width, canvas.height);
+        }
+        return;
+      }
+      const sessionSnap = await getDocs(collection(db, "sessions"));
+      let completed = 0;
+      let total = 0;
+      let nextSession = null;
+      sessionSnap.forEach(docSnap => {
+        const s = docSnap.data();
+        if (s.patientEmail === patientEmail) {
+          total++;
+          const today = new Date().toISOString().split('T')[0];
+          if (s.date && s.date < today) completed++;
+          else if (!nextSession || s.date < nextSession.date) nextSession = s;
+        }
+      });
+      document.getElementById('completedSessions').textContent = `${completed}/${total || 1}`;
+      const fbSnap = await getDocs(collection(db, "feedbacks"));
+      let fbCount = 0;
+      let fbScore = 0;
+      const chartData = [];
+      fbSnap.forEach(docSnap => {
+        const f = docSnap.data();
+        if (f.patientEmail === patientEmail) {
+           fbCount++;
+           const score = ((Number(f.energy) || 5) * 10) - ((Number(f.pain) || 5) * 5) + ((Number(f.satisfaction) || 3) * 10);
+           fbScore += score;
+           chartData.push(score);
+        }
+      });
+      const improvementStr = fbCount ? Math.min(100, Math.max(0, Math.round(fbScore / fbCount))) + "%" : "0%";
+      document.getElementById('improvement').textContent = improvementStr;
+      if (nextSession) {
+        document.getElementById('nextSession').textContent = nextSession.date;
+        document.getElementById('therapyType').textContent = nextSession.type || "Panchakarma";
+      } else {
+        document.getElementById('nextSession').textContent = '-';
+        document.getElementById('therapyType').textContent = '-';
+      }
+      drawRealChart(chartData.length ? chartData : [20, 35, 50, 65, 80]);
+    };
+
+    window.progressChartInstance = null;
+    function drawRealChart(series) {
+      const canvas = document.getElementById('progressChart');
+      if(!canvas) return;
+      const ctx = canvas.getContext('2d');
+      if(window.progressChartInstance) window.progressChartInstance.destroy();
+      const labels = series.map((_, i) => 'Session ' + (i + 1));
+      window.progressChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Improvement Score',
+            data: series,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            borderWidth: 3,
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#10b981',
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 100, grid: { color: 'rgba(20, 83, 45, 0.06)' }, ticks: { color: '#64748B' } },
+            x: { grid: { display: false }, ticks: { color: '#64748B' } }
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
     }
-  });
-}
 
-// Global selector listener
-document.getElementById('progressPatientSelector')?.addEventListener('change', (e) => {
-    window.adminLoadProgress(e.target.value);
-});
+    document.getElementById('progressPatientSelector')?.addEventListener('change', (e) => {
+        window.adminLoadProgress(e.target.value);
+    });
 
+    const modalNotification = document.getElementById("modalNotification");
+    document.getElementById("sendNotification").addEventListener("click", async () => {
+      const usersSnap = await getDocs(collection(db, "users"));
+      let html = '<option value="All Patients">All Patients</option>';
+      usersSnap.forEach(u => {
+        const d = u.data();
+        if(d.role === 'patient') html += `<option value="${d.email}">${d.name}</option>`;
+      });
+      document.getElementById("n_patient").innerHTML = html;
+      modalNotification.style.display = "flex";
+    });
 
-// Logic for Modal 
-const modalNotification = document.getElementById("modalNotification");
-document.getElementById("sendNotification").addEventListener("click", async () => {
-  // fetch users for dropdown
-  const usersSnap = await getDocs(collection(db, "users"));
-  let html = '<option value="All Patients">All Patients</option>';
-  usersSnap.forEach(u => {
-    const d = u.data();
-    if(d.role === 'patient') {
-      html += `<option value="${d.email}">${d.name}</option>`;
-    }
-  });
-  document.getElementById("n_patient").innerHTML = html;
-  
-  modalNotification.style.display = "flex";
-});
+    document.getElementById("closeNotification").addEventListener("click", () => { modalNotification.style.display = "none"; });
 
-document.getElementById("closeNotification").addEventListener("click", () => {
-  modalNotification.style.display = "none";
-});
+    document.getElementById("saveNotificationBtn").addEventListener("click", async () => {
+      const toEmail = document.getElementById("n_patient").value;
+      const message = document.getElementById("n_message").value;
+      if(!message.trim()){ alert("Message cannot be empty"); return; }
+      await addDoc(collection(db, "notifications"), {
+        toEmail: toEmail,
+        message: message,
+        timestamp: new Date().toISOString()
+      });
+      alert("Notification sent successfully!");
+      modalNotification.style.display = "none";
+      document.getElementById("n_message").value = "";
+      window.adminLoadNotifications();
+    });
 
-document.getElementById("saveNotificationBtn").addEventListener("click", async () => {
-  const toEmail = document.getElementById("n_patient").value;
-  const message = document.getElementById("n_message").value;
-  if(!message.trim()){ alert("Message cannot be empty"); return; }
-  
-  await addDoc(collection(db, "notifications"), {
-    toEmail: toEmail,
-    message: message,
-    timestamp: new Date().toISOString()
-  });
-  
-  alert("Notification sent successfully!");
-  modalNotification.style.display = "none";
-  document.getElementById("n_message").value = "";
-  
-  window.adminLoadNotifications();
-}); // Firebase logic removed - handled by guard.js
+    // Set avatar initial
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        const name = user.displayName || user.email || "Admin";
+        const initial = name.charAt(0).toUpperCase();
+        const avatarEl = document.getElementById('userAvatar');
+        if (avatarEl) avatarEl.textContent = initial;
+      }
+    });
 
-window.adminLoadPatients();
-
-window.adminLoadRevenue = async function() {
-  try {
-    const res = await fetch('/api/payments/admin/summary');
-    const data = await res.json();
-    document.getElementById('m-revenue').textContent = "₹" + (data.platformRevenue || 0).toLocaleString('en-IN');
-  } catch (e) { console.error(e); }
-};
-window.adminLoadRevenue();
-
-window.adminLoadSessions();
-window.adminLoadFeedbacks();
-window.adminLoadNotifications();
-window.adminPopulateReportPatients();
-
-</script>
+    window.adminLoadPatients();
+    window.adminLoadRevenue();
+    window.adminLoadSessions();
+    window.adminLoadFeedbacks();
+    window.adminLoadNotifications();
+    window.adminPopulateReportPatients();
+  </script>
 </body>
 <script type="module" src="js/logout.js"></script>
 <script type="module">
   import { protect } from "./js/guard.js";
   protect("admin");
-
-  // Schedule button logic
   const schedBtn = document.getElementById("scheduleBtn");
   if(schedBtn) {
-    schedBtn.addEventListener("click", () => {
-       if(window.openScheduleModal) window.openScheduleModal();
-    });
+    schedBtn.addEventListener("click", () => { if(window.openScheduleModal) window.openScheduleModal(); });
   }
 </script>
 <script type="module" src="js/verifyDoctors.js?v=2"></script>
