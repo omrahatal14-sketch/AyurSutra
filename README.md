@@ -1,107 +1,70 @@
-<div align="center">
-  <h1>🌿 AyurSutra</h1>
-  <p><b>A Comprehensive Panchakarma Patient Management System for Modern Ayurvedic Clinics</b></p>
+# AyurSutra Management System
 
-  <!-- Badges -->
-  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white" />
-  <img alt="Express.js" src="https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white" />
-  <img alt="MySQL" src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white" />
-  <img alt="Playwright" src="https://img.shields.io/badge/Playwright-2EAD33?style=for-the-badge&logo=playwright&logoColor=white" />
-  <img alt="HTML5" src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" />
-  <img alt="CSS3" src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" />
-  <img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E" />
-</div>
+AyurSutra is a comprehensive full-stack Panchakarma Patient Management System designed for Ayurvedic clinics. It facilitates complete clinic operations, from patient registration and session tracking to doctor verification and inventory requests.
 
-<br />
+## Architecture
 
-AyurSutra is a full-stack web application designed to streamline clinic operations for Ayurvedic practitioners. It handles everything from patient registration and specialized session tracking (like Vamana, Basti) to automated doctor license verification, all wrapped in a modern, biophilic glassmorphism design.
+AyurSutra utilizes a hybrid architecture:
+*   **Frontend**: Built with pure HTML, CSS, and vanilla JavaScript. Features a premium, SaaS-style glassmorphism UI. Authentication and some legacy data operations utilize Firebase SDKs.
+*   **Backend Server**: A Node.js and Express.js server that serves the static frontend files and mounts robust REST APIs.
+*   **Database**: A relational MySQL 8.0 database handling structured core data (Users, Patients, Sessions, Notifications).
+*   **Automation Engine**: An isolated Playwright scraping utility used for intelligent doctor license verification against public government portals (MCIM).
 
-## ✨ Key Features
+## Core Features
 
-### 👥 Multi-Role Dashboards
-*   🛡️ **Admin Dashboard**: Centralized control center to verify new doctor registrations, manage active users, broadcast notifications, and view clinic analytics.
-*   👨‍⚕️ **Doctor Dashboard**: A specialized workspace for doctors to add new patients, track ongoing Panchakarma treatments, log daily progress notes, and submit medicine/inventory requests.
-*   🤕 **Patient Dashboard**: A personalized portal for patients to track their treatment sessions, submit feedback, and view direct notifications from their doctors.
+### 1. Multi-Role Dashboards
+*   **Admin Dashboard**: Centralized control center to verify new doctor registrations, manage active users, broadcast notifications, and view overarching clinic analytics.
+*   **Doctor Dashboard**: A specialized workspace for doctors to add new patients, track ongoing treatments (Vamana, Basti, etc.), log daily progress notes, and submit medicine/inventory requests.
+*   **Patient Dashboard**: A personalized view for patients to track their treatment sessions, submit feedback, and view notifications from their doctors.
 
-### 🤖 Automated Doctor Verification (MCIM)
-To ensure clinic integrity and combat fraudulent registrations, AyurSutra includes an intelligent web-scraping module:
-*   **Cache-First Architecture**: Quickly verifies if a doctor's Registration Number has been checked before via local MySQL records.
-*   **Headless Playwright Scraping**: Automatically navigates the Maharashtra Council of Indian Medicine (MCIM) public portal in the background.
-*   **Auto-CAPTCHA Resolution**: The scraper seamlessly extracts ASP.NET tables and solves mathematical CAPTCHAs to provide real-time licensing data.
-*   **Smart UI Warnings**: Alerts admins instantly if a registered name mismatches official government records.
+### 2. Automated Doctor Verification (MCIM)
+To combat fraudulent registrations, AyurSutra includes a dedicated verification module:
+*   **Cache-First Approach**: The `/api/verify-doctor` endpoint first queries the local MySQL `verified_doctors` table to see if the doctor's Registration Number has been checked before.
+*   **Headless Scraping**: On a cache miss, the backend utilizes Playwright to invisibly navigate to the Maharashtra Council of Indian Medicine (MCIM) public portal.
+*   **Auto-Resolution**: The scraper automatically handles ASP.NET GridView table extraction and solves mathematical CAPTCHAs to return real-time licensing data.
+*   **UI Integration**: Admins get instant visual warnings if the name a doctor registered with does not match the official government record.
 
-### 📋 Treatment & Session Tracking
-*   Log individualized sessions targeting specific Ayurvedic treatments (Virechana, Nasya, etc.).
-*   Append comprehensive progress notes to active sessions to monitor patient reactions and holistic improvements over time.
+### 3. Comprehensive Treatment Tracking
+*   Doctors can log sessions targeting specific treatments (e.g., Virechana, Nasya).
+*   Progress notes can be appended to active sessions to track patient reactions and improvements over time.
 
----
+## Prerequisites
 
-## 🏗️ Architecture
+*   **Node.js**: v18.x or higher
+*   **MySQL Server**: v8.0 running locally or remotely
+*   **Firebase Project**: Web credentials for Frontend Auth
 
-AyurSutra utilizes a robust hybrid architecture:
-*   **Frontend**: Built with pure HTML, CSS, and Vanilla JavaScript, featuring a premium, "Organic Biophilic" glassmorphism UI. Integrates Firebase SDKs for smooth authentication.
-*   **Backend Server**: A powerful Node.js and Express.js server that serves static frontend files while mounting secure RESTful APIs.
-*   **Database**: Relational MySQL 8.0 database handling structured core data securely.
-*   **Automation Engine**: An isolated Playwright scraping utility for external data validation.
+## Setup Instructions
 
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-*   **Node.js**: `v18.x` or higher
-*   **MySQL Server**: `v8.0` (running locally or remotely)
-*   **Firebase Project**: Web credentials required for Frontend Auth
-
-### Installation & Setup
-
-1. **Clone the repository & Install Dependencies**
+1. **Install Dependencies**
    ```bash
-   git clone https://github.com/omrahatal14-sketch/AyurSutra.git
-   cd AyurSutra
    npm install
    ```
 
 2. **Database Initialization**
-   * Ensure your MySQL server is running.
-   * Initialize the database schema (creates `ayursutra_db` and all required tables):
+   *   Ensure MySQL is running.
+   *   Initialize the database schema (this creates the `ayursutra_db` and all tables):
    ```bash
    npm run db:init
    ```
 
-3. **Environment Configuration**
-   * Create a `.env` file in the root directory.
-   * Add your MySQL credentials and desired port:
-   ```env
-   DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=your_password
-   DB_NAME=ayursutra_db
-   PORT=3000
-   ```
-
-4. **Start the Application**
+3. **Start the Application**
    ```bash
    npm start
    ```
-   *(For development with auto-reloading: `npm run dev`)*
+   *For development with auto-reloading:* `npm run dev`
 
-5. **Access the System**
-   * Open your browser and navigate to `http://localhost:3000`
+4. **Accessing the System**
+   *   Open your browser and navigate to `http://localhost:3000`
+   *   The system will automatically serve `login.html`.
 
----
+## Project Structure
 
-## 📂 Project Structure
-
-```text
-AyurSutra/
-├── server.js                 # Main Express application entry point
-├── server/
-│   ├── db.js                 # MySQL connection pool configuration
-│   ├── schema.sql            # Database schema definitions
-│   ├── routes/               # Express API endpoints
-│   └── utils/mcimScraper.js  # Playwright script for portal scraping
-├── js/                       # Frontend JS (UI rendering, API calls, Auth)
-├── css/                      # Centralized design system (style.css)
-└── *.html                    # Frontend Views (Admin, Doctor, Patient, Login)
-```
+*   `server.js`: Main Express application entry point.
+*   `server/db.js`: MySQL connection pool configuration.
+*   `server/schema.sql`: Database schema definition for MySQL.
+*   `server/routes/`: Express routers for handling API endpoints (`users`, `patients`, `verifyDoctor`, etc.).
+*   `server/utils/mcimScraper.js`: The isolated Playwright script for government portal scraping.
+*   `js/`: Frontend JavaScript logic handling UI rendering, Firebase auth, and API fetch calls.
+*   `css/`: Frontend styling, including the centralized `style.css` design system.
+*   `*.html`: Frontend views (Admin, Doctor, Patient, Login).
