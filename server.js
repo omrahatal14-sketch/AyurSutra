@@ -41,6 +41,7 @@ app.use('/api/notifications', require('./server/routes/notifications'));
 app.use('/api/progress', require('./server/routes/progress'));
 app.use('/api/payments', require('./server/routes/payments'));
 app.use('/api/verify-doctor', require('./server/routes/verifyDoctor'));
+app.use('/api/ai', require('./server/routes/ai'));
 
 // ─── Health check endpoint ─────────────────────────────────────────────────
 app.get('/api/health', async (req, res) => {

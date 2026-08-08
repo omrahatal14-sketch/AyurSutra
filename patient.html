@@ -262,7 +262,7 @@ render()
 window.chatHistory = [];
 function addMessage(sender, text) {
   const chat = document.getElementById("chatMessages");
-  const cls = sender === "You" ? "chat-me" : "chat-bot";
+  const cls = sender === "You" ? "chat-bubble chat-me shadow-sm" : "chat-bubble chat-bot shadow-sm";
   const name = sender === "You" ? "" : `<b>${sender}</b>`;
   const isTyping = text === "typing...";
   const idAttr = isTyping ? 'id="typingIndicator"' : '';
@@ -303,7 +303,6 @@ window.sendMessage = async function() {
   addMessage("Bot", "typing...");
   
   try {
-const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;    
     const contents = [];
     if (window.chatHistory) {
       window.chatHistory.forEach(h => {
@@ -312,14 +311,12 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-
     }
     contents.push({ role: "user", parts: [{ text: msg }] });
 
-    const response = await fetch(url, {
+    const response = await fetch('/api/ai/chat', {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ 
-        system_instruction: { parts: { text: "You are an Ayurvedic health assistant answering queries for a Panchakarma patient. Keep your answers concise and helpful." } },
-        contents: contents 
+        systemInstruction: "You are an Ayurvedic health assistant answering queries for a Panchakarma patient. Keep your answers concise and helpful.",
+        messages: contents 
       })
     });
 
@@ -329,9 +326,9 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-
     if (typing) typing.remove();
     
     if (data.error) {
-      addMessage("Bot", "Error: " + data.error.message);
+      addMessage("Bot", "Error: " + data.error);
     } else {
-      const reply = data.candidates[0].content.parts[0].text;
+      const reply = data.text;
       addMessage("Bot", reply);
       
       if (!window.chatHistory) window.chatHistory = [];
@@ -744,9 +741,6 @@ window.getTreatmentSuggestion = async function() {
   resultDiv.innerHTML = '<div class="chat-bot">Analyzing symptoms...</div>';
 
   try {
-const GEMINI_API_KEY = "AIzaSyCkO83gKGynnrmI_NgzCydXn-71wrBjQl0";
-
-const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     const prompt = `You are an Ayurvedic expert. A patient reports these symptoms: "${symptoms}".
     Based on these symptoms, suggest exactly 2 most relevant therapies from this specific list: ${THERAPY_LIST.join(", ")}.
     For each suggestion, provide a 1-sentence reason.
@@ -754,26 +748,28 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-
     THERAPY: [Therapy Name from List] | REASON: [Your Reason]
     THERAPY: [Therapy Name from List] | REASON: [Your Reason]`;
 
-    const response = await fetch(url, {
+    const response = await fetch('/api/ai/chat', {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }]
+        systemInstruction: "You are an expert Ayurvedic diagnostician.",
+        messages: [{ role: "user", parts: [{ text: prompt }] }]
       })
     });
 
     const data = await response.json();
     
     if (data.error) {
-      throw new Error(data.error.message || "Unknown API Error: " + JSON.stringify(data));
+      throw new Error(data.error || "Unknown API Error");
     }
     
-    const text = data.candidates[0].content.parts[0].text;
+    const text = data.text;
     
-    const lines = text.split('\\n').filter(l => l.includes('THERAPY:'));
-    let html = "<h4>Suggestions from AI Expert:</h4>";
+    // Fix newline splitting for actual newlines
+    const lines = text.split('\n').filter(l => l.includes('THERAPY:'));
+    let html = "<h4 class='mb-4' style='font-family: var(--font-heading); color: var(--primary);'>Suggestions from AI Expert:</h4>";
+    
+    html += "<div class='row g-3'>";
 
     lines.forEach(line => {
       const parts = line.split('|');
@@ -781,18 +777,22 @@ const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-
       const reason = parts[1] ? parts[1].replace('REASON:', '').trim() : "";
 
       html += `
-        <div class="list-item" style="background:#fff; border-radius:12px; margin-bottom:15px; padding:15px; box-shadow:0 2px 8px rgba(0,0,0,0.05)">
-          <strong>${therapy}</strong><br>
-          <span style="font-size:14px;color:var(--muted)">${reason}</span>
-          <div style="margin-top:10px;">
-            <button class="btn small" onclick="quickRequest('${therapy}')">Request This Therapy</button>
+        <div class="col-md-6">
+          <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; background: #f8fafc; transition: transform 0.2s;">
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title text-success fw-bold" style="font-family: var(--font-heading);">${therapy}</h5>
+              <p class="card-text text-muted mb-4" style="font-size: 0.95rem;">${reason}</p>
+              <button class="btn btn-success mt-auto rounded-pill fw-medium" onclick="quickRequest('${therapy}')">Request This Therapy</button>
+            </div>
           </div>
         </div>
       `;
     });
+    
+    html += "</div>";
 
     if(lines.length === 0) {
-      html += "<p>Could not generate a specific recommendation based on those symptoms. Please try rephrasing.</p>";
+      html += "<p class='text-muted'>Could not generate a specific recommendation based on those symptoms. Please try rephrasing.</p>";
     }
 
     resultDiv.innerHTML = html;
