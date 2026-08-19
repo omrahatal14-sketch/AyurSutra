@@ -1,70 +1,54 @@
 # AyurSutra Management System
 
-AyurSutra is a comprehensive full-stack Panchakarma Patient Management System designed for Ayurvedic clinics. It facilitates complete clinic operations, from patient registration and session tracking to doctor verification and inventory requests.
+AyurSutra is a comprehensive full-stack Panchakarma Patient Management System designed for Ayurvedic clinics. It facilitates complete clinic operations, from patient registration and session tracking to doctor verification, payments, and AI-powered health assistance.
 
 ## Architecture
 
-AyurSutra utilizes a hybrid architecture:
-*   **Frontend**: Built with pure HTML, CSS, and vanilla JavaScript. Features a premium, SaaS-style glassmorphism UI. Authentication and some legacy data operations utilize Firebase SDKs.
-*   **Backend Server**: A Node.js and Express.js server that serves the static frontend files and mounts robust REST APIs.
-*   **Database**: A relational MySQL 8.0 database handling structured core data (Users, Patients, Sessions, Notifications).
-*   **Automation Engine**: An isolated Playwright scraping utility used for intelligent doctor license verification against public government portals (MCIM).
+AyurSutra utilizes a modern full-stack architecture:
+*   **Frontend**: Built with HTML, CSS, and vanilla JavaScript. Features a SaaS-style glassmorphism UI with responsive multi-role dashboards.
+*   **Backend Server**: A Node.js and Express.js server that serves the frontend files and powers REST APIs.
+*   **Database**: **Firebase Cloud Firestore** (default, fully cloud-hosted) with optional MySQL support.
+*   **Automation Engine**: An isolated Playwright scraping utility for intelligent doctor license verification against public government portals (MCIM).
 
 ## Core Features
 
 ### 1. Multi-Role Dashboards
-*   **Admin Dashboard**: Centralized control center to verify new doctor registrations, manage active users, broadcast notifications, and view overarching clinic analytics.
-*   **Doctor Dashboard**: A specialized workspace for doctors to add new patients, track ongoing treatments (Vamana, Basti, etc.), log daily progress notes, and submit medicine/inventory requests.
-*   **Patient Dashboard**: A personalized view for patients to track their treatment sessions, submit feedback, and view notifications from their doctors.
+*   **Admin Dashboard**: Centralized control center to verify new doctor registrations, manage active users, broadcast notifications, and view clinic revenue analytics.
+*   **Doctor Dashboard**: Specialized workspace for doctors to add new patients, track ongoing treatments (Vamana, Virechana, Basti, Nasya, Raktamokshana), log daily progress notes, and accept appointment requests.
+*   **Patient Dashboard**: Personalized portal for patients to track treatment sessions, submit daily recovery feedback, pay session fees via Razorpay, and chat with the AI Health Assistant.
 
 ### 2. Automated Doctor Verification (MCIM)
-To combat fraudulent registrations, AyurSutra includes a dedicated verification module:
-*   **Cache-First Approach**: The `/api/verify-doctor` endpoint first queries the local MySQL `verified_doctors` table to see if the doctor's Registration Number has been checked before.
-*   **Headless Scraping**: On a cache miss, the backend utilizes Playwright to invisibly navigate to the Maharashtra Council of Indian Medicine (MCIM) public portal.
-*   **Auto-Resolution**: The scraper automatically handles ASP.NET GridView table extraction and solves mathematical CAPTCHAs to return real-time licensing data.
-*   **UI Integration**: Admins get instant visual warnings if the name a doctor registered with does not match the official government record.
+*   **Cache-First Architecture**: Checks the Firestore cache before initiating web lookups.
+*   **Headless Scraping**: On a cache miss, Playwright searches the Maharashtra Council of Indian Medicine (MCIM) public portal, solves mathematical CAPTCHAs, and caches verified credentials.
 
-### 3. Comprehensive Treatment Tracking
-*   Doctors can log sessions targeting specific treatments (e.g., Virechana, Nasya).
-*   Progress notes can be appended to active sessions to track patient reactions and improvements over time.
+---
 
-## Prerequisites
+## Quick Setup Guide (Firebase)
 
-*   **Node.js**: v18.x or higher
-*   **MySQL Server**: v8.0 running locally or remotely
-*   **Firebase Project**: Web credentials for Frontend Auth
+### 1. Install Dependencies
+```bash
+npm install
+```
 
-## Setup Instructions
+### 2. Setup Firebase Cloud Firestore
+1. Create a project at [Firebase Console](https://console.firebase.google.com/).
+2. Enable **Firestore Database** (in test mode).
+3. Go to **Project Settings ➔ Service accounts**, click **Generate new private key**, and download the JSON file.
+4. Rename the downloaded file to `serviceAccountKey.json` and place it in the project root folder.
+> 👉 **For full visual instructions, see [FIREBASE_SETUP_GUIDE.md](FIREBASE_SETUP_GUIDE.md).**
 
-1. **Install Dependencies**
-   ```bash
-   npm install
-   ```
+### 3. Initialize the Database
+```bash
+npm run db:init-firebase
+```
 
-2. **Database Initialization**
-   *   Ensure MySQL is running.
-   *   Initialize the database schema (this creates the `ayursutra_db` and all tables):
-   ```bash
-   npm run db:init
-   ```
+### 4. Start the Application
+```bash
+npm start
+```
+*For auto-reloading during development:* `npm run dev`
 
-3. **Start the Application**
-   ```bash
-   npm start
-   ```
-   *For development with auto-reloading:* `npm run dev`
-
-4. **Accessing the System**
-   *   Open your browser and navigate to `http://localhost:3000`
-   *   The system will automatically serve `login.html`.
-
-## Project Structure
-
-*   `server.js`: Main Express application entry point.
-*   `server/db.js`: MySQL connection pool configuration.
-*   `server/schema.sql`: Database schema definition for MySQL.
-*   `server/routes/`: Express routers for handling API endpoints (`users`, `patients`, `verifyDoctor`, etc.).
-*   `server/utils/mcimScraper.js`: The isolated Playwright script for government portal scraping.
-*   `js/`: Frontend JavaScript logic handling UI rendering, Firebase auth, and API fetch calls.
-*   `css/`: Frontend styling, including the centralized `style.css` design system.
-*   `*.html`: Frontend views (Admin, Doctor, Patient, Login).
+### 5. Access the System
+* Open **`http://localhost:3000`**
+* **Admin Login**: `omrahatal@gmail.com` | `omrahatal`
+* **Doctor Login**: `doctor@ayursutra.com` | `doctor123`

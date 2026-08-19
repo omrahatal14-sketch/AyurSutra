@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { pool } = require('../db');
+const { DB_TYPE, firestore, pool } = require('../db');
+const { DEFAULT_ADMIN } = require('../utils/bootstrap');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'ayursutra_super_secret_key_2026';
 
@@ -17,12 +18,10 @@ const storage = multer.diskStorage({
     cb(null, dir);
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + '-' + file.originalname);
+    cb(null, Date.now() + '-' + file.originalname.replace(/[^a-zA-Z0-9.-]/g, '_'));
   }
 });
 const upload = multer({ storage: storage });
-
-const { DEFAULT_ADMIN } = require('../utils/bootstrap');
 
 // ─── POST /api/auth/signup ───────────────────────────────────────────
 router.post('/signup', upload.fields([{ name: 'degreeFile' }, { name: 'idProofFile' }]), async (req, res) => {
@@ -33,14 +32,6 @@ router.post('/signup', upload.fields([{ name: 'degreeFile' }, { name: 'idProofFi
     if (email === DEFAULT_ADMIN.email || normalizedRole === 'admin') {
       return res.status(403).json({ error: 'Admin signup is not allowed.' });
     }
-    
-    // Check if user already exists
-    const [existing] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-    if (existing.length > 0) return res.status(400).json({ error: 'Email already exists' });
-
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
 
     let degreeUrl = null;
     let idProofUrl = null;
@@ -53,15 +44,52 @@ router.post('/signup', upload.fields([{ name: 'degreeFile' }, { name: 'idProofFi
       idProofUrl = '/uploads/' + req.files.idProofFile[0].filename;
     }
 
-    // Insert user
-    const [result] = await pool.query(
-      `INSERT INTO users (name, email, password, role, license_number, degree_url, id_proof_url, approved, blocked) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, email, hashedPassword, normalizedRole, licenseNumber || null, degreeUrl, idProofUrl, false, false]
-    );
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-    res.status(201).json({ message: 'Signup successful', userId: result.insertId });
+    if (DB_TYPE === 'firebase' && firestore) {
+      // Firebase Firestore Signup
+      const existing = await firestore.findOneDoc('users', 'email', email);
+      if (existing) {
+        return res.status(400).json({ error: 'Email already exists' });
+      }
+
+      const newUser = await firestore.createDoc('users', {
+        name,
+        email,
+        password: hashedPassword,
+        role: normalizedRole,
+        license_number: licenseNumber || null,
+        degree_url: degreeUrl,
+        id_proof_url: idProofUrl,
+        approved: normalizedRole === 'doctor' ? false : true,
+        blocked: false,
+        flagged: false,
+        rating: 0,
+        total_ratings: 0,
+        complaints: 0,
+        total_requests: 0,
+        rejected_requests: 0,
+        rejection_rate: 0,
+        total_sessions: 0
+      });
+
+      return res.status(201).json({ message: 'Signup successful', userId: newUser.id });
+    } else if (pool) {
+      // MySQL Signup
+      const [existing] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+      if (existing.length > 0) return res.status(400).json({ error: 'Email already exists' });
+
+      const [result] = await pool.query(
+        `INSERT INTO users (name, email, password, role, license_number, degree_url, id_proof_url, approved, blocked) 
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, email, hashedPassword, normalizedRole, licenseNumber || null, degreeUrl, idProofUrl, normalizedRole === 'doctor' ? false : true, false]
+      );
+
+      return res.status(201).json({ message: 'Signup successful', userId: result.insertId });
+    }
   } catch (error) {
+    console.error('Signup error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -70,15 +98,24 @@ router.post('/signup', upload.fields([{ name: 'degreeFile' }, { name: 'idProofFi
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    let user = null;
 
-    const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
-    if (rows.length === 0) return res.status(400).json({ error: 'Invalid email or password' });
+    if (DB_TYPE === 'firebase' && firestore) {
+      user = await firestore.findOneDoc('users', 'email', email);
+    } else if (pool) {
+      const [rows] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+      if (rows.length > 0) user = rows[0];
+    }
 
-    const user = rows[0];
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ error: 'Invalid email or password' });
+    if (!isMatch) {
+      return res.status(400).json({ error: 'Invalid email or password' });
+    }
 
     // Role-specific guards
     if (user.role === 'doctor') {
@@ -88,7 +125,11 @@ router.post('/login', async (req, res) => {
     }
 
     // Generate JWT
-    const token = jwt.sign({ id: user.id, email: user.email, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
 
     res.json({
       message: 'Login successful',
@@ -101,6 +142,7 @@ router.post('/login', async (req, res) => {
       }
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({ error: error.message });
   }
 });

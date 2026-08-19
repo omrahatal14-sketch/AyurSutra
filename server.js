@@ -1,12 +1,12 @@
 // AyurSutra - Node.js Backend Server
-// Serves the existing frontend files AND provides REST API endpoints backed by MySQL
+// Serves the existing frontend files AND provides REST API endpoints backed by Firebase Cloud Firestore / MySQL
 
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
-const { pool, testConnection } = require('./server/db');
+const { DB_TYPE, testConnection } = require('./server/db');
 const { ensureDefaultAdmin } = require('./server/utils/bootstrap');
 
 const app = express();
@@ -26,9 +26,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ─── Serve existing frontend (HTML, CSS, JS, Images) ──────────────────────
-// This ensures all your existing .html files, css/, js/, image/ folders work as-is
+// ─── Serve existing frontend (HTML, CSS, JS, Images, Uploads) ─────────────
 app.use(express.static(path.join(__dirname)));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // ─── API Routes (all under /api prefix) ───────────────────────────────────
 app.use('/api/auth', require('./server/routes/auth'));
@@ -46,22 +46,24 @@ app.use('/api/ai', require('./server/routes/ai'));
 // ─── Health check endpoint ─────────────────────────────────────────────────
 app.get('/api/health', async (req, res) => {
   try {
-    const [rows] = await pool.query('SELECT 1 as status');
+    const isConnected = await testConnection();
     res.json({
       server: 'running',
-      database: 'connected',
+      database: isConnected ? 'connected' : 'error',
+      databaseType: DB_TYPE,
       timestamp: new Date().toISOString()
     });
   } catch (err) {
     res.status(500).json({
       server: 'running',
       database: 'disconnected',
+      databaseType: DB_TYPE,
       error: err.message
     });
   }
 });
 
-// ─── Fallback: serve index/login page for unmatched routes ─────────────────
+// ─── Fallback: serve login page for unmatched routes ───────────────────────
 app.get('/{*path}', (req, res) => {
   res.sendFile(path.join(__dirname, 'login.html'));
 });
@@ -72,6 +74,7 @@ app.listen(PORT, async () => {
   console.log(' Starting AyurSutra Server........');
   console.log(`\n🌿 AyurSutra Server running at---> http://localhost:${PORT}  ||`);
   console.log(`||   Frontend:  http://localhost:${PORT}/login.html             ||`);
+  console.log(`||   Database:  ${DB_TYPE.toUpperCase()} (Firebase Cloud Firestore) ||`);
   console.log(`||   API Base:  http://localhost:${PORT}/api                    ||`);
   console.log(`||   Health:    http://localhost:${PORT}/api/health             ||\n`);
   console.log('==============================================================');

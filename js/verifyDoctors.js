@@ -1,4 +1,4 @@
-// Fetch doctors from MySQL instead of Firebase
+// Fetch doctors and manage approvals/suspensions and MCIM verification
 
 window.adminLoadVerificationDoctors = async function() {
   const pendingList = document.getElementById("pendingDoctorsList");
@@ -14,11 +14,16 @@ window.adminLoadVerificationDoctors = async function() {
 
     users.forEach((data) => {
       if (data.role !== 'doctor') return;
-      if (data.flagged === 1) return; // 'flagged' acts as rejected
 
-      const uid = data.id;
+      const isApproved = data.approved === true || data.approved === 1 || data.approved === '1' || data.approved === 'true';
+      const isFlagged = data.flagged === true || data.flagged === 1 || data.flagged === '1' || data.flagged === 'true';
+      const isBlocked = data.blocked === true || data.blocked === 1 || data.blocked === '1' || data.blocked === 'true';
 
-      if (data.approved !== 1) {
+      if (isFlagged) return; // 'flagged' acts as rejected
+
+      const uid = String(data.id || data.uid);
+
+      if (!isApproved) {
           const docBtns = [];
           if (data.degree_url) docBtns.push(`<a href="${data.degree_url}" target="_blank" class="btn small ghost">View Degree</a>`);
           if (data.id_proof_url) docBtns.push(`<a href="${data.id_proof_url}" target="_blank" class="btn small ghost">View ID</a>`);
@@ -34,20 +39,20 @@ window.adminLoadVerificationDoctors = async function() {
                 ${docBtns.join('')}
               </div>
               <div style="display:flex; gap:10px; margin-top:5px; align-items: center;">
-                <button class="btn small" onclick="window.approveDoctor(${uid})">Approve</button>
-                <button class="btn small ghost" style="color:var(--danger); border-color:var(--danger);" onclick="window.rejectDoctor(${uid})">Reject</button>
-                ${data.license_number ? `<button class="btn small ghost" style="color:var(--primary); border-color:var(--primary);" onclick="window.verifyMCIM('${uid}', '${data.license_number}', '${data.name.replace(/'/g, "\\'")}')">Verify MCIM</button>` : ''}
+                <button class="btn small" onclick="window.approveDoctor('${uid}')">Approve</button>
+                <button class="btn small ghost" style="color:var(--danger); border-color:var(--danger);" onclick="window.rejectDoctor('${uid}')">Reject</button>
+                ${data.license_number ? `<button class="btn small ghost" style="color:var(--primary); border-color:var(--primary);" onclick="window.verifyMCIM('${uid}', '${data.license_number}', '${(data.name || '').replace(/'/g, "\\'")}')">Verify MCIM</button>` : ''}
               </div>
             </div>`;
         } else {
           // Approved Doctor
-          const statusBadge = data.blocked 
+          const statusBadge = isBlocked 
             ? `<span class="badge" style="background:#fecdd3; color:#e11d48;">Suspended</span>` 
             : `<span class="badge">Active</span>`;
             
-          const actionBtn = data.blocked
-            ? `<button class="btn small" onclick="window.toggleBlockDoctor(${uid}, true)">Unblock</button>`
-            : `<button class="btn small ghost" style="color:var(--danger); border-color:var(--danger);" onclick="window.toggleBlockDoctor(${uid}, false)">Suspend Doctor</button>`;
+          const actionBtn = isBlocked
+            ? `<button class="btn small" onclick="window.toggleBlockDoctor('${uid}', true)">Unblock</button>`
+            : `<button class="btn small ghost" style="color:var(--danger); border-color:var(--danger);" onclick="window.toggleBlockDoctor('${uid}', false)">Suspend Doctor</button>`;
 
           const docBtns = [];
           if (data.degree_url) docBtns.push(`<a href="${data.degree_url}" target="_blank" class="btn small ghost" style="font-size:12px; padding:4px 8px;">View Degree</a>`);
@@ -86,7 +91,7 @@ window.approveDoctor = async function(uid) {
     await fetch(`/api/users/${uid}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ approved: 1 })
+      body: JSON.stringify({ approved: true })
     });
     window.adminLoadVerificationDoctors();
   } catch (err) { alert(err.message); }
@@ -98,7 +103,7 @@ window.rejectDoctor = async function(uid) {
     await fetch(`/api/users/${uid}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ flagged: 1 })
+      body: JSON.stringify({ flagged: true })
     });
     window.adminLoadVerificationDoctors();
   } catch (err) { alert(err.message); }
@@ -111,7 +116,7 @@ window.toggleBlockDoctor = async function(uid, isCurrentlyBlocked) {
     await fetch(`/api/users/${uid}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ blocked: isCurrentlyBlocked ? 0 : 1 })
+      body: JSON.stringify({ blocked: isCurrentlyBlocked ? false : true })
     });
     window.adminLoadVerificationDoctors();
   } catch (err) { alert(err.message); }
@@ -128,8 +133,8 @@ window.verifyMCIM = async function(uid, licenseNumber, doctorName) {
     const data = await response.json();
     
     if (data.success && data.data) {
-      const mcimName = data.data.fullName.toLowerCase();
-      const regName = doctorName.toLowerCase();
+      const mcimName = (data.data.fullName || '').toLowerCase();
+      const regName = (doctorName || '').toLowerCase();
       
       const nameMatch = mcimName.includes(regName) || regName.includes(mcimName) || 
                         mcimName.split(' ').some(part => part.length > 3 && regName.includes(part));
@@ -147,10 +152,10 @@ window.verifyMCIM = async function(uid, licenseNumber, doctorName) {
         </div>
       `;
     } else {
-      resultDiv.innerHTML = `<span style="color: var(--danger);">❌ ${data.error || 'Failed to verify with MCIM'}</span>`;
+      resultDiv.innerHTML = `<span style="color: var(--danger);">❌ ${data.error || 'Doctor not found on MCIM portal'}</span>`;
     }
   } catch (error) {
-    resultDiv.innerHTML = `<span style="color: var(--danger);">❌ Error connecting to server</span>`;
+    resultDiv.innerHTML = `<span style="color: var(--danger);">❌ Error connecting to verification service</span>`;
   }
 }
 

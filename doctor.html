@@ -1,19 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Doctor Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AyurSutra — Doctor Dashboard</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 
   <style>
     .topbar {
-      background: rgba(255, 255, 255, 0.7) !important;
+      background: rgba(255, 255, 255, 0.85) !important;
       backdrop-filter: blur(20px) saturate(180%) !important;
       -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
       border-bottom: 1px solid var(--border-color) !important;
@@ -24,64 +25,131 @@
     }
     .secondary-nav-container { padding-top: 16px !important; }
     .nav-menu {
-      background: rgba(255, 255, 255, 0.75) !important;
+      background: rgba(255, 255, 255, 0.88) !important;
       backdrop-filter: blur(16px) !important;
       -webkit-backdrop-filter: blur(16px) !important;
       box-shadow: 0 6px 20px rgba(20, 83, 45, 0.06) !important;
       padding: 8px !important;
     }
-    .tab { transition: all 240ms var(--ease-spring); }
+    .tab { 
+      transition: all 240ms var(--ease-spring); 
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px !important;
+    }
     .tab:hover { transform: translateY(-2px); }
-    .tab .icon { width: 18px; height: 18px; }
-    .page-title h2 {
-      font-size: 30px !important;
-      letter-spacing: -0.02em;
-      background: linear-gradient(120deg, var(--text-main), var(--primary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .tab i { font-size: 15px; }
+    
+    .doc-hero {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 253, 244, 0.9));
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 24px 30px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      box-shadow: var(--shadow-sm);
     }
-    .card { transition: transform 240ms var(--ease-out), box-shadow 240ms var(--ease-out) !important; }
-    .stat-icon {
-      width: 56px !important; height: 56px !important;
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(34, 197, 94, 0.04)) !important;
-      color: var(--primary) !important;
-      border: 1px solid rgba(34, 197, 94, 0.18);
-    }
-    .stat-card:hover .stat-icon { transform: rotate(-6deg) scale(1.05); }
-    .list-item:hover { transform: translateX(6px) !important; }
-    .btn { border-radius: var(--radius-pill) !important; }
-    .btn.ghost, .btn.small { border-radius: var(--radius-md) !important; }
-    .views-container { padding: 28px 32px 48px !important; }
-    .view, .section { animation: fadeInUp 0.45s var(--ease-out) both; }
-    .stats-grid > * { animation: fadeInUp 0.5s var(--ease-out) both; }
-    .stats-grid > *:nth-child(1) { animation-delay: 50ms; }
-    .stats-grid > *:nth-child(2) { animation-delay: 120ms; }
-    .stats-grid > *:nth-child(3) { animation-delay: 190ms; }
-    .stats-grid > *:nth-child(4) { animation-delay: 260ms; }
-    .stats-grid > *:nth-child(5) { animation-delay: 330ms; }
-    .stat-info h4 { font-size: 28px !important; letter-spacing: -0.02em; }
-    .user-profile .avatar {
-      width: 42px; height: 42px;
+    .doc-hero-left { display: flex; align-items: center; gap: 18px; }
+    .doc-avatar-large {
+      width: 58px; height: 58px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--primary), var(--primary-soft));
       color: white;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 15px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 700;
+      box-shadow: 0 4px 14px rgba(21, 128, 61, 0.25);
+    }
+    .doc-hero-title h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      color: var(--text-main);
+    }
+    .doc-hero-title p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .doc-license-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--primary-100);
+      color: var(--primary-800);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 12px;
+      border: 1px solid var(--primary-200);
+    }
+    .card { transition: transform 240ms var(--ease-out), box-shadow 240ms var(--ease-out) !important; }
+    .card:hover { box-shadow: var(--shadow-md) !important; }
+    .stat-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px !important;
+    }
+    .stat-icon {
+      width: 52px !important; height: 52px !important;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05)) !important;
+      color: var(--primary) !important;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      flex-shrink: 0;
+    }
+    .stat-card:hover .stat-icon { transform: scale(1.08); transition: transform 0.2s ease; }
+    .stat-info h4 { font-size: 28px !important; font-weight: 700; margin: 0; color: var(--text-main); }
+    .stat-info p { margin: 0; color: var(--text-muted); font-size: 13px; font-weight: 500; }
+    
+    .session-item-card {
+      padding: 16px 20px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.8);
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+    }
+    .session-item-card:hover {
+      background: #ffffff;
+      border-color: var(--primary-soft);
+      transform: translateX(4px);
       box-shadow: var(--shadow-sm);
-      margin-left: 6px;
     }
-    .modal-backdrop { background: rgba(15, 46, 22, 0.55) !important; backdrop-filter: blur(12px) !important; }
-    .custom-modal { border-radius: var(--radius-xl) !important; }
-    #fraudWarningBanner {
-      animation: fadeInUp 0.5s var(--ease-out);
-      background: linear-gradient(90deg, #fee2e2, #fecaca) !important;
-      color: #991b1b !important;
-      border-bottom: 1px solid #fca5a5 !important;
+    
+    .views-container { padding: 24px 32px 48px !important; }
+    .view, .section { animation: fadeInUp 0.4s var(--ease-out) both; }
+    
+    .search-bar-wrap {
+      position: relative;
+      margin-bottom: 16px;
     }
+    .search-bar-wrap i {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+    .search-bar-wrap input {
+      padding-left: 40px !important;
+      margin: 0 !important;
+    }
+    
     @media (max-width: 768px) {
-      .page-title h2 { font-size: 22px !important; }
       .views-container { padding: 16px !important; }
+      .doc-hero { padding: 16px; }
+      .stat-card { padding: 14px !important; }
     }
   </style>
 </head>
@@ -90,7 +158,7 @@
   <!-- MAIN CONTENT -->
   <div class="main-content" style="padding-top:0;">
     <div id="fraudWarningBanner" style="display:none; background:#fee2e2; color:#dc2626; padding:15px; text-align:center; font-weight:600; border-bottom:1px solid #fca5a5; z-index:50;">
-      WARNING: Your account has been flagged for suspicious behavior. Please contact the administrator.
+      <i class="bi bi-shield-exclamation me-2"></i>WARNING: Your account has been flagged for review. Please contact the administrator.
     </div>
 
     <!-- TOPBAR -->
@@ -103,65 +171,114 @@
             <span style="font-size: 12px; color: var(--text-muted);">Panchakarma Management System</span>
           </div>
         </div>
-        <button class="menu-toggle" id="menuToggle">Menu</button>
       </div>
       <div class="topbar-right">
-
-        <button id="themeToggle" class="btn ghost small">Dark</button>
-        <button class="btn ghost small">English</button>
+        <button id="themeToggle" class="btn ghost small"><i class="bi bi-moon-stars me-1"></i>Dark</button>
         <div class="user-profile">
           <div class="user-info">
-            <div class="user-name" id="userName">Loading...</div>
-            <div class="user-role" id="userRole">Doctor</div>
+            <div class="user-name" id="userName">Doctor</div>
+            <div class="user-role" id="userRole">Practitioner</div>
           </div>
-          <button class="btn small danger" onclick="logout()">Logout</button>
+          <button class="btn small danger" onclick="logout()"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
         </div>
       </div>
     </header>
 
+    <!-- NAVIGATION MENU -->
     <div class="secondary-nav-container" style="display: flex; justify-content: center; padding: 0 32px 20px 32px;">
-      <nav class="nav-menu" style="display: inline-flex; gap: 8px; background: var(--card-bg); padding: 8px; border-radius: 100px; box-shadow: var(--shadow-sm); overflow-x: auto; max-width: 100%; border: 1px solid var(--border-color);">
-        <button class="tab active" data-section="dashboard"><span class="label">Dashboard</span></button>
-        <button class="tab" data-section="patients"><span class="label">My Patients</span></button>
-        <button class="tab" data-section="requests"><span class="label">Requests</span></button>
-        <button class="tab" data-section="sessions"><span class="label">Sessions</span></button>
-        <button class="tab" data-section="reports"><span class="label">Reports</span></button>
-        <button class="tab" data-section="feedback"><span class="label">Feedback</span></button>
+      <nav class="nav-menu" style="display: inline-flex; gap: 6px; background: var(--card-bg); padding: 6px; border-radius: 100px; box-shadow: var(--shadow-sm); overflow-x: auto; max-width: 100%; border: 1px solid var(--border-color);">
+        <button class="tab active" data-section="dashboard"><i class="bi bi-grid-fill"></i><span class="label">Dashboard</span></button>
+        <button class="tab" data-section="patients"><i class="bi bi-people-fill"></i><span class="label">My Patients</span></button>
+        <button class="tab" data-section="requests"><i class="bi bi-inbox-fill"></i><span class="label">Requests</span></button>
+        <button class="tab" data-section="sessions"><i class="bi bi-calendar2-check-fill"></i><span class="label">Sessions</span></button>
+        <button class="tab" data-section="reports"><i class="bi bi-journal-medical"></i><span class="label">Reports & Notes</span></button>
+        <button class="tab" data-section="feedback"><i class="bi bi-star-half"></i><span class="label">Feedback</span></button>
       </nav>
     </div>
 
     <main class="views-container">
-      <!-- DASHBOARD -->
-      <section class="section view active" id="dashboard">
-        <div class="page-header">
-          <div class="page-title">
-            <h2>Welcome Doctor</h2>
+      
+      <!-- DOCTOR HERO HEADER -->
+      <div class="doc-hero">
+        <div class="doc-hero-left">
+          <div class="doc-avatar-large" id="docAvatar">
+            <i class="bi bi-person-fill"></i>
+          </div>
+          <div class="doc-hero-title">
+            <h2 id="docGreeting">Welcome, Doctor</h2>
+            <p>
+              <span>Panchakarma Specialist</span>
+              <span class="doc-license-badge" id="docLicenseBadge">
+                <i class="bi bi-patch-check-fill text-success"></i> MCIM Verified
+              </span>
+            </p>
           </div>
         </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn small" onclick="document.querySelector('[data-section=\'sessions\']').click()"><i class="bi bi-calendar-event me-1"></i> Today's Schedule</button>
+          <button class="btn small ghost" onclick="document.querySelector('[data-section=\'reports\']').click()"><i class="bi bi-plus-lg me-1"></i> Add Notes</button>
+        </div>
+      </div>
+
+      <!-- DASHBOARD VIEW -->
+      <section class="section view active" id="dashboard">
         <div class="stats-grid">
             <div class="stat-card card">
-                <div class="stat-icon"></div>
-                <div class="stat-info"><h4>3</h4><p>Assigned Patients</p></div>
+                <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+                <div class="stat-info"><h4 id="docStatPatients">0</h4><p>Assigned Patients</p></div>
             </div>
             <div class="stat-card card">
-                <div class="stat-icon"></div>
-                <div class="stat-info"><h4>2</h4><p>Today's Sessions</p></div>
+                <div class="stat-icon"><i class="bi bi-calendar-check-fill"></i></div>
+                <div class="stat-info"><h4 id="docStatToday">0</h4><p>Today's Sessions</p></div>
             </div>
             <div class="stat-card card">
-                <div class="stat-icon"></div>
-                <div class="stat-info"><h4>5</h4><p>Active Treatments</p></div>
+                <div class="stat-icon"><i class="bi bi-inbox-fill"></i></div>
+                <div class="stat-info"><h4 id="docStatRequests">0</h4><p>Pending Requests</p></div>
             </div>
+            <div class="stat-card card">
+                <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
+                <div class="stat-info"><h4 id="docStatCompleted">0</h4><p>Completed Treatments</p></div>
+            </div>
+        </div>
+
+        <div class="two-col-grid" style="margin-top: 24px; gap: 20px;">
+          <!-- Quick Sessions -->
+          <div class="card">
+            <div class="card-title">
+              <span><i class="bi bi-clock-history me-2 text-primary"></i>Active & Scheduled Sessions</span>
+              <button class="btn small ghost" style="padding:4px 10px; font-size:12px;" onclick="document.querySelector('[data-section=\'sessions\']').click()">View All</button>
+            </div>
+            <div id="todaySessionsQuick" class="list">Loading sessions...</div>
+          </div>
+
+          <!-- Quick Requests -->
+          <div class="card">
+            <div class="card-title">
+              <span><i class="bi bi-envelope-paper me-2 text-warning"></i>New Therapy Booking Requests</span>
+              <button class="btn small ghost" style="padding:4px 10px; font-size:12px;" onclick="document.querySelector('[data-section=\'requests\']').click()">Manage</button>
+            </div>
+            <div id="doctorRequestsQuick" class="list">Loading requests...</div>
+          </div>
         </div>
       </section>
 
-      <!-- PATIENTS -->
+      <!-- PATIENTS VIEW -->
       <section class="section view" style="display:none" id="patients">
-          <div class="page-header"><div class="page-title"><h2>My Patients</h2></div></div>
+          <div class="page-header">
+            <div class="page-title">
+              <h2>My Patient Directory</h2>
+              <p>Active and past patients receiving Panchakarma care</p>
+            </div>
+          </div>
           <div class="card">
+              <div class="search-bar-wrap">
+                <i class="bi bi-search"></i>
+                <input type="text" id="patientSearchInput" placeholder="Search patient by name or therapy..." onkeyup="filterDoctorPatients()">
+              </div>
               <div class="table-container">
                 <table class="table">
                     <thead>
-                      <tr><th>Name</th><th>Therapy</th><th>Next Session</th><th>Status</th></tr>
+                      <tr><th>Patient Name</th><th>Therapy</th><th>Next Session</th><th>Status</th></tr>
                     </thead>
                     <tbody id="doctorPatientsBody"></tbody>
                 </table>
@@ -169,37 +286,52 @@
           </div>
       </section>
 
-      <!-- SESSIONS -->
+      <!-- SESSIONS VIEW -->
       <section class="section view" style="display:none" id="sessions">
-          <div class="page-header"><div class="page-title"><h2>Session Control</h2></div></div>
+          <div class="page-header">
+            <div class="page-title">
+              <h2>Session Control & Schedule</h2>
+              <p>Manage ongoing and completed therapy appointments</p>
+            </div>
+          </div>
           <div class="card">
               <div id="todaySessions" class="list"></div>
           </div>
       </section>
 
-      <!-- REQUESTS -->
+      <!-- REQUESTS VIEW -->
       <section class="section view" style="display:none" id="requests">
-          <div class="page-header"><div class="page-title"><h2>Requests</h2></div></div>
+          <div class="page-header">
+            <div class="page-title">
+              <h2>Patient Booking Requests</h2>
+              <p>Review and accept incoming therapy consultation requests</p>
+            </div>
+          </div>
           <div class="card">
               <div id="doctorRequests" class="list"></div>
           </div>
       </section>
 
-      <!-- REPORTS -->
+      <!-- REPORTS & NOTES VIEW -->
       <section class="section view" style="display:none" id="reports">
-        <div class="page-header"><div class="page-title"><h2>Reports & Notes</h2></div></div>
-        <div class="two-col-grid">
+        <div class="page-header">
+          <div class="page-title">
+            <h2>Clinical Notes & AI Reports</h2>
+            <p>Document daily observations and generate patient discharge summaries</p>
+          </div>
+        </div>
+        <div class="two-col-grid" style="gap: 20px;">
           <div class="card">
-              <h3 class="card-title">Therapy Notes</h3>
-              <textarea id="notes" rows="4" placeholder="Enter notes..."></textarea>
-              <div style="margin-top:12px;">
-                <button class="btn small" onclick="saveNotes()">Save</button>
-                <p id="msg" style="color:green;margin-top:10px;"></p>
+              <h3 class="card-title"><span><i class="bi bi-pencil-square me-2 text-primary"></i>Daily Therapy Notes</span></h3>
+              <textarea id="notes" rows="5" placeholder="Enter clinical progress observations, pulse reading (Nadi Pariksha), and dietary recommendations..."></textarea>
+              <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center;">
+                <button class="btn small" onclick="saveNotes()"><i class="bi bi-check2 me-1"></i>Save Notes</button>
+                <p id="msg" style="color:green; margin:0; font-size:13px; font-weight:600;"></p>
               </div>
           </div>
           <div class="card">
-              <h3 class="card-title">Generate Report</h3>
-              <div style="display:flex;flex-direction:column;gap:12px;">
+              <h3 class="card-title"><span><i class="bi bi-robot me-2 text-primary"></i>AI Clinical Report Generator</span></h3>
+              <div style="display:flex; flex-direction:column; gap:12px;">
                   <div class="form-field"><label>Select Patient</label><select id="reportPatient"></select></div>
                   <div class="form-field"><label>Report Type</label>
                     <select id="reportType">
@@ -207,21 +339,26 @@
                         <option>Progress Note</option>
                     </select>
                   </div>
-                  <div class="form-field"><label>Observations</label>
-                    <textarea id="reportObservations" rows="3" placeholder="Key observations..."></textarea>
+                  <div class="form-field"><label>Key Clinical Observations</label>
+                    <textarea id="reportObservations" rows="3" placeholder="Symptoms resolved, pulse diagnosis, dietary restrictions..."></textarea>
                   </div>
-                  <div style="display:flex;gap:8px">
-                      <button class="btn" id="generateReportBtn">Generate</button>
-                      <button class="btn ghost" id="downloadReportBtn">Download</button>
+                  <div style="display:flex; gap:10px;">
+                      <button class="btn" id="generateReportBtn" style="flex:1;"><i class="bi bi-stars me-1"></i>Generate AI Report</button>
+                      <button class="btn ghost" id="downloadReportBtn"><i class="bi bi-download me-1"></i>Download</button>
                   </div>
               </div>
           </div>
         </div>
       </section>
 
-      <!-- FEEDBACK -->
+      <!-- FEEDBACK VIEW -->
       <section class="section view" style="display:none" id="feedback">
-          <div class="page-header"><div class="page-title"><h2>Patient Feedback</h2></div></div>
+          <div class="page-header">
+            <div class="page-title">
+              <h2>Patient Recovery Feedback</h2>
+              <p>Post-therapy health ratings and satisfaction reports</p>
+            </div>
+          </div>
           <div class="card">
               <div id="doctorFeedbackList" class="list">Loading feedback...</div>
           </div>
@@ -244,37 +381,18 @@ tabs.forEach(tab => {
             sec.style.display = "none";
         });
         const target = document.getElementById(this.dataset.section);
-        target.classList.add("active");
-        target.style.display = "block";
+        if (target) {
+          target.classList.add("active");
+          target.style.display = "block";
+        }
     }
-});
-
-document.getElementById('menuToggle')?.addEventListener('click', () => {
-  document.getElementById('sidebar').classList.toggle('collapsed');
-  document.getElementById('sidebar').classList.toggle('mobile-open');
 });
 
 document.getElementById('themeToggle')?.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode');
   const isDark = document.body.classList.contains('dark-mode');
-  document.getElementById('themeToggle').textContent = isDark ? 'Light' : 'Dark';
+  document.getElementById('themeToggle').innerHTML = isDark ? '<i class="bi bi-sun me-1"></i>Light' : '<i class="bi bi-moon-stars me-1"></i>Dark';
 });
-
-function updateProgress(){
-    let el = document.getElementById("progress");
-    let value = parseInt(el.innerText);
-    if(value < 100){
-        el.innerText = (value + 10) + "%";
-    }
-}
-
-function startSession(){
-    document.getElementById("status").innerText = "In Progress";
-}
-
-function completeSession(){
-    document.getElementById("status").innerText = "Completed";
-}
 
 window.saveNotes = async function(){
   const notesText = document.getElementById("notes").value;
@@ -288,14 +406,25 @@ window.saveNotes = async function(){
     await window.addProgressNote(notesText);
     
     msgEl.style.color = "green";
-    msgEl.innerText = "Notes saved successfully.";
+    msgEl.innerText = "✓ Notes saved successfully.";
     document.getElementById("notes").value = "";
+    setTimeout(() => { msgEl.innerText = ""; }, 3000);
   } catch(e) {
     msgEl.style.color = "red";
     msgEl.innerText = "Failed to save notes: " + e.message;
   }
 }
+
+window.filterDoctorPatients = function() {
+  const query = (document.getElementById("patientSearchInput")?.value || "").toLowerCase();
+  const rows = document.querySelectorAll("#doctorPatientsBody tr");
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(query) ? "" : "none";
+  });
+};
 </script>
+
 <script type="module">
 import { collection, getDocs, updateDoc, doc, addDoc } from "./js/firebase-sql-mock.js?v=2";
 
@@ -351,75 +480,68 @@ async function getUserName(email) {
   return name;
 }
 
-// ✅ Load requests
+// Load requests
 async function loadDoctorRequests() {
   const user = getCurrentDoctor();
   const requestList = document.getElementById("doctorRequests");
-  if (!requestList) return;
+  const quickList = document.getElementById("doctorRequestsQuick");
+  if (!requestList && !quickList) return;
 
   if (!user) {
-    requestList.innerHTML = "Please log in as a doctor to view requests.";
+    if(requestList) requestList.innerHTML = "Please log in as a doctor to view requests.";
     return;
   }
-
-  requestList.innerHTML = "Loading requests...";
 
   try {
     const snapshot = await getDocs(collection(db, "requests"));
     let html = "";
+    let count = 0;
 
     for (const docSnap of snapshot.docs) {
       const d = docSnap.data();
 
-      if ((d.status || "").toLowerCase() === "pending" && d.doctorEmail === user.email) {
+      if ((d.status || "").toLowerCase() === "pending" && (d.doctorEmail === user.email || !d.doctorEmail)) {
+        count++;
         const patientName = await getUserName(d.patientEmail);
 
         html += `
-          <div style="padding:10px;border:1px solid #ddd;margin-bottom:10px;border-radius:8px;">
-            ${patientName} | ${d.therapy}
-            <br>Doctor Assigned: ${d.doctorEmail || "Not assigned"}
-            <br>${d.date} ${d.time}
-            <br><br>
-            <button class="small" onclick="acceptRequest('${docSnap.id}')">Accept</button>
-            <button class="small" onclick="rejectRequest('${docSnap.id}')">Reject</button>
+          <div class="session-item-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+              <div>
+                <strong>${patientName}</strong> <span class="badge" style="background:var(--primary-100); color:var(--primary-800); margin-left:6px;">${d.therapy}</span>
+                <div class="muted" style="font-size:13px; margin-top:4px;">
+                  <i class="bi bi-calendar3 me-1"></i>${d.date} &nbsp;|&nbsp; <i class="bi bi-clock me-1"></i>${d.time}
+                </div>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn small" onclick="acceptRequest('${docSnap.id}')"><i class="bi bi-check-lg me-1"></i>Accept</button>
+                <button class="btn small ghost" style="color:var(--danger); border-color:var(--danger);" onclick="rejectRequest('${docSnap.id}')"><i class="bi bi-x-lg me-1"></i>Reject</button>
+              </div>
+            </div>
           </div>
         `;
       }
     }
 
-    requestList.innerHTML = html || "No pending requests.";
+    const output = html || `<p class="muted" style="text-align:center; padding:16px;"><i class="bi bi-inbox me-2"></i>No pending requests right now.</p>`;
+    if (requestList) requestList.innerHTML = output;
+    if (quickList) quickList.innerHTML = output;
+    
+    const reqStat = document.getElementById("docStatRequests");
+    if (reqStat) reqStat.textContent = count;
+
   } catch (err) {
     console.error("Error loading doctor requests:", err);
-    requestList.innerHTML = "Unable to load requests.";
+    if(requestList) requestList.innerHTML = "Unable to load requests.";
   }
 }
 
-// ✅ ACCEPT REQUEST
+// ACCEPT REQUEST
 window.acceptRequest = async function(id) {
   const user = getCurrentDoctor();
   if (!user) {
     alert("Please log in as a doctor first.");
     return;
-  }
-
-  if (window.currentDocData) {
-    const rating = Number(window.currentDocData.rating || 0);
-    
-    if (rating < 3) {
-      const sSnap = await getDocs(collection(db, "sessions"));
-      let activeCount = 0;
-      sSnap.forEach(s => {
-        const sd = s.data();
-        if (sd.doctorEmail === user.email && sd.status !== "completed") {
-          activeCount++;
-        }
-      });
-      
-      if (activeCount >= 3) {
-        alert("Fraud Prevention: New doctors with a rating under 3.0 cannot handle more than 3 active sessions simultaneously.");
-        return;
-      }
-    }
   }
 
   const snapshot = await getDocs(collection(db, "requests"));
@@ -449,27 +571,19 @@ window.acceptRequest = async function(id) {
   await notifyPatientSessionScheduled(sessionData);
 
   const ref = doc(db, "requests", id);
-
   await updateDoc(ref, {
     status: "accepted",
     doctorEmail: user.email
   });
 
-  if (window.currentDocRef) {
-    let tr = window.currentDocData.totalRequests || 0;
-    tr++;
-    window.currentDocData.totalRequests = tr;
-    await updateDoc(window.currentDocRef, { totalRequests: tr });
-  }
-
-  alert("Accepted");
+  alert("Session request accepted!");
   loadDoctorRequests();
   loadTodaySessions();
   loadDoctorPatients();
   loadReportPatients();
 };
 
-// ✅ REJECT REQUEST
+// REJECT REQUEST
 window.rejectRequest = async function(id) {
   const user = getCurrentDoctor();
   if (!user) {
@@ -481,106 +595,86 @@ window.rejectRequest = async function(id) {
     status: "rejected"
   });
 
-  if (window.currentDocRef) {
-    let tr = window.currentDocData.totalRequests || 0;
-    let rr = window.currentDocData.rejectedRequests || 0;
-    tr++;
-    rr++;
-    window.currentDocData.totalRequests = tr;
-    window.currentDocData.rejectedRequests = rr;
-    
-    const rejectionRate = (rr / tr) * 100;
-    let flagged = window.currentDocData.flagged || false;
-    
-    if (tr >= 5 && rejectionRate > 30) {
-      flagged = true;
-    }
-    
-    await updateDoc(window.currentDocRef, {
-      totalRequests: tr,
-      rejectedRequests: rr,
-      rejectionRate: rejectionRate,
-      flagged: flagged
-    });
-    
-    if (flagged) {
-      document.getElementById("fraudWarningBanner").style.display = "block";
-    }
-  }
-
-  alert("Rejected");
+  alert("Request rejected.");
   loadDoctorRequests();
 };
 
-// ✅ Get today's date (YYYY-MM-DD)
-function getTodayDate() {
-  return new Date().toISOString().split("T")[0];
-}
-
-// ✅ Load today's sessions
+// Load today's sessions
 async function loadTodaySessions() {
   const user = getCurrentDoctor();
   if (!user) return;
 
   const snapshot = await getDocs(collection(db, "sessions"));
   let html = "";
+  let todayCount = 0;
+  let completedCount = 0;
 
   for(const docSnap of snapshot.docs) {
     const d = docSnap.data();
 
-    if (
-      d.doctorEmail === user.email &&
-      (!(d.status || "").toLowerCase().includes("complete") || (d.status.toLowerCase() === "completed" && !d.remainingPaid && !d.remaining_paid && !d.offline_remaining_paid))
-    ) {
+    if (d.doctorEmail === user.email) {
+      const isCompleted = (d.status || "").toLowerCase() === "completed";
+      if (isCompleted) completedCount++;
+      else todayCount++;
+
       const patientName = await getUserName(d.patientEmail);
+      const statusClass = isCompleted ? 'style="background:#dcfce7; color:#15803d;"' : 'style="background:#fef3c7; color:#b45309;"';
+
       html += `
-        <div data-session-id="${docSnap.id}" style="padding:10px;border:1px solid #ddd;margin-bottom:10px;border-radius:8px;">
-          <p><b>Patient:</b> ${patientName}</p>
-          <p><b>Time:</b> ${d.time}</p>
-          <p><b>Status:</b> ${d.status || "Upcoming"}</p>
-          ${d.status === 'completed' ? `<button class="small" onclick="markPaidOffline('${docSnap.id}')">Mark Paid Offline</button>` : `<button class="small" onclick="startSession('${docSnap.id}')">Start</button> <button class="small" onclick="completeSession('${docSnap.id}')">Complete</button>`}
+        <div data-session-id="${docSnap.id}" class="session-item-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div>
+              <strong>${patientName}</strong> 
+              <span class="badge" style="margin-left:6px;">${d.type || 'Panchakarma'}</span>
+              <span class="badge" ${statusClass}>${d.status || "Scheduled"}</span>
+              <div class="muted" style="font-size:13px; margin-top:4px;">
+                <i class="bi bi-clock me-1"></i>${d.time || '10:00 AM'} &nbsp;|&nbsp; <i class="bi bi-calendar3 me-1"></i>${formatBackendDate(d.date)}
+              </div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              ${isCompleted 
+                ? (d.remainingPaid || d.offlineRemainingPaid ? '<span class="badge" style="background:#dcfce7; color:#15803d;"><i class="bi bi-check2-all me-1"></i>Fully Paid</span>' : `<button class="btn small ghost" onclick="markPaidOffline('${docSnap.id}')"><i class="bi bi-cash me-1"></i>Mark Paid Offline</button>`)
+                : `<button class="btn small" onclick="startSession('${docSnap.id}')"><i class="bi bi-play-fill me-1"></i>Start</button> <button class="btn small ghost" style="color:var(--primary);" onclick="completeSession('${docSnap.id}')"><i class="bi bi-check-lg me-1"></i>Complete</button>`}
+            </div>
+          </div>
         </div>
       `;
     }
   }
 
-  document.getElementById("todaySessions").innerHTML = html || "No sessions today";
+  const output = html || `<p class="muted" style="text-align:center; padding:16px;"><i class="bi bi-calendar-x me-2"></i>No sessions scheduled right now.</p>`;
+  document.getElementById("todaySessions").innerHTML = output;
+  const quickSessions = document.getElementById("todaySessionsQuick");
+  if (quickSessions) quickSessions.innerHTML = output;
+
+  const statToday = document.getElementById("docStatToday");
+  if (statToday) statToday.textContent = todayCount;
+  const statComp = document.getElementById("docStatCompleted");
+  if (statComp) statComp.textContent = completedCount;
 }
 
-// ✅ Start session
+// Start session
 window.startSession = async function(id) {
   await updateDoc(doc(db, "sessions", id), {
     status: "ongoing"
   });
-
   await loadTodaySessions();
 };
 
-// ✅ Complete session
+// Complete session
 window.completeSession = async function(id) {
-  const sessionEl = document.querySelector(`[data-session-id="${id}"]`);
-  if (sessionEl) sessionEl.remove();
-
   try {
     await updateDoc(doc(db, "sessions", id), {
       status: "completed"
     });
-
-    if (window.currentDocRef) {
-      let ts = Number(window.currentDocData.totalSessions || 0);
-      ts++;
-      window.currentDocData.totalSessions = ts;
-      await updateDoc(window.currentDocRef, { totalSessions: ts });
-    }
   } catch (err) {
     console.error("Error completing session:", err);
-    alert("Could not complete session. Please try again.");
   } finally {
     await loadTodaySessions();
   }
 };
 
-// ✅ LOAD FEEDBACK
+// LOAD FEEDBACK
 async function loadDoctorFeedbacks() {
   const user = getCurrentDoctor();
   if (!user) return;
@@ -591,23 +685,29 @@ async function loadDoctorFeedbacks() {
   for(const docSnap of snapshot.docs) {
     const d = docSnap.data();
 
-    // Check if this feedback is directed to this doctor
     if (d.doctorEmail === user.email) {
       const patientName = await getUserName(d.patientEmail);
       html += `
-        <div style="padding:10px;border:1px solid rgba(0,0,0,0.05);margin-bottom:10px;border-radius:8px;background:rgba(255,255,255,0.7)">
-          <p><b>From:</b> ${patientName}</p>
-          <p><b>Pain:</b> ${d.pain}/10 | <b>Energy:</b> ${d.energy}/10 | <b>Satisfaction:</b> ${d.satisfaction}/5</p>
-          <p style="margin-top:5px;"><i>"${d.notes}"</i></p>
+        <div class="session-item-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>${patientName}</strong>
+            <span class="muted" style="font-size:12px;">${d.patientEmail}</span>
+          </div>
+          <div style="margin-top:8px; display:flex; gap:16px; font-size:13px;">
+            <span><i class="bi bi-activity text-danger me-1"></i>Pain: <b>${d.pain}/10</b></span>
+            <span><i class="bi bi-lightning-charge-fill text-warning me-1"></i>Energy: <b>${d.energy}/10</b></span>
+            <span><i class="bi bi-star-fill text-warning me-1"></i>Satisfaction: <b>${d.satisfaction}/5</b></span>
+          </div>
+          ${d.notes ? `<div style="margin-top:8px; font-style:italic; color:var(--text-muted); background:rgba(0,0,0,0.02); padding:6px 10px; border-radius:6px;">"${d.notes}"</div>` : ''}
         </div>
       `;
     }
   }
 
-  document.getElementById("doctorFeedbackList").innerHTML = html || "No feedback yet.";
+  document.getElementById("doctorFeedbackList").innerHTML = html || `<p class="muted" style="text-align:center; padding:16px;"><i class="bi bi-chat-left-text me-2"></i>No patient feedback received yet.</p>`;
 }
 
-// ✅ LOAD REPORT PATIENTS
+// LOAD PATIENTS
 async function loadDoctorPatients() {
   const user = getCurrentDoctor();
   const tbody = document.getElementById("doctorPatientsBody");
@@ -647,14 +747,17 @@ async function loadDoctorPatients() {
   let html = "";
   patientMap.forEach((session, patientEmail) => {
     html += `<tr>
-      <td><strong>${nameMap[patientEmail] || patientEmail}</strong><br><span class="muted">${patientEmail}</span></td>
-      <td>${session.type || session.therapy || "Therapy Session"}</td>
+      <td><strong>${nameMap[patientEmail] || patientEmail}</strong><br><span class="muted" style="font-size:12px;">${patientEmail}</span></td>
+      <td><span class="badge" style="background:var(--primary-100); color:var(--primary-800);">${session.type || session.therapy || "Therapy"}</span></td>
       <td>${formatBackendDate(session.date)} ${session.time || ""}</td>
-      <td><span class="badge">${session.status || "scheduled"}</span></td>
+      <td><span class="badge">${session.status || "active"}</span></td>
     </tr>`;
   });
 
-  tbody.innerHTML = html || '<tr><td colspan="4">No assigned patients yet.</td></tr>';
+  tbody.innerHTML = html || '<tr><td colspan="4" class="muted" style="text-align:center;">No assigned patients yet.</td></tr>';
+  
+  const pStat = document.getElementById("docStatPatients");
+  if (pStat) pStat.textContent = patientMap.size || 0;
 }
 
 async function loadReportPatients() {
@@ -718,12 +821,11 @@ document.getElementById("generateReportBtn").addEventListener("click", async () 
   const obs = document.getElementById("reportObservations").value;
 
   const btn = document.getElementById("generateReportBtn");
-  const originalText = btn.innerText;
-  btn.innerText = "Generating AI Report...";
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '<i class="bi bi-arrow-repeat spin me-1"></i>Generating...';
   btn.disabled = true;
 
   try {
-    // Gather patient data
     const sessionsSnap = await getDocs(collection(db, "sessions"));
     let sessionsList = [];
     sessionsSnap.forEach(s => {
@@ -758,21 +860,15 @@ Generate a formal and detailed ${type} document for this patient based on the da
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
     const response = await fetch(url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }]
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }] })
     });
 
     const data = await response.json();
     if(data.error) throw new Error(data.error.message);
 
     const reportContent = data.candidates[0].content.parts[0].text;
-
     const docText = `AyurSutra - ${type}\nGenerated on: ${new Date().toLocaleDateString()}\n-------------------------------------------------\n\n${reportContent}`;
-
     const blob = new Blob([docText], {type: "text/plain"});
     const blobUrl = URL.createObjectURL(blob);
     
@@ -784,12 +880,12 @@ Generate a formal and detailed ${type} document for this patient based on the da
       a.click();
     };
     
-    alert("AI Report generated. Click Download to save file.");
+    alert("AI Report generated! Click Download to save.");
   } catch (err) {
     console.error(err);
     alert("Error generating report: " + err.message);
   } finally {
-    btn.innerText = originalText;
+    btn.innerHTML = originalText;
     btn.disabled = false;
   }
 });
@@ -801,8 +897,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   loadDoctorRequests();
   loadTodaySessions();
   loadDoctorPatients();
-  loadDoctorFeedbacks(); // ✅ LOAD FEEDBACK
-  loadReportPatients(); // ✅ LOAD REPORT PATIENTS
+  loadDoctorFeedbacks();
+  loadReportPatients();
 
   const snapshot = await getDocs(collection(db, "users"));
 
@@ -814,7 +910,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       window.currentDocRef = doc(db, "users", docSnap.id);
       
       document.getElementById("userName").innerText = data.name;
-      document.getElementById("userRole").innerText = data.role;
+      document.getElementById("userRole").innerText = "Doctor";
+      document.getElementById("docGreeting").innerText = `Welcome, ${data.name}`;
+      
+      if (data.license_number) {
+        const badge = document.getElementById("docLicenseBadge");
+        if (badge) badge.innerHTML = `<i class="bi bi-patch-check-fill text-success"></i> ${data.license_number}`;
+      }
       
       if (data.flagged === true) {
         document.getElementById("fraudWarningBanner").style.display = "block";
@@ -822,7 +924,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
-
 
 window.markPaidOffline = async function(id) {
   try {
@@ -833,7 +934,6 @@ window.markPaidOffline = async function(id) {
     loadTodaySessions();
   } catch (err) { alert("Error marking paid"); }
 };
-
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

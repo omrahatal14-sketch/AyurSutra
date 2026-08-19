@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AyurSutra Patient Dashboard</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AyurSutra — Patient Portal</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Raleway:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <style>
     .topbar {
-      background: rgba(255, 255, 255, 0.7) !important;
+      background: rgba(255, 255, 255, 0.85) !important;
       backdrop-filter: blur(20px) saturate(180%) !important;
       -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
       border-bottom: 1px solid var(--border-color) !important;
@@ -25,56 +26,144 @@
     }
     .secondary-nav-container { padding-top: 16px !important; }
     .nav-menu {
-      background: rgba(255, 255, 255, 0.75) !important;
+      background: rgba(255, 255, 255, 0.88) !important;
       backdrop-filter: blur(16px) !important;
       -webkit-backdrop-filter: blur(16px) !important;
       box-shadow: 0 6px 20px rgba(20, 83, 45, 0.06) !important;
       padding: 8px !important;
     }
-    .tab { transition: all 240ms var(--ease-spring); }
+    .tab { 
+      transition: all 240ms var(--ease-spring); 
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px !important;
+    }
     .tab:hover { transform: translateY(-2px); }
-    .tab .icon { width: 18px; height: 18px; }
-    .page-title h2 {
-      font-size: 30px !important;
-      letter-spacing: -0.02em;
-      background: linear-gradient(120deg, var(--text-main), var(--primary));
-      -webkit-background-clip: text;
-      background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .tab i { font-size: 15px; }
+
+    .patient-hero {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(240, 253, 244, 0.9));
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 24px 30px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      box-shadow: var(--shadow-sm);
     }
-    .card { transition: transform 240ms var(--ease-out), box-shadow 240ms var(--ease-out) !important; }
-    .stat-icon {
-      width: 56px !important; height: 56px !important;
-      background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(34, 197, 94, 0.04)) !important;
-      color: var(--primary) !important;
-      border: 1px solid rgba(34, 197, 94, 0.18);
-    }
-    .stat-card:hover .stat-icon { transform: rotate(-6deg) scale(1.05); }
-    .list-item:hover { transform: translateX(6px) !important; }
-    .btn { border-radius: var(--radius-pill) !important; }
-    .btn.ghost, .btn.small { border-radius: var(--radius-md) !important; }
-    .views-container { padding: 28px 32px 48px !important; }
-    .view, .section { animation: fadeInUp 0.45s var(--ease-out) both; }
-    .stats-grid > * { animation: fadeInUp 0.5s var(--ease-out) both; }
-    .stats-grid > *:nth-child(1) { animation-delay: 50ms; }
-    .stats-grid > *:nth-child(2) { animation-delay: 120ms; }
-    .stats-grid > *:nth-child(3) { animation-delay: 190ms; }
-    .stat-info h4 { font-size: 28px !important; letter-spacing: -0.02em; }
-    .user-profile .avatar {
-      width: 42px; height: 42px;
+    .patient-hero-left { display: flex; align-items: center; gap: 18px; }
+    .patient-avatar-large {
+      width: 58px; height: 58px;
       border-radius: 50%;
       background: linear-gradient(135deg, var(--primary), var(--primary-soft));
       color: white;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 15px;
-      box-shadow: var(--shadow-sm);
-      margin-left: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 700;
+      box-shadow: 0 4px 14px rgba(21, 128, 61, 0.25);
     }
-    .modal-backdrop { background: rgba(15, 46, 22, 0.55) !important; backdrop-filter: blur(12px) !important; }
-    .custom-modal { border-radius: var(--radius-xl) !important; }
+    .patient-hero-title h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      color: var(--text-main);
+    }
+    .patient-hero-title p {
+      margin: 0;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .card { transition: transform 240ms var(--ease-out), box-shadow 240ms var(--ease-out) !important; }
+    .card:hover { box-shadow: var(--shadow-md) !important; }
+    .stat-card {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px !important;
+    }
+    .stat-icon {
+      width: 52px !important; height: 52px !important;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05)) !important;
+      color: var(--primary) !important;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      flex-shrink: 0;
+    }
+    .stat-card:hover .stat-icon { transform: scale(1.08); transition: transform 0.2s ease; }
+    .stat-info h4 { font-size: 28px !important; font-weight: 700; margin: 0; color: var(--text-main); }
+    .stat-info p { margin: 0; color: var(--text-muted); font-size: 13px; font-weight: 500; }
+
+    .views-container { padding: 24px 32px 48px !important; }
+    .view, .section { animation: fadeInUp 0.4s var(--ease-out) both; }
+
+    .symptom-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--primary-50);
+      border: 1px solid var(--primary-200);
+      color: var(--primary-900);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin: 4px 4px 4px 0;
+    }
+    .symptom-chip:hover {
+      background: var(--primary-100);
+      border-color: var(--primary-soft);
+      transform: translateY(-1px);
+    }
+
+    .therapy-price-card {
+      padding: 18px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background: rgba(255, 255, 255, 0.9);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .therapy-price-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-soft);
+    }
+
+    .chat-bubble {
+      padding: 10px 14px;
+      border-radius: 14px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      line-height: 1.4;
+      max-width: 85%;
+    }
+    .chat-me {
+      background: var(--primary);
+      color: white;
+      margin-left: auto;
+      border-bottom-right-radius: 2px;
+    }
+    .chat-bot {
+      background: #f1f5f9;
+      color: #1e293b;
+      margin-right: auto;
+      border-bottom-left-radius: 2px;
+    }
+
     @media (max-width: 768px) {
-      .page-title h2 { font-size: 22px !important; }
       .views-container { padding: 16px !important; }
+      .patient-hero { padding: 16px; }
+      .stat-card { padding: 14px !important; }
     }
   </style>
 </head>
@@ -83,6 +172,7 @@
 <div class="app-layout">
   <!-- MAIN CONTENT -->
   <div class="main-content" style="padding-top:0;">
+    
     <!-- TOPBAR -->
     <header class="topbar" style="padding-left: 24px; gap: 20px; background: transparent; border-bottom: none; height: auto; padding-top: 20px; padding-bottom: 20px;">
       <div class="topbar-left" style="display: flex; align-items: center; gap: 24px;">
@@ -90,160 +180,309 @@
           <img src="Image/Logo.png" class="logo-img" style="width: 40px; height: 40px; border-radius: 8px;">
           <div class="brand-text">
             <h2 style="font-size: 20px; font-weight: 700; margin: 0; color: var(--text-main);">AyurSutra</h2>
-            <span style="font-size: 12px; color: var(--text-muted);">Panchakarma Management System</span>
+            <span style="font-size: 12px; color: var(--text-muted);">Panchakarma Patient Portal</span>
           </div>
         </div>
-        <button class="menu-toggle" id="menuToggle">Menu</button>
       </div>
       <div class="topbar-right">
-        <button id="themeToggle" class="btn ghost small">Dark</button>
+        <button id="themeToggle" class="btn ghost small"><i class="bi bi-moon-stars me-1"></i>Dark</button>
         <div class="user-profile">
           <div class="user-info">
-            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-name" id="userName">Patient</div>
             <div class="user-role">Patient</div>
           </div>
-          <button class="btn small danger" onclick="logout()">Logout</button>
+          <button class="btn small danger" onclick="logout()"><i class="bi bi-box-arrow-right me-1"></i>Logout</button>
         </div>
       </div>
     </header>
 
+    <!-- NAVIGATION MENU -->
     <div class="secondary-nav-container" style="display: flex; justify-content: center; padding: 0 32px 20px 32px;">
-      <nav class="nav-menu" style="display: inline-flex; gap: 8px; background: var(--card-bg); padding: 8px; border-radius: 100px; box-shadow: var(--shadow-sm); overflow-x: auto; max-width: 100%; border: 1px solid var(--border-color);">
-        <button class="tab active" onclick="showTab('dashboard',this)"><span class="label">Dashboard</span></button>
-        <button class="tab" onclick="showTab('sessions',this)"><span class="label">Sessions</span></button>
-        <button class="tab" onclick="showTab('request',this)"><span class="label">Request</span></button>
-        <button class="tab" onclick="showTab('consult',this)"><span class="label">Consult AI</span></button>
-        <button class="tab" onclick="showTab('feedback',this)"><span class="label">Feedback</span></button>
-        <button class="tab" onclick="showTab('therapies',this)"><span class="label">Our Therapy's</span></button>
+      <nav class="nav-menu" style="display: inline-flex; gap: 6px; background: var(--card-bg); padding: 6px; border-radius: 100px; box-shadow: var(--shadow-sm); overflow-x: auto; max-width: 100%; border: 1px solid var(--border-color);">
+        <button class="tab active" onclick="showTab('dashboard',this)"><i class="bi bi-grid-fill"></i><span class="label">Dashboard</span></button>
+        <button class="tab" onclick="showTab('sessions',this)"><i class="bi bi-calendar2-check-fill"></i><span class="label">Sessions</span></button>
+        <button class="tab" onclick="showTab('request',this)"><i class="bi bi-plus-circle-fill"></i><span class="label">Book Therapy</span></button>
+        <button class="tab" onclick="showTab('consult',this)"><i class="bi bi-robot"></i><span class="label">Consult AI</span></button>
+        <button class="tab" onclick="showTab('feedback',this)"><i class="bi bi-star-fill"></i><span class="label">Feedback</span></button>
+        <button class="tab" onclick="showTab('therapies',this)"><i class="bi bi-flower1"></i><span class="label">Our Therapies</span></button>
       </nav>
     </div>
 
     <main class="views-container">
       <div class="two-col-grid">
         <div class="left-col">
-          <!-- DASHBOARD -->
+          
+          <!-- PATIENT HERO HEADER -->
+          <div class="patient-hero">
+            <div class="patient-hero-left">
+              <div class="patient-avatar-large">
+                <i class="bi bi-person-heart"></i>
+              </div>
+              <div class="patient-hero-title">
+                <h2 id="patientGreeting">Namaste, Welcome</h2>
+                <p><i class="bi bi-heart-pulse-fill text-success me-1"></i> Panchakarma Wellness & Healing Journey</p>
+              </div>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn small" onclick="document.querySelector('button[onclick*=\'request\']').click()"><i class="bi bi-plus-lg me-1"></i> Book Therapy</button>
+              <button class="btn small ghost" onclick="document.querySelector('button[onclick*=\'consult\']').click()"><i class="bi bi-robot me-1"></i> Consult AI</button>
+            </div>
+          </div>
+
+          <!-- DASHBOARD VIEW -->
           <section id="dashboard" class="view section active">
-            <div class="page-header"><div class="page-title"><h2>Welcome to AyurSutra</h2><p>Track your Panchakarma journey</p></div></div>
             <div class="stats-grid">
-              <div class="stat-card card"><div class="stat-info"><h4 id="m1">0</h4><p>Total Sessions</p></div></div>
-              <div class="stat-card card"><div class="stat-info"><h4 id="m2">0</h4><p>Approved</p></div></div>
-              <div class="stat-card card"><div class="stat-info"><h4 id="m3">0</h4><p>Pending</p></div></div>
+              <div class="stat-card card">
+                <div class="stat-icon"><i class="bi bi-calendar2-week-fill"></i></div>
+                <div class="stat-info"><h4 id="m1">0</h4><p>Total Sessions</p></div>
+              </div>
+              <div class="stat-card card">
+                <div class="stat-icon"><i class="bi bi-check2-circle"></i></div>
+                <div class="stat-info"><h4 id="m2">0</h4><p>Approved Sessions</p></div>
+              </div>
+              <div class="stat-card card">
+                <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+                <div class="stat-info"><h4 id="m3">0</h4><p>Pending Requests</p></div>
+              </div>
+            </div>
+
+            <!-- Next Scheduled Session Feature Card -->
+            <div class="card" style="margin-top: 20px;">
+              <div class="card-title">
+                <span><i class="bi bi-calendar-event-fill me-2 text-primary"></i>Next Scheduled Session</span>
+                <span class="badge" style="background:var(--primary-100); color:var(--primary-800);">Upcoming</span>
+              </div>
+              <div id="nextSession" class="list" style="font-size:15px; font-weight:600; color:var(--text-main); padding:8px 0;">No session scheduled</div>
+            </div>
+          </section>
+
+          <!-- SESSIONS VIEW -->
+          <section id="sessions" class="view section" style="display:none">
+            <div class="page-header">
+              <div class="page-title">
+                <h2>My Therapy Sessions</h2>
+                <p>Track your scheduled, ongoing, and completed appointments</p>
+              </div>
             </div>
             <div class="card">
-              <h4 class="card-title">Next Session</h4>
-              <div id="nextSession" class="list">No session scheduled</div>
+              <div id="sessionList" class="list"></div>
             </div>
           </section>
 
-          <!-- SESSIONS -->
-          <section id="sessions" class="view section" style="display:none">
-            <div class="page-header"><div class="page-title"><h2>Approved Sessions</h2></div></div>
-            <div class="card"><div id="sessionList" class="list"></div></div>
-          </section>
-
-          <!-- REQUESTS -->
+          <!-- REQUEST THERAPY VIEW -->
           <section id="request" class="view section" style="display:none">
-            <div class="page-header"><div class="page-title"><h2>Request Therapy Session</h2></div></div>
-            <div class="card" style="max-width:500px;">
-              <div class="form-field"><label>Therapy</label>
+            <div class="page-header">
+              <div class="page-title">
+                <h2>Book a Therapy Session</h2>
+                <p>Select your desired Panchakarma procedure and preferred doctor</p>
+              </div>
+            </div>
+            <div class="card" style="max-width:560px;">
+              <div class="form-field">
+                <label>Select Therapy</label>
                 <select id="therapy">
-                  <option>Abhyanga (Massage)</option>
-                  <option>Shirodhara (Oil Pouring)</option>
+                  <option>Abhyanga (Herbal Oil Massage)</option>
+                  <option>Shirodhara (Continuous Oil Pouring)</option>
                   <option>Vamana (Emesis Therapy)</option>
                   <option>Virechana (Purgation Therapy)</option>
-                  <option>Basti (Enema Therapy)</option>
-                  <option>Nasya (Nasal Administration)</option>
-                  <option>Raktamokshana (Bloodletting)</option>
-                  <option>Kati Basti (Back Care)</option>
-                  <option>Janu Basti (Knee Care)</option>
-                  <option>Griva Basti (Neck Care)</option>
-                  <option>Udvartana (Powder Massage)</option>
-                  <option>Pizhichil (Oil Bath)</option>
-                  <option>Navarakizhi (Rice Bolus)</option>
-                  <option>Swedana (Herbal Steam)</option>
-                  <option>Netra Tarpana (Eye Care)</option>
-                  <option>Karnapoorana (Ear Care)</option>
+                  <option>Basti (Medicated Enema)</option>
+                  <option>Nasya (Nasal Herbal Administration)</option>
+                  <option>Raktamokshana (Blood Purification)</option>
+                  <option>Kati Basti (Lower Back Spine Care)</option>
+                  <option>Janu Basti (Knee Joint Care)</option>
+                  <option>Griva Basti (Neck Spine Care)</option>
+                  <option>Udvartana (Herbal Powder Scrub)</option>
+                  <option>Pizhichil (Warm Medicated Oil Bath)</option>
+                  <option>Navarakizhi (Rice Bolus Nourishment)</option>
+                  <option>Swedana (Herbal Steam Therapy)</option>
+                  <option>Netra Tarpana (Rejuvenating Eye Care)</option>
+                  <option>Karnapoorana (Herbal Ear Care)</option>
                 </select>
               </div>
-              <div class="form-field"><label>Doctor</label><select id="doctorSelect"><option value="">Select Doctor</option></select></div>
-              <div class="form-row">
-                <div class="form-field"><label>Date</label><input type="date" id="date"></div>
-                <div class="form-field"><label>Time</label><input type="time" id="time"></div>
+              <div class="form-field">
+                <label>Select Practicing Doctor</label>
+                <select id="doctorSelect"><option value="">Select Doctor</option></select>
               </div>
-              <button class="btn" onclick="sendRequest()">Request</button>
+              <div class="form-row">
+                <div class="form-field"><label>Preferred Date</label><input type="date" id="date"></div>
+                <div class="form-field"><label>Preferred Time</label><input type="time" id="time"></div>
+              </div>
+              <button class="btn" onclick="sendRequest()"><i class="bi bi-send-fill me-1"></i>Submit Booking Request</button>
             </div>
-            <h4 style="margin-top:20px;">My Requests</h4>
+
+            <h4 style="margin-top:28px; font-weight:700; color:var(--text-main);"><i class="bi bi-clock-history me-2 text-primary"></i>My Booking Requests</h4>
             <div id="requestList" class="list"></div>
           </section>
 
-          <!-- CONSULT AI -->
+          <!-- CONSULT AI VIEW -->
           <section id="consult" class="view section" style="display:none">
-            <div class="page-header"><div class="page-title"><h2>AI Ayurvedic Consultation</h2><p>Enter your symptoms to receive therapy suggestions.</p></div></div>
+            <div class="page-header">
+              <div class="page-title">
+                <h2>AI Ayurvedic Symptom Consultation</h2>
+                <p>Describe your discomfort to receive personalized Panchakarma therapy suggestions</p>
+              </div>
+            </div>
             <div class="card">
-              <textarea id="symptomsInput" placeholder="Describe how you feel..." rows="4"></textarea>
-              <button class="btn" style="margin-top:15px;" onclick="getTreatmentSuggestion()">Get Suggestions</button>
-              <div id="suggestionResult" style="margin-top: 25px;"></div>
+              <label style="font-weight:600; font-size:13px; margin-bottom:8px; color:var(--text-main);">Quick Symptom Selection:</label>
+              <div style="margin-bottom: 14px;">
+                <span class="symptom-chip" onclick="addSymptom('Severe lower back stiffness and joint ache')"><i class="bi bi-plus"></i> Back & Joint Pain</span>
+                <span class="symptom-chip" onclick="addSymptom('Chronic stress, anxiety, and insomnia')"><i class="bi bi-plus"></i> Stress & Sleep Issues</span>
+                <span class="symptom-chip" onclick="addSymptom('Acidity, indigestion, and sluggish metabolism')"><i class="bi bi-plus"></i> Indigestion & Acidity</span>
+                <span class="symptom-chip" onclick="addSymptom('Sinus congestion, headaches, and nasal allergies')"><i class="bi bi-plus"></i> Sinus & Headaches</span>
+                <span class="symptom-chip" onclick="addSymptom('Skin inflammation, dryness, and fatigue')"><i class="bi bi-plus"></i> Skin & Fatigue</span>
+              </div>
+              <textarea id="symptomsInput" placeholder="Describe your health symptoms, pain level, and daily routine in detail..." rows="4"></textarea>
+              <button class="btn" style="margin-top:14px;" onclick="getTreatmentSuggestion()"><i class="bi bi-stars me-1"></i>Get AI Treatment Suggestions</button>
+              <div id="suggestionResult" style="margin-top: 24px;"></div>
             </div>
           </section>
 
-          <!-- FEEDBACK -->
+          <!-- FEEDBACK VIEW -->
           <section id="feedback" class="view section" style="display:none">
-            <div class="page-header"><div class="page-title"><h2>Feedback</h2></div></div>
-            <div class="card" style="max-width:500px;">
-              <div class="form-field"><label>Doctor</label><select id="feedbackDoctorSelect"><option value="">Select Doctor</option></select></div>
-              <div class="form-row">
-                <div class="form-field"><label>Pain (1-10)</label><input type="number" id="pain" min="1" max="10"></div>
-                <div class="form-field"><label>Energy (1-10)</label><input type="number" id="energy" min="1" max="10"></div>
+            <div class="page-header">
+              <div class="page-title">
+                <h2>Post-Therapy Recovery Feedback</h2>
+                <p>Log your daily recovery to help your doctor tailor your ongoing treatments</p>
               </div>
-              <div class="form-field"><label>Satisfaction (1-5)</label><input type="number" id="satisfaction" min="1" max="5"></div>
-              <div class="form-field"><label>Notes</label><textarea id="notes" rows="3"></textarea></div>
+            </div>
+            <div class="card" style="max-width:560px;">
+              <div class="form-field"><label>Attending Doctor</label><select id="feedbackDoctorSelect"><option value="">Select Doctor</option></select></div>
+              <div class="form-row">
+                <div class="form-field"><label>Pain Level (1 = None, 10 = Severe)</label><input type="number" id="pain" min="1" max="10" placeholder="1-10"></div>
+                <div class="form-field"><label>Energy Level (1 = Low, 10 = High)</label><input type="number" id="energy" min="1" max="10" placeholder="1-10"></div>
+              </div>
+              <div class="form-field"><label>Overall Satisfaction (1 to 5 Stars)</label><input type="number" id="satisfaction" min="1" max="5" placeholder="1-5"></div>
+              <div class="form-field"><label>Recovery Notes & Observations</label><textarea id="notes" rows="3" placeholder="How do you feel after the treatment? Any improvements or side effects?"></textarea></div>
               <div style="margin-top:10px; display:flex; align-items:center; gap:8px;">
                 <input type="checkbox" id="reportIssue" style="width:16px; margin:0;" />
-                <label for="reportIssue" style="margin:0;">Report Issue (e.g., misconduct)</label>
+                <label for="reportIssue" style="margin:0; font-size:13px; color:var(--text-muted);">Report critical concern or practitioner issue</label>
               </div>
-              <button class="btn" style="margin-top:15px;" onclick="submitFeedbackFirebase()">Submit Feedback</button>
+              <button class="btn" style="margin-top:16px;" onclick="submitFeedbackFirebase()"><i class="bi bi-send-check me-1"></i>Submit Feedback</button>
             </div>
-            <h4 style="margin-top:20px;">My Feedback History</h4>
+            
+            <h4 style="margin-top:28px; font-weight:700; color:var(--text-main);"><i class="bi bi-journal-text me-2 text-primary"></i>My Recovery Log History</h4>
             <div id="feedbackList" class="list"></div>
           </section>
 
-          <!-- OUR THERAPIES -->
+          <!-- OUR THERAPIES VIEW -->
           <section id="therapies" class="view section" style="display:none">
-            <div class="page-header"><div class="page-title"><h2>Our Therapy's</h2><p>Explore the Ayurvedic treatments we offer and their fees</p></div></div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Panchakarma (Complete)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹12,000</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Vamana (Emesis)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹7,000</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Virechana (Purgation)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹6,500</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Basti (Enema)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹6,000</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Nasya (Nasal)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹4,500</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Raktamokshana</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹5,000</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Abhyanga (Massage)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹2,500</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Shirodhara</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹4,000</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Kati Basti</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹3,500</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Janu Basti</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹3,500</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Griva Basti</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹3,500</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Udvartana</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹3,000</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Pizhichil</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹5,500</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Navarakizhi</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹5,000</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Swedana (Steam)</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹2,000</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Netra Tarpana</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹2,500</p></div></div>
-              <div class="card" style="padding: 16px;"><div class="stat-info"><h4 style="font-size: 16px;">Karnapoorana</h4><p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-top: 8px;">₹2,000</p></div></div>
+            <div class="page-header">
+              <div class="page-title">
+                <h2>Panchakarma Therapies & Pricing</h2>
+                <p>Authentic classical treatments prescribed according to your Prakriti (Body Constitution)</p>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;">
+              <div class="therapy-price-card">
+                <div>
+                  <h4 style="font-size: 16px; font-weight:700; margin-bottom:4px;">Panchakarma (Complete)</h4>
+                  <p class="muted" style="font-size:12px;">Full 5-phase detoxification course</p>
+                </div>
+                <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="color: var(--primary); font-weight: 700; font-size: 18px;">₹12,000</span>
+                  <button class="btn small ghost" onclick="quickRequest('Panchakarma (Complete)')">Book</button>
+                </div>
+              </div>
+
+              <div class="therapy-price-card">
+                <div>
+                  <h4 style="font-size: 16px; font-weight:700; margin-bottom:4px;">Vamana (Emesis)</h4>
+                  <p class="muted" style="font-size:12px;">Kapha elimination & respiratory detox</p>
+                </div>
+                <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="color: var(--primary); font-weight: 700; font-size: 18px;">₹7,000</span>
+                  <button class="btn small ghost" onclick="quickRequest('Vamana (Emesis Therapy)')">Book</button>
+                </div>
+              </div>
+
+              <div class="therapy-price-card">
+                <div>
+                  <h4 style="font-size: 16px; font-weight:700; margin-bottom:4px;">Virechana (Purgation)</h4>
+                  <p class="muted" style="font-size:12px;">Pitta cleanse for liver & skin</p>
+                </div>
+                <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="color: var(--primary); font-weight: 700; font-size: 18px;">₹6,500</span>
+                  <button class="btn small ghost" onclick="quickRequest('Virechana (Purgation Therapy)')">Book</button>
+                </div>
+              </div>
+
+              <div class="therapy-price-card">
+                <div>
+                  <h4 style="font-size: 16px; font-weight:700; margin-bottom:4px;">Basti (Medicated Enema)</h4>
+                  <p class="muted" style="font-size:12px;">Vata alleviation & colon nourishment</p>
+                </div>
+                <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="color: var(--primary); font-weight: 700; font-size: 18px;">₹6,000</span>
+                  <button class="btn small ghost" onclick="quickRequest('Basti (Enema Therapy)')">Book</button>
+                </div>
+              </div>
+
+              <div class="therapy-price-card">
+                <div>
+                  <h4 style="font-size: 16px; font-weight:700; margin-bottom:4px;">Nasya (Nasal Therapy)</h4>
+                  <p class="muted" style="font-size:12px;">Headache, allergy & neck therapy</p>
+                </div>
+                <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="color: var(--primary); font-weight: 700; font-size: 18px;">₹4,500</span>
+                  <button class="btn small ghost" onclick="quickRequest('Nasya (Nasal Administration)')">Book</button>
+                </div>
+              </div>
+
+              <div class="therapy-price-card">
+                <div>
+                  <h4 style="font-size: 16px; font-weight:700; margin-bottom:4px;">Shirodhara (Oil Stream)</h4>
+                  <p class="muted" style="font-size:12px;">Mental calm, anxiety & insomnia relief</p>
+                </div>
+                <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="color: var(--primary); font-weight: 700; font-size: 18px;">₹4,000</span>
+                  <button class="btn small ghost" onclick="quickRequest('Shirodhara (Oil Pouring)')">Book</button>
+                </div>
+              </div>
+
+              <div class="therapy-price-card">
+                <div>
+                  <h4 style="font-size: 16px; font-weight:700; margin-bottom:4px;">Abhyanga (Herbal Massage)</h4>
+                  <p class="muted" style="font-size:12px;">Full body circulation & joint relief</p>
+                </div>
+                <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="color: var(--primary); font-weight: 700; font-size: 18px;">₹2,500</span>
+                  <button class="btn small ghost" onclick="quickRequest('Abhyanga (Massage)')">Book</button>
+                </div>
+              </div>
+
+              <div class="therapy-price-card">
+                <div>
+                  <h4 style="font-size: 16px; font-weight:700; margin-bottom:4px;">Kati Basti (Spine Care)</h4>
+                  <p class="muted" style="font-size:12px;">Warm oil retention for lumbar back pain</p>
+                </div>
+                <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+                  <span style="color: var(--primary); font-weight: 700; font-size: 18px;">₹3,500</span>
+                  <button class="btn small ghost" onclick="quickRequest('Kati Basti (Back Care)')">Book</button>
+                </div>
+              </div>
             </div>
           </section>
         </div>
 
-        <!-- RIGHT SIDEBAR (Global inside views-container) -->
+        <!-- RIGHT SIDEBAR (Notifications & AI Chatbot) -->
         <div class="right-col">
           <div class="card">
-            <h4 class="card-title">Notifications</h4>
-            <div id="patientNotificationsList" class="list">Loading...</div>
+            <h4 class="card-title">
+              <span><i class="bi bi-bell-fill me-2 text-primary"></i>Notifications</span>
+              <span class="card-title-meta">Alerts</span>
+            </h4>
+            <div id="patientNotificationsList" class="list">Loading alerts...</div>
           </div>
-          <div class="card" style="margin-top:15px">
-            <h4 class="card-title">AI Chatbot</h4>
-            <div id="chatMessages" class="chat-container"></div>
-            <div style="display:flex;gap:8px;">
-              <input id="chatInput" placeholder="Ask something..." style="margin-top:0;">
-              <button class="btn" onclick="sendMessage()">Send</button>
+          
+          <div class="card" style="margin-top:18px">
+            <h4 class="card-title">
+              <span><i class="bi bi-chat-dots-fill me-2 text-success"></i>Ayurvedic AI Assistant</span>
+              <span class="card-title-meta">24/7 Live</span>
+            </h4>
+            <div id="chatMessages" class="chat-container" style="min-height:220px; max-height:300px; overflow-y:auto; padding:10px 0;"></div>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+              <input id="chatInput" placeholder="Ask about therapies or diet..." style="margin:0;">
+              <button class="btn" onclick="sendMessage()"><i class="bi bi-send-fill"></i></button>
             </div>
           </div>
         </div>
@@ -254,93 +493,43 @@
 </div>
 
 <script>
-
 // TAB SWITCH
-function showTab(id,el){
-  document.querySelectorAll('.section')
-    .forEach(sec=>sec.style.display="none")
+function showTab(id, el){
+  document.querySelectorAll('.section').forEach(sec => sec.style.display = "none");
+  const target = document.getElementById(id);
+  if (target) target.style.display = "block";
 
-  document.getElementById(id).style.display="block"
-
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'))
-  el.classList.add('active')
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
 }
-
-document.getElementById('menuToggle')?.addEventListener('click', () => {
-  document.getElementById('sidebar').classList.toggle('collapsed');
-  document.getElementById('sidebar').classList.toggle('mobile-open');
-});
 
 document.getElementById('themeToggle')?.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode');
   const isDark = document.body.classList.contains('dark-mode');
-  document.getElementById('themeToggle').textContent = isDark ? 'Light' : 'Dark';
+  document.getElementById('themeToggle').innerHTML = isDark ? '<i class="bi bi-sun me-1"></i>Light' : '<i class="bi bi-moon-stars me-1"></i>Dark';
 });
 
-// DATA
-let requests = JSON.parse(localStorage.getItem("req")) || []
-let sessions = JSON.parse(localStorage.getItem("sess")) || []
-let feedbacks = []
-
-// ADD REQUEST
-function addRequest(){
-  let r = {
-    therapy:therapy.value,
-    date:date.value,
-    time:time.value,
-    status:"Pending"
+window.addSymptom = function(text) {
+  const input = document.getElementById("symptomsInput");
+  if (input) {
+    input.value = (input.value ? input.value + ", " : "") + text;
   }
-  requests.push(r)
-  localStorage.setItem("req",JSON.stringify(requests))
-  render()
-}
+};
 
-// RENDER
-function render(){
-  let rHTML=""
-  requests.forEach(r=>{
-    rHTML+=`<div class="list-item">${r.therapy} | ${r.date} | ${r.time}<br>Status: <span class="pending">${r.status}</span></div>`
-  })
-  requestList.innerHTML=rHTML
-
-  let sHTML="",approved=0
-  sessions.forEach(s=>{
-    if(s.status==="Approved"){
-      approved++
-      sHTML+=`<div class="list-item">${s.therapy} | ${s.date}</div>`
-    }
-  })
-  sessionList.innerHTML=sHTML
-
-  m1.innerText=sessions.length
-  m2.innerText=approved
-  m3.innerText=requests.length
-
-  let next=sessions.find(s=>s.status==="Approved")
-  nextSession.innerText = next ? `${next.date} | ${next.therapy}` : "No session"
-}
-
-// FEEDBACK MOVED TO FIREBASE
-
-
-render()
-
-</script>
-<script>
 window.chatHistory = [];
 function addMessage(sender, text) {
   const chat = document.getElementById("chatMessages");
   const cls = sender === "You" ? "chat-bubble chat-me shadow-sm" : "chat-bubble chat-bot shadow-sm";
-  const name = sender === "You" ? "" : `<b>${sender}</b>`;
+  const name = sender === "You" ? "" : `<b>${sender}:</b> `;
   const isTyping = text === "typing...";
   const idAttr = isTyping ? 'id="typingIndicator"' : '';
   chat.innerHTML += `<div class="${cls}" ${idAttr}>${name}${text}</div>`;
   chat.scrollTop = chat.scrollHeight;
 }
 </script>
+
 <script type="module">
 import { collection, addDoc, getDocs, query, where, updateDoc, doc } from "./js/firebase-sql-mock.js?v=2";
-
 import { GEMINI_API_KEY } from "./js/env.js";
 
 const db = null;
@@ -407,13 +596,11 @@ window.sendMessage = async function() {
     console.error(err);
     const typing = document.getElementById("typingIndicator");
     if (typing) typing.remove();
-    addMessage("Bot", "Failed to connect to AI backend. Ensure you inserted a valid OpenAI API key in env.js.");
+    addMessage("Bot", "Failed to connect to AI assistant.");
   }
-}
+};
 
-// ✅ EXISTING FUNCTION
 window.sendRequest = async function () {
-
   const therapy = document.getElementById("therapy").value;
   const date = document.getElementById("date").value;
   const time = document.getElementById("time").value;
@@ -422,20 +609,24 @@ window.sendRequest = async function () {
   const user = getCurrentPatient();
 
   if (!doctorEmail) {
-    alert("Please select a doctor");
+    alert("Please select a practicing doctor.");
+    return;
+  }
+  if (!date || !time) {
+    alert("Please select a preferred date and time.");
     return;
   }
 
   await addDoc(collection(db, "requests"), {
     patientEmail: user.email,
-    doctorEmail: doctorEmail, // ✅ THIS FIXES YOUR PROBLEM
+    doctorEmail: doctorEmail,
     therapy,
     date,
     time,
     status: "pending"
   });
 
-  alert("Request sent!");
+  alert("Your therapy booking request has been sent to the doctor!");
   loadRequests();
 };
 
@@ -443,36 +634,23 @@ let currentUserEmail = "";
 
 async function getUserName(email) {
   const snapshot = await getDocs(collection(db, "users"));
-
   let name = email;
-
   snapshot.forEach(doc => {
     const d = doc.data();
     if (d.email === email) {
       name = d.name;
     }
   });
-
   return name;
 }
 
 function formatDisplayDate(value) {
   if (!value) return "";
-
   const date = new Date(value);
   if (!Number.isNaN(date.getTime())) {
     return date.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
   }
-
   return String(value).split("T")[0];
-}
-
-function getSessionStartDateTime(session) {
-  const date = formatDisplayDate(session.date);
-  if (!date || !session.time) return null;
-
-  const dateTime = new Date(`${date}T${session.time}`);
-  return Number.isNaN(dateTime.getTime()) ? null : dateTime;
 }
 
 async function loadSessions() {
@@ -480,9 +658,7 @@ async function loadSessions() {
   if (!user) return;
 
   currentUserEmail = user.email;
-
   const snapshot = await getDocs(collection(db, "sessions"));
-
   let html = "";
   const patientSessions = [];
 
@@ -495,25 +671,28 @@ async function loadSessions() {
       const doctorName = await getUserName(data.doctorEmail);
       const therapy = data.type || data.therapy || "Therapy Session";
       const status = (data.status || "scheduled").toLowerCase();
-      const statusLabel = status === "scheduled" ? "Approved" : status.charAt(0).toUpperCase() + status.slice(1);
+      const isCompleted = status === "completed";
 
       let paymentHtml = "";
       if (status === "scheduled") {
-        if (!data.advancePaid && !data.advance_paid) paymentHtml = `<button class="btn small" onclick="payAdvance('${docSnap.id}')">Pay Advance (40%)</button>`;
-        else paymentHtml = `<span class="badge active">Advance Paid</span>`;
-      } else if (status === "completed") {
-        if (!data.remainingPaid && !data.remaining_paid && !data.offline_remaining_paid) paymentHtml = `<button class="btn small" onclick="payRemaining('${docSnap.id}')">Pay Remaining</button>`;
-        else paymentHtml = `<span class="badge active">Fully Paid</span>`;
+        if (!data.advancePaid && !data.advance_paid) paymentHtml = `<button class="btn small" onclick="payAdvance('${docSnap.id}')"><i class="bi bi-credit-card me-1"></i>Pay Advance (40%)</button>`;
+        else paymentHtml = `<span class="badge" style="background:#dcfce7; color:#15803d;"><i class="bi bi-check-circle-fill me-1"></i>Advance Paid</span>`;
+      } else if (isCompleted) {
+        if (!data.remainingPaid && !data.remaining_paid && !data.offline_remaining_paid) paymentHtml = `<button class="btn small" onclick="payRemaining('${docSnap.id}')"><i class="bi bi-credit-card me-1"></i>Pay Remaining</button>`;
+        else paymentHtml = `<span class="badge" style="background:#dcfce7; color:#15803d;"><i class="bi bi-check2-all me-1"></i>Fully Paid</span>`;
       }
 
       html += `
-        <div class="list-item" style="flex-direction:column; align-items:flex-start; gap:8px;">
-          <div style="width:100%; display:flex; justify-content:space-between;">
+        <div class="list-item" style="flex-direction:column; align-items:flex-start; gap:8px; padding:16px; border:1px solid var(--border-color); border-radius:12px; margin-bottom:10px;">
+          <div style="width:100%; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
             <div>
-              <strong>${therapy}</strong><br>
-              ${formatDisplayDate(data.date)} | ${data.time}<br>
-              Doctor: ${doctorName}<br>
-              Status: <span class="pending">${statusLabel}</span>
+              <strong style="font-size:16px; color:var(--text-main);">${therapy}</strong>
+              <div class="muted" style="font-size:13px; margin-top:4px;">
+                <i class="bi bi-calendar3 me-1"></i>${formatDisplayDate(data.date)} | <i class="bi bi-clock me-1"></i>${data.time || 'Scheduled'}
+              </div>
+              <div style="font-size:13px; margin-top:2px;">
+                <i class="bi bi-person-badge me-1"></i>Doctor: <b>Dr. ${doctorName}</b>
+              </div>
             </div>
             <div>${paymentHtml}</div>
           </div>
@@ -522,50 +701,55 @@ async function loadSessions() {
     }
   }
 
-  document.getElementById("sessionList").innerHTML = html || "No approved sessions yet.";
+  document.getElementById("sessionList").innerHTML = html || `<p class="muted" style="text-align:center; padding:16px;"><i class="bi bi-calendar-x me-2"></i>No approved sessions yet.</p>`;
 
   const next = patientSessions.find(s => (s.status || "scheduled").toLowerCase() !== "completed");
-  nextSession.innerText = next
-    ? `${formatDisplayDate(next.date)} | ${next.type || next.therapy || "Therapy Session"}`
-    : "No session";
+  const nextEl = document.getElementById("nextSession");
+  if (nextEl) {
+    nextEl.innerHTML = next
+      ? `<div style="display:flex; align-items:center; gap:8px;"><i class="bi bi-clock-history text-primary"></i> <span><b>${formatDisplayDate(next.date)}</b> at ${next.time || '10:00 AM'} — ${next.type || next.therapy || "Therapy"}</span></div>`
+      : `<span class="muted">No upcoming therapy scheduled.</span>`;
+  }
 
-  m1.innerText = patientSessions.length;
-  m2.innerText = patientSessions.filter(s => (s.status || "scheduled").toLowerCase() !== "cancelled").length;
+  document.getElementById("m1").innerText = patientSessions.length;
+  document.getElementById("m2").innerText = patientSessions.filter(s => (s.status || "scheduled").toLowerCase() !== "cancelled").length;
 }
 
-// ✅ ADD THIS FUNCTION HERE 👇
 async function loadRequests() {
   const user = getCurrentPatient();
   if (!user) return;
 
   const snapshot = await getDocs(collection(db, "requests"));
-
   let html = "";
+  let pendingCount = 0;
 
-  snapshot.forEach(doc => {
-    const d = doc.data();
+  snapshot.forEach(docSnap => {
+    const d = docSnap.data();
 
     if (d.patientEmail === user.email) {
       const status = (d.status || "pending").toLowerCase();
-      const statusLabel = status === "accepted" ? "Approved" : status.charAt(0).toUpperCase() + status.slice(1);
+      if (status === "pending") pendingCount++;
+
+      const statusBadge = status === "accepted" 
+        ? '<span class="badge" style="background:#dcfce7; color:#15803d;"><i class="bi bi-check-lg me-1"></i>Accepted</span>'
+        : (status === "rejected" ? '<span class="badge" style="background:#fee2e2; color:#dc2626;"><i class="bi bi-x-lg me-1"></i>Rejected</span>' : '<span class="badge" style="background:#fef3c7; color:#b45309;"><i class="bi bi-hourglass-split me-1"></i>Pending</span>');
 
       html += `
-        <div class="list-item">
-          ${d.therapy} | ${formatDisplayDate(d.date)}
-          <br>Status: ${statusLabel}
+        <div class="list-item" style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border:1px solid var(--border-color); border-radius:10px; margin-bottom:8px;">
+          <div>
+            <strong>${d.therapy}</strong>
+            <div class="muted" style="font-size:13px;"><i class="bi bi-calendar3 me-1"></i>${formatDisplayDate(d.date)} ${d.time || ""}</div>
+          </div>
+          <div>${statusBadge}</div>
         </div>
       `;
     }
   });
 
-  document.getElementById("requestList").innerHTML = html || "No requests yet.";
-  m3.innerText = snapshot.docs.filter(docSnap => {
-    const d = docSnap.data();
-    return d.patientEmail === user.email && (d.status || "pending").toLowerCase() === "pending";
-  }).length;
+  document.getElementById("requestList").innerHTML = html || `<p class="muted" style="text-align:center; padding:12px;">No requests submitted yet.</p>`;
+  document.getElementById("m3").innerText = pendingCount;
 }
 
-// ✅ FIREBASE FEEDBACK
 window.submitFeedbackFirebase = async function() {
   const pain = document.getElementById("pain").value;
   const energy = document.getElementById("energy").value;
@@ -579,7 +763,6 @@ window.submitFeedbackFirebase = async function() {
     alert("Please log in as a patient to submit feedback.");
     return;
   }
-
   if (!doctorEmail) {
     alert("Please select a doctor to send feedback to.");
     return;
@@ -589,67 +772,25 @@ window.submitFeedbackFirebase = async function() {
     return;
   }
 
-  const satScore = Number(satisfaction);
-
   await addDoc(collection(db, "feedbacks"), {
     patientEmail: user.email,
     doctorEmail: doctorEmail,
     pain: Number(pain),
     energy: Number(energy),
-    satisfaction: satScore,
+    satisfaction: Number(satisfaction),
     notes: notes,
     reported: isReported,
     timestamp: new Date().toISOString()
   });
 
-  // Calculate doctor trust score
-  try {
-    const q = query(collection(db, "users"), where("email", "==", doctorEmail));
-    const querySnapshot = await getDocs(q);
-    
-    if (querySnapshot.docs.length > 0) {
-      const docSnap = querySnapshot.docs[0];
-      const docData = docSnap.data();
-      const docRef = doc(db, "users", docSnap.id);
-
-      let totalRatings = Number(docData.totalRatings || 0);
-      let currentRating = Number(docData.rating || 0);
-      let complaints = Number(docData.complaints || 0);
-      let flagged = docData.flagged || false;
-
-      // Compute new moving average rating
-      const newTotal = totalRatings + 1;
-      const newRating = ((currentRating * totalRatings) + satScore) / newTotal;
-
-      if (isReported) {
-        complaints += 1;
-      }
-
-      if (complaints >= 5) {
-        flagged = true;
-      }
-
-      await updateDoc(docRef, {
-        rating: newRating,
-        totalRatings: newTotal,
-        complaints: complaints,
-        flagged: flagged
-      });
-    }
-  } catch (err) {
-    console.error("Error updating doctor trust score:", err);
-  }
-
-  alert("Feedback sent successfully!");
-  
-  // Clear inputs
+  alert("Recovery feedback submitted successfully!");
   document.getElementById("pain").value = "";
   document.getElementById("energy").value = "";
   document.getElementById("satisfaction").value = "";
   document.getElementById("notes").value = "";
   document.getElementById("reportIssue").checked = false;
   
-  loadFeedbacks(); // Refresh list
+  loadFeedbacks();
 };
 
 async function loadFeedbacks() {
@@ -661,18 +802,26 @@ async function loadFeedbacks() {
     const d = docSnap.data();
     if (d.patientEmail === user.email) {
       const doctorName = await getUserName(d.doctorEmail);
-      html += `<div class="list-item">
-        <b>To Dr. ${doctorName}</b><br>
-        Pain: ${d.pain}/10 | Energy: ${d.energy}/10 | Satisfaction: ${d.satisfaction}/5<br>
-        <i>${d.notes}</i>
-      </div>`;
+      html += `
+        <div class="list-item" style="padding:14px; border:1px solid var(--border-color); border-radius:10px; margin-bottom:8px;">
+          <div style="display:flex; justify-content:space-between;">
+            <strong>Dr. ${doctorName}</strong>
+            <span class="muted" style="font-size:12px;">${d.timestamp ? d.timestamp.split('T')[0] : ''}</span>
+          </div>
+          <div style="margin-top:6px; display:flex; gap:16px; font-size:13px;">
+            <span><i class="bi bi-activity text-danger me-1"></i>Pain: <b>${d.pain}/10</b></span>
+            <span><i class="bi bi-lightning-charge-fill text-warning me-1"></i>Energy: <b>${d.energy}/10</b></span>
+            <span><i class="bi bi-star-fill text-warning me-1"></i>Satisfaction: <b>${d.satisfaction}/5</b></span>
+          </div>
+          ${d.notes ? `<div style="margin-top:6px; font-style:italic; color:var(--text-muted);">"${d.notes}"</div>` : ''}
+        </div>
+      `;
     }
   }
-  document.getElementById("feedbackList").innerHTML = html || "No feedback history.";
+  document.getElementById("feedbackList").innerHTML = html || `<p class="muted" style="text-align:center; padding:12px;">No feedback logs yet.</p>`;
 }
 
 async function loadDoctors() {
-  console.log("loadDoctors running");
   const doctorSelect = document.getElementById("doctorSelect");
   const fbSelect = document.getElementById("feedbackDoctorSelect");
 
@@ -685,21 +834,17 @@ async function loadDoctors() {
 
   try {
     const snapshot = await getDocs(collection(db, "users"));
-
     let html = '<option value="">Select Doctor</option>';
     let count = 0;
 
     snapshot.forEach(doc => {
-
       const d = doc.data();
-      console.log(d);
-
       const isApproved = d.approved === true || d.approved === 1 || d.approved === "1" || d.approved === "true";
       const isBlocked = d.blocked === true || d.blocked === 1 || d.blocked === "1" || d.blocked === "true";
 
       if (d.role === "doctor" && isApproved && !isBlocked) {
         count++;
-        html += `<option value="${d.email}">${d.name}</option>`;
+        html += `<option value="${d.email}">${d.name} (${d.license_number || 'Ayurvedic Specialist'})</option>`;
       }
     });
 
@@ -714,7 +859,6 @@ async function loadDoctors() {
   }
 }
 
-// ✅ LOAD NOTIFICATIONS
 async function loadPatientNotifications() {
   const user = getCurrentPatient();
   if(!user) return;
@@ -724,71 +868,29 @@ async function loadPatientNotifications() {
   const nList = [];
   snapshot.forEach(docSnap => {
     const d = docSnap.data();
-    if (d.toEmail === 'All Patients' || d.toEmail === user.email) {
+    if (d.toEmail === 'All Patients' || d.toEmail === user.email || d.to_email === 'All Patients' || d.to_email === user.email) {
       nList.push(d);
     }
   });
 
-  const sessionsSnap = await getDocs(collection(db, "sessions"));
-  const now = new Date();
-  sessionsSnap.forEach(docSnap => {
-    const session = docSnap.data();
-    if (session.patientEmail !== user.email) return;
-    if ((session.status || "scheduled").toLowerCase() === "completed") return;
-
-    const sessionStart = getSessionStartDateTime(session);
-    if (!sessionStart) return;
-
-    const hoursUntilSession = (sessionStart - now) / (1000 * 60 * 60);
-    if (hoursUntilSession >= 0 && hoursUntilSession <= 24) {
-      nList.push({
-        timestamp: now.toISOString(),
-        message: `Reminder: Your ${session.type || session.therapy || "therapy"} session is scheduled within 24 hours on ${formatDisplayDate(session.date)} at ${session.time}.`
-      });
-    }
-  });
-
-  // sort newest first
-  nList.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  nList.sort((a,b) => new Date(b.timestamp || b.created_at || 0) - new Date(a.timestamp || a.created_at || 0));
 
   nList.forEach(d => {
-    html += `<div class="list-item" style="margin-top:10px;">
-      <div style="font-size:12px;color:gray;">${d.timestamp ? d.timestamp.split('T')[0] : ''}</div>
-      ${d.message}
-    </div>`;
+    const dateStr = (d.timestamp || d.created_at || '').split('T')[0];
+    html += `
+      <div class="list-item" style="padding:12px; border:1px solid var(--border-color); border-radius:10px; margin-bottom:8px;">
+        <div style="font-size:12px; color:var(--text-muted); display:flex; justify-content:space-between;">
+          <span><i class="bi bi-info-circle text-primary me-1"></i>Alert</span>
+          <span>${dateStr}</span>
+        </div>
+        <div style="margin-top:4px; font-size:13px;">${d.message}</div>
+      </div>
+    `;
   });
 
-  document.getElementById("patientNotificationsList").innerHTML = html || "No notifications";
+  document.getElementById("patientNotificationsList").innerHTML = html || `<p class="muted" style="text-align:center; padding:12px;">No notifications</p>`;
 }
 
-// ✅ CALL IT AFTER LOGIN
-
-document.addEventListener("DOMContentLoaded", async () => {
-  const user = getCurrentPatient();
-
-  loadDoctors();
-
-  if (user) {
-    currentUserEmail = user.email;
-
-    loadSessions();
-    loadRequests();
-    loadFeedbacks();
-    loadPatientNotifications();
-
-    const snapshot = await getDocs(collection(db, "users"));
-
-    snapshot.forEach(docSnap => {
-      const d = docSnap.data();
-
-      if (d.email === user.email) {
-        document.getElementById("userName").innerText = d.name;
-      }
-    });
-  }
-});
-
-// ✅ AI TREATMENT SUGGESTION LOGIC
 const THERAPY_LIST = [
   "Abhyanga (Massage)", "Shirodhara (Oil Pouring)", "Vamana (Emesis Therapy)", 
   "Virechana (Purgation Therapy)", "Basti (Enema Therapy)", "Nasya (Nasal Administration)", 
@@ -801,20 +903,20 @@ const THERAPY_LIST = [
 window.getTreatmentSuggestion = async function() {
   const symptoms = document.getElementById("symptomsInput").value.trim();
   if (!symptoms) {
-    alert("Please enter your symptoms.");
+    alert("Please enter or select your symptoms.");
     return;
   }
 
   const resultDiv = document.getElementById("suggestionResult");
-  resultDiv.innerHTML = '<div class="chat-bot">Analyzing symptoms...</div>';
+  resultDiv.innerHTML = '<div class="chat-bubble chat-bot"><i class="bi bi-arrow-repeat spin me-2"></i>Analyzing symptoms with Ayurvedic diagnostic engine...</div>';
 
   try {
     const prompt = `You are an Ayurvedic expert. A patient reports these symptoms: "${symptoms}".
-    Based on these symptoms, suggest exactly 2 most relevant therapies from this specific list: ${THERAPY_LIST.join(", ")}.
-    For each suggestion, provide a 1-sentence reason.
-    Response format MUST BE STRICTLY as follows (one suggestion per line):
-    THERAPY: [Therapy Name from List] | REASON: [Your Reason]
-    THERAPY: [Therapy Name from List] | REASON: [Your Reason]`;
+Based on these symptoms, suggest exactly 2 most relevant therapies from this specific list: ${THERAPY_LIST.join(", ")}.
+For each suggestion, provide a 1-sentence reason.
+Response format MUST BE STRICTLY as follows (one suggestion per line):
+THERAPY: [Therapy Name from List] | REASON: [Your Reason]
+THERAPY: [Therapy Name from List] | REASON: [Your Reason]`;
 
     const response = await fetch('/api/ai/chat', {
       method: "POST",
@@ -826,17 +928,11 @@ window.getTreatmentSuggestion = async function() {
     });
 
     const data = await response.json();
-    
-    if (data.error) {
-      throw new Error(data.error || "Unknown API Error");
-    }
-    
+    if (data.error) throw new Error(data.error);
+
     const text = data.text;
-    
-    // Fix newline splitting for actual newlines
     const lines = text.split('\n').filter(l => l.includes('THERAPY:'));
-    let html = "<h4 class='mb-4' style='font-family: var(--font-heading); color: var(--primary);'>Suggestions from AI Expert:</h4>";
-    
+    let html = "<h5 class='mb-3' style='font-family: var(--font-heading); color: var(--primary); font-weight:700;'><i class='bi bi-stars me-2 text-warning'></i>AI Recommended Treatments:</h5>";
     html += "<div class='row g-3'>";
 
     lines.forEach(line => {
@@ -846,17 +942,14 @@ window.getTreatmentSuggestion = async function() {
 
       html += `
         <div class="col-md-6">
-          <div class="card h-100 shadow-sm border-0" style="border-radius: 12px; background: #f8fafc; transition: transform 0.2s;">
-            <div class="card-body d-flex flex-column">
-              <h5 class="card-title text-success fw-bold" style="font-family: var(--font-heading);">${therapy}</h5>
-              <p class="card-text text-muted mb-4" style="font-size: 0.95rem;">${reason}</p>
-              <button class="btn btn-success mt-auto rounded-pill fw-medium" onclick="quickRequest('${therapy}')">Request This Therapy</button>
-            </div>
+          <div class="card h-100 shadow-sm border-0 p-3" style="border-radius: 12px; background: #f8fafc;">
+            <h6 class="text-success fw-bold mb-2"><i class="bi bi-check-circle-fill me-1"></i>${therapy}</h6>
+            <p class="text-muted mb-3" style="font-size: 0.9rem;">${reason}</p>
+            <button class="btn btn-sm btn-success rounded-pill mt-auto" onclick="quickRequest('${therapy}')"><i class="bi bi-calendar-plus me-1"></i>Book This Therapy</button>
           </div>
         </div>
       `;
     });
-    
     html += "</div>";
 
     if(lines.length === 0) {
@@ -866,29 +959,25 @@ window.getTreatmentSuggestion = async function() {
     resultDiv.innerHTML = html;
   } catch (err) {
     console.error(err);
-    resultDiv.innerHTML = `<div class="chat-bot" style="color:red"><b>API Error:</b> ${err.message}</div>`;
+    resultDiv.innerHTML = `<div class="chat-bubble chat-bot" style="color:red"><i class="bi bi-exclamation-circle me-1"></i><b>Error:</b> ${err.message}</div>`;
   }
-}
+};
 
 window.quickRequest = function(therapyName) {
-  // 1. Switch to request tab
   const requestTabBtn = document.querySelector('button[onclick*="request"]');
   showTab('request', requestTabBtn);
   
-  // 2. Select the therapy in dropdown
   const select = document.getElementById("therapy");
-  // Find matching option
-  for (let i = 0; i < select.options.length; i++) {
-    if (select.options[i].text.includes(therapyName) || therapyName.includes(select.options[i].text)) {
-      select.selectedIndex = i;
-      break;
+  if (select) {
+    for (let i = 0; i < select.options.length; i++) {
+      if (select.options[i].text.toLowerCase().includes(therapyName.toLowerCase()) || therapyName.toLowerCase().includes(select.options[i].text.toLowerCase())) {
+        select.selectedIndex = i;
+        break;
+      }
     }
+    select.scrollIntoView({ behavior: 'smooth' });
   }
-  
-  // Scroll to focus
-  select.scrollIntoView({ behavior: 'smooth' });
-}
-
+};
 
 window.payAdvance = async function(sessionId) {
   try {
@@ -901,7 +990,7 @@ window.payAdvance = async function(sessionId) {
       amount: data.amount * 100,
       currency: data.currency,
       name: "AyurSutra",
-      description: "Advance Session Fee",
+      description: "Advance Session Fee (40%)",
       order_id: data.orderId,
       handler: async function(response) {
         const verifyRes = await fetch(`/api/payments/session/${sessionId}/advance-verify`, {
@@ -911,7 +1000,7 @@ window.payAdvance = async function(sessionId) {
         });
         const vData = await verifyRes.json();
         if (vData.error) alert(vData.error);
-        else { alert("Advance Paid!"); loadSessions(); }
+        else { alert("Advance Payment Successful!"); loadSessions(); }
       }
     };
     new window.Razorpay(options).open();
@@ -939,13 +1028,34 @@ window.payRemaining = async function(sessionId) {
         });
         const vData = await verifyRes.json();
         if (vData.error) alert(vData.error);
-        else { alert("Remaining Paid!"); loadSessions(); }
+        else { alert("Final Payment Successful!"); loadSessions(); }
       }
     };
     new window.Razorpay(options).open();
   } catch (err) { alert("Error initiating payment"); }
 };
 
+document.addEventListener("DOMContentLoaded", async () => {
+  const user = getCurrentPatient();
+  loadDoctors();
+
+  if (user) {
+    currentUserEmail = user.email;
+    loadSessions();
+    loadRequests();
+    loadFeedbacks();
+    loadPatientNotifications();
+
+    const snapshot = await getDocs(collection(db, "users"));
+    snapshot.forEach(docSnap => {
+      const d = docSnap.data();
+      if (d.email === user.email) {
+        document.getElementById("userName").innerText = d.name;
+        document.getElementById("patientGreeting").innerText = `Namaste, ${d.name}`;
+      }
+    });
+  }
+});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
