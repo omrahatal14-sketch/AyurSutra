@@ -32,7 +32,16 @@ function initFirebase() {
 
   let serviceAccount = null;
 
-  if (customKeyPath && fs.existsSync(customKeyPath)) {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    try {
+      serviceAccount = typeof process.env.FIREBASE_SERVICE_ACCOUNT === 'string'
+        ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)
+        : process.env.FIREBASE_SERVICE_ACCOUNT;
+      console.log('🔑 Loading Firebase credentials from FIREBASE_SERVICE_ACCOUNT environment variable');
+    } catch (e) {
+      console.warn('⚠️ Could not parse FIREBASE_SERVICE_ACCOUNT env var:', e.message);
+    }
+  } else if (customKeyPath && fs.existsSync(customKeyPath)) {
     try {
       serviceAccount = require(path.resolve(customKeyPath));
       console.log(`🔑 Loading Firebase credentials from: ${customKeyPath}`);

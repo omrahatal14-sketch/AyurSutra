@@ -63,21 +63,29 @@ app.get('/api/health', async (req, res) => {
   }
 });
 
-// ─── Fallback: serve login page for unmatched routes ───────────────────────
-app.get('/{*path}', (req, res) => {
-  res.sendFile(path.join(__dirname, 'login.html'));
+// ─── Fallback: serve login page for unmatched GET routes ─────────────────
+app.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/api')) {
+    return res.sendFile(path.join(__dirname, 'login.html'));
+  }
+  next();
 });
 
-// ─── Start Server ──────────────────────────────────────────────────────────
-app.listen(PORT, async () => {
-  console.log('==============================================================');
-  console.log(' Starting AyurSutra Server........');
-  console.log(`\n🌿 AyurSutra Server running at---> http://localhost:${PORT}  ||`);
-  console.log(`||   Frontend:  http://localhost:${PORT}/login.html             ||`);
-  console.log(`||   Database:  ${DB_TYPE.toUpperCase()} (Firebase Cloud Firestore) ||`);
-  console.log(`||   API Base:  http://localhost:${PORT}/api                    ||`);
-  console.log(`||   Health:    http://localhost:${PORT}/api/health             ||\n`);
-  console.log('==============================================================');
-  await testConnection();
-  await ensureDefaultAdmin();
-});
+// ─── Export for Vercel / Serverless ────────────────────────────────────────
+module.exports = app;
+
+// ─── Start Server Locally ──────────────────────────────────────────────────
+if (!process.env.VERCEL) {
+  app.listen(PORT, async () => {
+    console.log('==============================================================');
+    console.log(' Starting AyurSutra Server........');
+    console.log(`\n🌿 AyurSutra Server running at---> http://localhost:${PORT}  ||`);
+    console.log(`||   Frontend:  http://localhost:${PORT}/login.html             ||`);
+    console.log(`||   Database:  ${DB_TYPE.toUpperCase()} (Firebase Cloud Firestore) ||`);
+    console.log(`||   API Base:  http://localhost:${PORT}/api                    ||`);
+    console.log(`||   Health:    http://localhost:${PORT}/api/health             ||\n`);
+    console.log('==============================================================');
+    await testConnection();
+    await ensureDefaultAdmin();
+  });
+}
